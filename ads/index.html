@@ -92,12 +92,12 @@
                 
                 <!-- Dashboard Section -->
                 <section id="dashboard-section" class="content-section">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
                             <div class="bg-purple-100 text-purple-600 p-3 rounded-full"><i data-feather="briefcase" class="w-6 h-6"></i></div>
                             <div>
                                 <h2 class="text-sm font-medium text-slate-500 mb-1">Total Loaded (TK)</h2>
-                                <p id="total-loaded-tk" class="text-2xl sm:text-3xl font-bold text-slate-900">Tk 0.00</p>
+                                <p id="total-loaded-tk" class="text-2xl sm:text-3xl font-bold text-slate-900">0</p>
                             </div>
                         </div>
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
@@ -234,7 +234,7 @@
     <div id="notification-toast" class="fixed top-5 right-5 bg-red-600 text-white py-3 px-5 rounded-lg shadow-xl opacity-0 translate-x-[120%] z-50"><p id="notification-message"></p></div>
     
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbympzZ0JyGA6dMpdtVaDUPnrx5IV2Je_huDt4KpsfwBS2nSTu74lKXF9tRaPPSmPKT9-g/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby1ckCjmuvwyGLImPjSRXxDZqv8ylTUsKgJitzr5UF4o9FC0f-coINeVspSIxkAsXM/exec";
 
         dayjs.extend(window.dayjs_plugin_isBetween);
 
@@ -402,7 +402,7 @@
         const formatCurrency = (amount, currency = 'USD') => {
             const amountFloat = parseFloat(amount) || 0;
             if (currency === 'BDT') {
-                return `Tk ${amountFloat.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                return amountFloat.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
             }
             return `$${amountFloat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         };
