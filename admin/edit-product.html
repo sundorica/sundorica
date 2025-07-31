@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Sundorica-Admin Panel</title>
+<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<link rel=stylesheet href=style.css>
+<link href=https://cdn.quilljs.com/1.3.6/quill.snow.css rel=stylesheet>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
+<script src=https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js></script>
+<style>.sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}.sidebar .menu-list .logout-button:hover{background-color:#b71c1c}.sidebar .menu-list .logout-button i{margin-right:10px}</style>
+</head>
+<body>
+<div class=container>
+<div class=sidebar>
+<h2>Admin Panel</h2>
+<ul class=menu-list>
+<li><a href=index.html>Dashboard</a></li>
+<li><a href=orders.html>Orders</a></li>
+<li class=active><a href=products.html>Products</a></li>
+<li><a href=collections.html>Collections</a></li>
+<li><a href=navigation.html>Navigation</a></li>
+<li><a href=announcements.html>Announcements</a></li>
+<li><a href=shipping-zones.html>Shipping Zones</a></li>
+<li><a href=store-details.html>Store Details</a></li>
+<li><a href=hero-slider.html>Hero Slider</a></li>
+<li><a href=pages.html>Pages</a></li>
+<li>
+<button id=logout-button class=logout-button>
+<i class="fas fa-sign-out-alt"></i>Logout
+</button>
+</li>
+</ul>
+</div>
+<div class=main-content>
+<div class=header>
+<h1>Edit Product</h1>
+<div>
+<a href=products.html class=btn>Cancel</a>
+<button class="btn btn-primary" id=updateBtn>Update Product</button>
+</div>
+</div>
+<div id=loader class=content-card style=text-align:center>Loading product data...</div>
+<div class=form-container id=productForm style=display:none>
+<div class=form-main>
+<div class=content-card>
+<label for=productName>Product Name</label>
+<input id=productName>
+</div>
+<div class=content-card>
+<label>Description</label>
+<div id=descriptionEditor style=height:200px></div>
+</div>
+<div class=content-card>
+<label>Media</label>
+<div id=imagePreviewContainer class=image-preview-container></div>
+<div id=mediaDropzone class=dropzone><p>Drag & drop new images to add</p></div>
+<button class=btn id=uploadMediaBtn style=margin-top:10px;display:none>Upload New Media</button>
+</div>
+<div class=content-card id=pricing-card>
+<label>Pricing</label>
+<div class=form-grid-2>
+<div><label for=price>Price</label><input type=number id=price></div>
+<div><label for=comparePrice>Compare-at price</label><input type=number id=comparePrice></div>
+</div>
+</div>
+<div class=content-card id=inventory-card>
+<label>Inventory</label>
+<div class=form-grid-2>
+<div><label for=sku>SKU</label><input id=sku readonly></div>
+<div><label for=quantity>Quantity</label><input type=number id=quantity></div>
+</div>
+</div>
+<div class=content-card>
+<label>Variants</label>
+<div id=variants-container></div>
+<div class=add-variant-wrapper>
+<button class=btn id=add-variant-option-btn>+ Add options like size or color</button>
+<div class=variant-options-popup id=variant-options-popup>
+<div data-option=Size>Size</div>
+<div data-option=Color>Color</div>
+</div>
+</div>
+</div>
+</div>
+<div class=form-sidebar>
+<div class=content-card>
+<label for=status>Status</label>
+<select id=status><option value=active>Active</option><option value=draft>Draft</option></select>
+</div>
+<div class=content-card>
+<label>Product Organization</label>
+<div class=form-group>
+<label for=collectionSearch class=form-label>Collections</label>
+<div class=multiselect-container>
+<div class=selected-items id=selectedCollections></div>
+<input id=collectionSearch class=form-control placeholder="Search collections">
+<div class=dropdown-list id=collectionDropdown></div>
+</div>
+</div>
+</div>
+<div class=content-card>
+<label for=sizeChartSearch>Size Chart Page</label>
+<div class=searchable-select-container>
+<div id=selectedSizeChart class=selected-item-display>
+<span id=selectedSizeChartName>None</span>
+<button id=clearSizeChart class=clear-btn style=display:none>&times;</button>
+</div>
+<div class=dropdown-list id=sizeChartDropdown>
+<input id=sizeChartSearch placeholder="Search pages...">
+<div id=sizeChartOptions></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id=uploadCompleteModal class=modal><div class=modal-dialog><div class=modal-header><h3>Upload Complete</h3></div><div class=modal-body><p>All new images have been uploaded.</p></div><div class=modal-footer><button class="btn btn-primary" onclick='this.closest(".modal").style.display="none"'>OK</button></div></div></div>
+<div id=toast-notification class=toast></div>
+<script src=https://cdn.quilljs.com/1.3.6/quill.js></script>
+<script type=module>import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";import{getFirestore,collection,doc,getDoc,getDocs,updateDoc,arrayUnion,setDoc}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9",measurementId:"G-8R5J241MJM"},cloudinaryConfig={cloudName:"daybjvuot",unsignedPreset:"sundorica_preset"},app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app),getLoginUrl=()=>{const e=window.location.pathname;return e.substring(0,e.lastIndexOf("/"))+"/login.html"},logoutButton=document.getElementById("logout-button");async function initializePage(){const e=new Quill("#descriptionEditor",{theme:"snow"});let t=[],n=[],a=[],o=[],i=[],r=null,l={},c=[],s=[];const d=document.getElementById("loader"),u=document.getElementById("productForm"),m=document.getElementById("updateBtn"),p=new URLSearchParams(window.location.search).get("id"),g=document.getElementById("imagePreviewContainer"),y=document.getElementById("mediaDropzone"),v=document.getElementById("uploadMediaBtn"),h=document.createElement("input");h.type="file",h.multiple=!0,h.accept="image/*",h.style.display="none",y.appendChild(h);const f=document.getElementById("toast-notification"),E=document.getElementById("collectionSearch"),b=document.getElementById("collectionDropdown"),w=document.getElementById("selectedCollections"),C=document.getElementById("sizeChartDropdown"),I=document.getElementById("sizeChartSearch"),L=document.getElementById("sizeChartOptions"),B=document.getElementById("selectedSizeChartName"),k=document.getElementById("clearSizeChart"),S=document.getElementById("selectedSizeChart"),q=document.getElementById("add-variant-option-btn"),x=document.getElementById("variant-options-popup"),z=document.getElementById("variants-container");function D(e){f.textContent=e,f.classList.add("show"),setTimeout((()=>{f.classList.remove("show")}),3e3)}function M(e){for(const t of e)if(t.type.startsWith("image/")&&!c.some((e=>e.name===t.name))){c.push(t);const e=new FileReader;e.onload=e=>{const n=N(e.target.result,t,!1);g.appendChild(n)},e.readAsDataURL(t)}c.length>0&&(v.style.display="inline-block")}function N(e,t,n=!1){const a=document.createElement("div");a.className="image-preview-wrapper",a.dataset.fileName=t.name;const o=document.createElement("img");o.src=e;const i=document.createElement("span");return i.className="remove-image",i.innerHTML="&times;",i.onclick=()=>{n?s=s.filter((t=>t!==e)):c=c.filter((e=>e.name!==t.name)),a.remove()},a.appendChild(o),a.appendChild(i),a}function P(){const e=E.value.toLowerCase(),t=a.filter((e=>!i.includes(e.name))).filter((t=>t.name.toLowerCase().includes(e)));b.innerHTML="",t.length>0?(t.forEach((e=>{const t=document.createElement("div");t.className="dropdown-item",t.textContent=e.name,t.addEventListener("click",(()=>{return t=e.name,i.push(t),T(),E.value="",void(b.style.display="none");var t})),b.appendChild(t)})),b.style.display="block"):b.style.display="none"}function T(){w.innerHTML="",i.forEach((e=>{const t=document.createElement("span");t.className="tag",t.innerHTML=`${e} <span class="tag-close">&times;</span>`,t.querySelector(".tag-close").addEventListener("click",(()=>{i=i.filter((t=>t!==e)),T()})),w.appendChild(t)}))}function j(e=""){const t=o.filter((t=>t.title.toLowerCase().includes(e.toLowerCase())));L.innerHTML="",t.forEach((e=>{const t=document.createElement("div");t.className="dropdown-item",t.textContent=e.title,t.addEventListener("click",(()=>A(e.id,e.title))),L.appendChild(t)}))}function A(e,t){r=e,B.textContent=t,k.style.display="inline-block",C.style.display="none"}function U(e){if(l[e])return;l[e]=[];const t=document.createElement("div");t.className="variant-group",t.innerHTML=`<div class="variant-group-header"><label>${e}</label><button class="remove-variant-group-btn">&times;</button></div><div class="multiselect-container"><div class="selected-items"></div><input type="text" class="form-control variant-input" placeholder="Add ${e.toLowerCase()}"><div class="dropdown-list variant-dropdown"></div></div>`,z.appendChild(t),t.querySelector(".remove-variant-group-btn").onclick=()=>{delete l[e],t.remove(),F()};const n=t.querySelector(".variant-input");n.oninput=()=>$(e,n),n.onfocus=()=>$(e,n),n.onkeydown=t=>{"Enter"===t.key&&(t.preventDefault(),H(e,n.value.trim()))}}function $(e,a){const o=a.nextElementSibling,i=a.value.toLowerCase(),r="Size"===e?t:n,c=r.filter((t=>!l[e].includes(t))).filter((e=>e.toLowerCase().includes(i)));if(o.innerHTML="",c.length>0||i){if(i&&!r.some((e=>e.toLowerCase()===i))){const t=document.createElement("div");t.className="dropdown-item",t.innerHTML=`Add "<strong>${i}</strong>"`,t.onclick=()=>H(e,i),o.appendChild(t)}c.forEach((t=>{const n=document.createElement("div");n.className="dropdown-item",n.textContent=t,n.onclick=()=>H(e,t),o.appendChild(n)})),o.style.display="block"}else o.style.display="none"}function H(e,t){if(!t||l[e].includes(t))return;l[e].push(t);let n=null;if(document.querySelectorAll(".variant-group .variant-group-header label").forEach((t=>{t.textContent===e&&(n=t.closest(".variant-group"))})),!n)return;const a=n.querySelector(".selected-items"),o=n.querySelector(".variant-input"),i=document.createElement("span");i.className="tag",i.innerHTML=`${t} <span class="tag-close">&times;</span>`,i.querySelector(".tag-close").onclick=()=>{l[e]=l[e].filter((e=>e!==t)),i.remove(),F()},a.appendChild(i),o.value="",o.focus(),F()}function F(){const e=(t=Object.values(l))&&0!==t.length?t.reduce(((e,t)=>0===e.length?t.map((e=>[e])):e.flatMap((e=>t.map((t=>[...e,t]))))),[]):[];var t;let n=document.querySelector(".variant-table-container");if(!n){n=document.createElement("div"),n.className="variant-table-container content-card";const e=document.getElementById("variants-container").closest(".content-card");e&&e.after(n)}if(0===e.length)return n&&n.remove(),document.getElementById("pricing-card").style.display="block",void(document.getElementById("inventory-card").style.display="block");document.getElementById("pricing-card").style.display="none",document.getElementById("inventory-card").style.display="none";let a=`<table class="variant-table"><thead><tr>${Object.keys(l).map((e=>`<th>${e}</th>`)).join("")}<th>Price</th><th>Quantity</th><th>SKU</th></tr></thead><tbody>`;const o=document.getElementById("price").value||"",i=document.getElementById("sku").value||"";e.forEach((e=>{const t=i?`${i}-${e.map((e=>e.replace(/\s+/g,"-"))).join("-")}`:"";a+=`<tr>${e.map((e=>`<td>${e}</td>`)).join("")}<td><input type="number" class="form-control variant-price" value="${o}"></td><td><input type="number" class="form-control variant-quantity" placeholder="0"></td><td><input type="text" class="form-control variant-sku" value="${t}"></td></tr>`})),a+="</tbody></table>",n.innerHTML=a}async function O(e,a){if(!a||0===a.length)return;const o="sizes"===e?t:n,i=a.filter((e=>!o.includes(e)));if(i.length>0){const t=doc(db,"product_options",e);await setDoc(t,{values:arrayUnion(...i)},{merge:!0})}}y.addEventListener("click",(()=>h.click())),y.addEventListener("dragover",(e=>{e.preventDefault(),y.classList.add("dragging")})),y.addEventListener("dragleave",(()=>y.classList.remove("dragging"))),y.addEventListener("drop",(e=>{e.preventDefault(),y.classList.remove("dragging"),M(e.dataTransfer.files)})),h.addEventListener("change",(e=>M(e.target.files))),Sortable.create(g,{animation:150}),v.addEventListener("click",(async()=>{v.disabled=!0,v.textContent="Uploading...";const e=[],t=c.map((t=>{const n=new FormData;return n.append("file",t),n.append("upload_preset",cloudinaryConfig.unsignedPreset),fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,{method:"POST",body:n}).then((e=>e.json())).then((t=>{t.secure_url&&e.push(t.secure_url)}))}));await Promise.all(t),s.push(...e),c=[],v.textContent="Upload New Media",v.disabled=!1,v.style.display="none",document.getElementById("uploadCompleteModal").style.display="flex"})),E.addEventListener("input",P),E.addEventListener("focus",P),S.addEventListener("click",(()=>{C.style.display="block"===C.style.display?"none":"block"})),k.addEventListener("click",(e=>{e.stopPropagation(),r=null,B.textContent="None",k.style.display="none"})),I.addEventListener("input",(()=>j(I.value))),document.addEventListener("click",(e=>{e.target.closest(".multiselect-container")||(b.style.display="none"),e.target.closest(".searchable-select-container")||(C.style.display="none"),e.target.closest(".add-variant-wrapper")||(x.style.display="none")})),q.addEventListener("click",(()=>x.style.display="block")),x.addEventListener("click",(e=>{e.target.dataset.option&&(U(e.target.dataset.option),x.style.display="none",Object.keys(l).length>=2&&(q.style.display="none"))})),m.addEventListener("click",(async()=>{if(!document.getElementById("productName").value)return alert("Product Name is required.");if(c.length>0)return alert("Please upload new media before saving.");m.disabled=!0,m.textContent="Updating...";const t=[],n=document.querySelectorAll(".variant-table tbody tr");if(n.length>0){const e=Array.from(document.querySelectorAll(".variant-table thead th")).map((e=>e.textContent));n.forEach((n=>{const a={},o=n.querySelectorAll("td");e.forEach(((t,n)=>{n<e.length-3&&(a[t.toLowerCase()]=o[n].textContent)})),a.price=parseFloat(o[e.length-3].querySelector("input").value)||0,a.quantity=parseInt(o[e.length-2].querySelector("input").value)||0,a.sku=o[e.length-1].querySelector("input").value,t.push(a)}))}const a={name:document.getElementById("productName").value,description:e.root.innerHTML,price:parseFloat(document.getElementById("price").value)||0,comparePrice:parseFloat(document.getElementById("comparePrice").value)||0,sku:document.getElementById("sku").value,quantity:parseInt(document.getElementById("quantity").value)||0,status:document.getElementById("status").value,collections:i,sizeChartId:r,imageUrls:s,variants:t,hasVariants:t.length>0};await O("sizes",l.Size||[]),await O("colors",l.Color||[]);try{const e=doc(db,"products",p);await updateDoc(e,a),D("Product updated successfully!"),setTimeout((()=>window.location.href="products.html"),1500)}catch(e){console.error("Error updating product: ",e),D("Error: Could not update product."),m.disabled=!1,m.textContent="Update Product"}})),await async function(){const e=await getDoc(doc(db,"product_options","sizes"));e.exists()&&(t=e.data().values||[]);const i=await getDoc(doc(db,"product_options","colors"));i.exists()&&(n=i.data().values||[]);const r=await getDocs(collection(db,"collections"));a=r.docs.map((e=>({id:e.id,name:e.data().name})));const l=await getDocs(collection(db,"pages"));o=l.docs.map((e=>({id:e.id,title:e.data().title}))),j()}(),await async function(){if(p)try{const t=doc(db,"products",p),n=await getDoc(t);if(n.exists()){const t=n.data();if(document.getElementById("productName").value=t.name||"",e.root.innerHTML=t.description||"",document.getElementById("price").value=t.price||0,document.getElementById("comparePrice").value=t.comparePrice||0,document.getElementById("sku").value=t.sku||"",document.getElementById("quantity").value=t.quantity||0,document.getElementById("status").value=t.status||"active",i=t.collections||[],T(),r=t.sizeChartId||null,r){const e=o.find((e=>e.id===r));e&&A(e.id,e.title)}if(s=t.imageUrls||[],g.innerHTML="",s.forEach((e=>{const t=N(e,{name:e},!0);g.appendChild(t)})),t.hasVariants&&t.variants){const e={};t.variants.forEach((t=>{t.size&&!e.Size&&(e.Size=[]),t.color&&!e.Color&&(e.Color=[])})),Object.keys(e).forEach((e=>{U(e);[...new Set(t.variants.map((t=>t[e.toLowerCase()])))].forEach((t=>H(e,t)))})),setTimeout((()=>{document.querySelectorAll(".variant-table tbody tr").forEach((e=>{const n=e.querySelector("td:nth-child(1)"),a=Object.keys(l).length>1?e.querySelector("td:nth-child(2)"):null,o=t.variants.find((e=>{const t=e.size===n.textContent,o=!a||e.color===a.textContent;return t&&o}));o&&(e.querySelector(".variant-price").value=o.price,e.querySelector(".variant-quantity").value=o.quantity,e.querySelector(".variant-sku").value=o.sku)}))}),100)}d.style.display="none",u.style.display="grid"}else d.textContent="Error: Product not found."}catch(e){console.error("Error loading product data: ",e),d.textContent="Error loading data."}else d.textContent="Error: No Product ID provided."}()}logoutButton&&logoutButton.addEventListener("click",(()=>{signOut(auth).then((()=>{window.location.href=getLoginUrl()})).catch((e=>console.error("Sign out error",e)))})),onAuthStateChanged(auth,(e=>{e?initializePage():window.location.href=getLoginUrl()}))</script>
+</body>
+</html>

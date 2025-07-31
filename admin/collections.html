@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Sundorica-Admin Panel</title>
+<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<link rel=stylesheet href=style.css>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
+<style>.sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}.sidebar .menu-list .logout-button:hover{background-color:#b71c1c}.sidebar .menu-list .logout-button i{margin-right:10px}</style>
+</head>
+<body>
+<div class=container>
+<div class=sidebar>
+<h2>Admin Panel</h2>
+<ul class=menu-list>
+<li><a href=index.html>Dashboard</a></li>
+<li><a href=orders.html>Orders</a></li>
+<li><a href=products.html>Products</a></li>
+<li class=active><a href=collections.html>Collections</a></li>
+<li><a href=navigation.html>Navigation</a></li>
+<li><a href=announcements.html>Announcements</a></li>
+<li><a href=shipping-zones.html>Shipping Zones</a></li>
+<li><a href=store-details.html>Store Details</a></li>
+<li><a href=hero-slider.html>Hero Slider</a></li>
+<li><a href=pages.html>Pages</a></li>
+<li>
+<button id=logout-button class=logout-button>
+<i class="fas fa-sign-out-alt"></i>Logout
+</button>
+</li>
+</ul>
+</div>
+<div class=main-content>
+<div class=header>
+<h1>Collections</h1>
+<button class="btn btn-primary" id=addCollectionBtn>Add New Collection</button>
+</div>
+<div class=content-card>
+<div id=collectionsList>
+<p class=empty-message>Loading collections...</p>
+</div>
+</div>
+</div>
+</div>
+<div id=collectionModal class=modal>
+<div class=modal-dialog>
+<div class=modal-header>
+<h3 id=modalTitle>Add New Collection</h3>
+<span class=close-modal onclick='closeModal("collectionModal")'>&times;</span>
+</div>
+<div class=modal-body>
+<label for=collectionName>Collection Name</label>
+<input id=collectionName placeholder="e.g. Winter Sale">
+<input type=hidden id=collectionId>
+</div>
+<div class=modal-footer>
+<button class=btn onclick='closeModal("collectionModal")'>Cancel</button>
+<button class="btn btn-primary" id=saveCollectionBtn>Save</button>
+</div>
+</div>
+</div>
+<div id=confirmDeleteModal class=modal>
+<div class=modal-dialog>
+<div class=modal-header><h3>Delete Collection</h3></div>
+<div class=modal-body><p>Are you sure you want to delete this collection?</p></div>
+<div class=modal-footer>
+<button class=btn onclick='closeModal("confirmDeleteModal")'>Cancel</button>
+<button class="btn btn-danger" id=confirmDeleteBtn>Delete</button>
+</div>
+</div>
+</div>
+<script type=module>import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";import{getFirestore,collection,getDocs,addDoc,updateDoc,deleteDoc,doc,query,where}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9"},app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app),getLoginUrl=()=>{const e=window.location.pathname;return e.substring(0,e.lastIndexOf("/"))+"/login.html"},logoutButton=document.getElementById("logout-button");function initializePage(){const e=document.getElementById("collectionsList"),t=document.getElementById("addCollectionBtn"),o=document.getElementById("collectionModal"),n=document.getElementById("saveCollectionBtn"),c=document.getElementById("collectionName"),i=document.getElementById("collectionId"),l=document.getElementById("modalTitle");async function a(){const t=collection(db,"collections"),n=await getDocs(t);if(e.innerHTML="",n.empty)e.innerHTML='<p class="empty-message">No collections found. Add one to get started!</p>';else for(const t of n.docs){const n=t.data(),a=t.id,s=collection(db,"products"),d=query(s,where("collections","array-contains",n.name)),r=(await getDocs(d)).size,u=document.createElement("div");u.className="collection-item",u.dataset.id=a,u.innerHTML=`\n                        <div class="collection-info">\n                            <span class="collection-name">${n.name}</span>\n                            <span class="product-count">${r} products</span>\n                        </div>\n                        <div class="collection-actions">\n                            <i class="fas fa-edit icon-edit" title="Edit"></i>\n                            <i class="fas fa-trash icon-delete" title="Delete"></i>\n                        </div>\n                    `,e.appendChild(u),u.querySelector(".icon-edit").addEventListener("click",(()=>{l.textContent="Edit Collection",i.value=a,c.value=n.name,o.style.display="flex"})),u.querySelector(".icon-delete").addEventListener("click",(()=>{m(a)}))}}t.addEventListener("click",(()=>{l.textContent="Add New Collection",i.value="",c.value="",o.style.display="flex"})),n.addEventListener("click",(async()=>{const e=c.value.trim(),t=i.value;if(e){n.disabled=!0;try{if(t){const o=doc(db,"collections",t);await updateDoc(o,{name:e})}else await addDoc(collection(db,"collections"),{name:e});closeModal("collectionModal"),a()}catch(e){console.error("Error saving collection: ",e)}finally{n.disabled=!1}}else alert("Collection name cannot be empty.")}));const s=document.getElementById("confirmDeleteModal"),d=document.getElementById("confirmDeleteBtn");let r=null;function m(e){r=e,s.style.display="flex"}d.addEventListener("click",(async()=>{if(r){try{await deleteDoc(doc(db,"collections",r));const e=collection(db,"products"),t=query(e,where("collections","array-contains",name));(await getDocs(t)).forEach((async e=>{const t=e.data().collections.filter((e=>e!==name));await updateDoc(doc(db,"products",e.id),{collections:t})})),a()}catch(e){console.error("Error deleting collection: ",e)}closeModal("confirmDeleteModal")}})),window.closeModal=e=>{document.getElementById(e).style.display="none"},window.addEventListener("click",(e=>{e.target.classList.contains("modal")&&(e.target.style.display="none")})),a()}logoutButton&&logoutButton.addEventListener("click",(()=>{signOut(auth).then((()=>{window.location.href=getLoginUrl()})).catch((e=>console.error("Sign out error",e)))})),onAuthStateChanged(auth,(e=>{e?initializePage():window.location.href=getLoginUrl()}))</script>
+</body>
+</html>
