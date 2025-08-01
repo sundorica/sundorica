@@ -357,38 +357,29 @@
             let body = elements.adsDetailsBody;
             body.innerHTML = '';
             if (adsDetails.length === 0) { body.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-500">No campaigns added yet.</td></tr>`; return; }
-            
-            // বিজ্ঞাপনের ডেটা startDate অনুযায়ী সাজানো হচ্ছে
-            const sortedAds = adsDetails.slice().sort((a, b) => dayjs(b.startDate).valueOf() - dayjs(a.startDate).valueOf());
-
+            const sortedAds = adsDetails.slice().sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
             sortedAds.forEach(ad => {
                 const now = dayjs();
-                const startDateTime = dayjs(`${ad.startDate}T${ad.startTime}`);
+                // [FIX] Checking both date and time to determine the status
                 const endDateTime = dayjs(`${ad.endDate}T${ad.endTime}`);
-
-                // Console-এ ডিবাগ করার জন্য বর্তমান সময় এবং বিজ্ঞাপনের সময় প্রিন্ট করা হচ্ছে।
-                console.log(`Ad: ${ad.adsName}, Current Time: ${now.format()}, End Time: ${endDateTime.format()}, Is current time after end time? ${now.isAfter(endDateTime)}`);
-
-                let statusText, statusClasses;
                 
-                // বিজ্ঞাপনের শেষ সময় পার হয়ে গেলে 'Completed' স্ট্যাটাস হবে।
+                let statusText, statusClasses;
                 if (now.isAfter(endDateTime)) { 
                     statusText = 'Completed'; 
                     statusClasses = 'bg-slate-200 text-slate-700'; 
-                } 
-                // বিজ্ঞাপনের শুরুর সময় এখনও আসেনি, তাই 'Scheduled' স্ট্যাটাস হবে।
-                else if (now.isBefore(startDateTime)) { 
-                    statusText = 'Scheduled'; 
-                    statusClasses = 'bg-blue-100 text-blue-800'; 
-                } 
-                // অন্যথায়, বিজ্ঞাপনটি চলছে, তাই 'Active' স্ট্যাটাস হবে।
-                else { 
-                    statusText = 'Active'; 
-                    statusClasses = 'bg-green-100 text-green-800'; 
+                } else {
+                    const startDateTime = dayjs(`${ad.startDate}T${ad.startTime}`);
+                    if (now.isBefore(startDateTime)) { 
+                        statusText = 'Scheduled'; 
+                        statusClasses = 'bg-blue-100 text-blue-800'; 
+                    } else { 
+                        statusText = 'Active'; 
+                        statusClasses = 'bg-green-100 text-green-800'; 
+                    }
                 }
 
                 const statusHtml = `<span class="px-3 py-1 text-xs font-semibold leading-tight rounded-full ${statusClasses}">${statusText}</span>`;
-                const durationDays = endDateTime.diff(startDateTime, 'day') + 1;
+                const durationDays = dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1;
                 const totalCost = durationDays * ad.dailyBudget;
                 const durationHtml = `${formatDate(ad.startDate)} to ${formatDate(ad.endDate)}<br><span class="text-slate-500">(${durationDays} days)</span>`;
                 
