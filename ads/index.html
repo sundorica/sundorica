@@ -208,6 +208,7 @@
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md">
             <h2 class="text-2xl font-bold mb-4">Edit Ad Details</h2>
             <form id="edit-ad-form">
+                <input type="hidden" id="edit-ad-original-name">
                 <div class="mb-4">
                     <p class="block text-sm font-medium text-slate-700 mb-1">Ads Name</p>
                     <p id="edit-ad-name" class="w-full p-3 bg-slate-100 rounded-lg"></p>
@@ -247,7 +248,7 @@
             totalUsd: document.getElementById('total-usd'),
             totalCost: document.getElementById('total-cost'),
             availableUsd: document.getElementById('available-usd'),
-            totalLoadedTk: document.getElementById('total-loaded-tk'), // New element
+            totalLoadedTk: document.getElementById('total-loaded-tk'),
             loadForm: document.getElementById('load-form'),
             adForm: document.getElementById('ad-form'),
             editAdForm: document.getElementById('edit-ad-form'),
@@ -287,7 +288,6 @@
             const title = navLinks[sectionId].querySelector('span').textContent;
             elements.headerTitle.textContent = title;
             
-            // Close sidebar on navigation in mobile view
             if (window.innerWidth < 1024) {
                 elements.sidebar.classList.add('-translate-x-full');
                 elements.sidebarOverlay.classList.add('hidden');
@@ -359,14 +359,27 @@
             if (adsDetails.length === 0) { body.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-500">No campaigns added yet.</td></tr>`; return; }
             const sortedAds = adsDetails.slice().sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
             sortedAds.forEach(ad => {
-                const startTime = ad.startTime || '00:00:00', endTime = ad.endTime || '23:59:59';
-                const now = dayjs(), startDateTime = dayjs(`${ad.startDate}T${startTime}`), endDateTime = dayjs(`${ad.endDate}T${endTime}`);
+                const startTime = ad.startTime || '00:00:00';
+                const endTime = ad.endTime || '23:59:59';
+                const now = dayjs();
+                const startDateTime = dayjs(`${ad.startDate}T${startTime}`);
+                const endDateTime = dayjs(`${ad.endDate}T${endTime}`);
+                
                 let statusText, statusClasses;
-                if (now.isAfter(endDateTime)) { statusText = 'Completed'; statusClasses = 'bg-slate-200 text-slate-700'; } 
-                else if (now.isBefore(startDateTime)) { statusText = 'Scheduled'; statusClasses = 'bg-blue-100 text-blue-800'; } 
-                else { statusText = 'Active'; statusClasses = 'bg-green-100 text-green-800'; }
+                if (now.isAfter(endDateTime)) {
+                    statusText = 'Completed';
+                    statusClasses = 'bg-slate-200 text-slate-700';
+                } else if (now.isBefore(startDateTime)) {
+                    statusText = 'Scheduled';
+                    statusClasses = 'bg-blue-100 text-blue-800';
+                } else {
+                    statusText = 'Active';
+                    statusClasses = 'bg-green-100 text-green-800';
+                }
+
                 const statusHtml = `<span class="px-3 py-1 text-xs font-semibold leading-tight rounded-full ${statusClasses}">${statusText}</span>`;
-                const durationDays = dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1, totalCost = durationDays * ad.dailyBudget;
+                const durationDays = endDateTime.diff(startDateTime, 'day') + 1;
+                const totalCost = durationDays * ad.dailyBudget;
                 const durationHtml = `${formatDate(ad.startDate)} to ${formatDate(ad.endDate)}<br><span class="text-slate-500">(${durationDays} days)</span>`;
                 
                 const row = `<tr class="hover:bg-slate-50">
@@ -385,7 +398,12 @@
         function calculateSummary() { 
             const totalUsd = loadAmounts.reduce((sum, item) => sum + (item.usd || 0), 0); 
             const totalTk = loadAmounts.reduce((sum, item) => sum + (item.recharges || 0), 0);
-            const totalCost = adsDetails.reduce((sum, ad) => { const durationDays = dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1; return sum + (durationDays > 0 ? durationDays * (ad.dailyBudget || 0) : 0); }, 0); 
+            const totalCost = adsDetails.reduce((sum, ad) => { 
+                const startDateTime = dayjs(`${ad.startDate}T${ad.startTime || '00:00:00'}`);
+                const endDateTime = dayjs(`${ad.endDate}T${ad.endTime || '23:59:59'}`);
+                const durationDays = endDateTime.diff(startDateTime, 'day') + 1;
+                return sum + (durationDays > 0 ? durationDays * (ad.dailyBudget || 0) : 0); 
+            }, 0); 
             const availableUsd = totalUsd - totalCost; 
             
             elements.totalUsd.textContent = formatCurrency(totalUsd, 'USD'); 
@@ -413,21 +431,30 @@
             const today = dayjs().format('YYYY-MM-DD'), nowTime = dayjs().format('HH:mm');
             if (modalId === 'load-modal') document.getElementById('load-date').value = today; 
             if (modalId === 'ad-modal') {
+                document.getElementById('ad-form').reset();
                 document.getElementById('start-date').value = today; document.getElementById('end-date').value = today;
                 document.getElementById('start-time').value = nowTime; document.getElementById('end-time').value = "23:59";
             }
             document.getElementById(modalId).classList.remove('hidden'); 
         };
         
+        // **FIXED**: This function now correctly populates the end time in the edit modal.
         function openEditAdModal(adName) {
             const adToEdit = adsDetails.find(ad => ad.adsName === adName);
             if (adToEdit) {
+                document.getElementById('edit-ad-original-name').value = adToEdit.adsName;
                 document.getElementById('edit-ad-name').textContent = adToEdit.adsName;
                 const endDateInput = document.getElementById('edit-end-date');
+                
                 const currentEndDate = dayjs(adToEdit.endDate);
                 endDateInput.value = currentEndDate.format('YYYY-MM-DD');
-                endDateInput.min = currentEndDate.format('YYYY-MM-DD');
+                
+                // Set the minimum date for the input to prevent choosing a past date
+                endDateInput.min = dayjs().format('YYYY-MM-DD');
+                
+                // Set the end time, with a default fallback
                 document.getElementById('edit-end-time').value = adToEdit.endTime || '23:59';
+                
                 openModal('edit-ad-modal');
             }
         }
@@ -438,12 +465,21 @@
         elements.rechargeTkInput.addEventListener('input', () => { const bdtAmount = parseFloat(elements.rechargeTkInput.value); elements.usdAmountInput.value = (!isNaN(bdtAmount) && bdtAmount > 0) ? (bdtAmount / BDT_PER_USD).toFixed(2) : ''; });
         
         elements.loadForm.addEventListener('submit', async (e) => { e.preventDefault(); const newLoad = { date: document.getElementById('load-date').value, recharges: parseFloat(elements.rechargeTkInput.value), usd: parseFloat(elements.usdAmountInput.value) }; if (isNaN(newLoad.usd) || newLoad.usd <= 0) { showNotification("Please enter a valid recharge amount."); return; } showNotification("Adding new load...", false); try { await callApi('addLoadEntry', newLoad); loadAmounts.push(newLoad); renderAll(); showNotification("Load added successfully!", false); closeModal('load-modal'); elements.loadForm.reset(); } catch (error) { /* Handled by callApi */ } });
-        elements.adForm.addEventListener('submit', async (e) => { e.preventDefault(); const newAd = { adsName: document.getElementById('ad-name').value, startDate: document.getElementById('start-date').value, startTime: document.getElementById('start-time').value, endDate: document.getElementById('end-date').value, endTime: document.getElementById('end-time').value, dailyBudget: parseFloat(document.getElementById('daily-budget').value) }; const startDateTime = dayjs(`${newAd.startDate}T${newAd.startTime}`), endDateTime = dayjs(`${newAd.endDate}T${newAd.endTime}`); if (endDateTime.isBefore(startDateTime)) { showNotification("End date/time cannot be before start date/time."); return; } showNotification("Adding new ad...", false); try { await callApi('addAdEntry', newAd); adsDetails.push(newAd); renderAll(); showNotification("Ad added successfully!", false); closeModal('ad-modal'); elements.adForm.reset(); } catch (error) { /* Handled by callApi */ } });
+        elements.adForm.addEventListener('submit', async (e) => { e.preventDefault(); const newAd = { adsName: document.getElementById('ad-name').value.trim(), startDate: document.getElementById('start-date').value, startTime: document.getElementById('start-time').value, endDate: document.getElementById('end-date').value, endTime: document.getElementById('end-time').value, dailyBudget: parseFloat(document.getElementById('daily-budget').value) }; if(!newAd.adsName) { showNotification("Ad Name is required."); return; } const startDateTime = dayjs(`${newAd.startDate}T${newAd.startTime}`), endDateTime = dayjs(`${newAd.endDate}T${newAd.endTime}`); if (endDateTime.isBefore(startDateTime)) { showNotification("End date/time cannot be before start date/time."); return; } showNotification("Adding new ad...", false); try { await callApi('addAdEntry', newAd); adsDetails.push(newAd); renderAll(); showNotification("Ad added successfully!", false); closeModal('ad-modal'); elements.adForm.reset(); } catch (error) { /* Handled by callApi */ } });
         elements.editAdForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const adName = document.getElementById('edit-ad-name').textContent;
+            const adName = document.getElementById('edit-ad-original-name').value;
             const newEndDate = document.getElementById('edit-end-date').value;
             const newEndTime = document.getElementById('edit-end-time').value;
+
+            const adToEdit = adsDetails.find(ad => ad.adsName === adName);
+            const startDateTime = dayjs(`${adToEdit.startDate}T${adToEdit.startTime}`);
+            const newEndDateTime = dayjs(`${newEndDate}T${newEndTime}`);
+
+            if (newEndDateTime.isBefore(startDateTime)) {
+                showNotification("New end date/time cannot be before the ad's start date/time.");
+                return;
+            }
 
             showNotification("Updating ad...", false);
             try {
@@ -460,11 +496,11 @@
             } catch (error) { /* Handled by callApi */ }
         });
 
-        elements.downloadReportBtn.addEventListener('click', () => { const fromDateStr = document.getElementById('report-from-date').value, toDateStr = document.getElementById('report-to-date').value; if (!fromDateStr || !toDateStr) { showNotification('Please select both "From" and "To" dates.'); return; } const fromDate = dayjs(fromDateStr), toDate = dayjs(toDateStr); const filteredAds = adsDetails.filter(ad => dayjs(ad.startDate).isBefore(toDate.add(1, 'day')) && dayjs(ad.endDate).isAfter(fromDate.subtract(1, 'day'))); if (filteredAds.length === 0) { showNotification('No ad data found for the selected date range.'); return; } const reportData = filteredAds.map(ad => ({ 'Ads Name': ad.adsName, 'Start Date': formatDate(ad.startDate), 'Start Time': ad.startTime || '', 'End Date': formatDate(ad.endDate), 'End Time': ad.endTime || '', 'Duration (Days)': dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1, 'Daily Budget (USD)': ad.dailyBudget, 'Total Cost (USD)': parseFloat(((dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1) * ad.dailyBudget).toFixed(2)) })); const worksheet = XLSX.utils.json_to_sheet(reportData); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Ads Details Report"); worksheet['!cols'] = [ { wch: 25 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 18 }, { wch: 18 } ]; XLSX.writeFile(workbook, "Ads_Details_Report.xlsx"); });
+        elements.downloadReportBtn.addEventListener('click', () => { const fromDateStr = document.getElementById('report-from-date').value, toDateStr = document.getElementById('report-to-date').value; if (!fromDateStr || !toDateStr) { showNotification('Please select both "From" and "To" dates.'); return; } const fromDate = dayjs(fromDateStr), toDate = dayjs(toDateStr); const filteredAds = adsDetails.filter(ad => dayjs(ad.startDate).isBefore(toDate.add(1, 'day')) && dayjs(ad.endDate).isAfter(fromDate.subtract(1, 'day'))); if (filteredAds.length === 0) { showNotification('No ad data found for the selected date range.'); return; } const reportData = filteredAds.map(ad => { const startDateTime = dayjs(`${ad.startDate}T${ad.startTime || '00:00:00'}`); const endDateTime = dayjs(`${ad.endDate}T${ad.endTime || '23:59:59'}`); const duration = endDateTime.diff(startDateTime, 'day') + 1; return {'Ads Name': ad.adsName, 'Start Date': formatDate(ad.startDate), 'Start Time': ad.startTime || '', 'End Date': formatDate(ad.endDate), 'End Time': ad.endTime || '', 'Duration (Days)': duration, 'Daily Budget (USD)': ad.dailyBudget, 'Total Cost (USD)': parseFloat((duration * ad.dailyBudget).toFixed(2)) } }); const worksheet = XLSX.utils.json_to_sheet(reportData); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Ads Details Report"); worksheet['!cols'] = [ { wch: 25 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 18 }, { wch: 18 } ]; XLSX.writeFile(workbook, "Ads_Details_Report.xlsx"); });
         
         window.onload = async function() {
             feather.replace();
-            showSection('dashboard-section'); // Set default view
+            showSection('dashboard-section');
 
             const today = dayjs().format('YYYY-MM-DD');
             document.getElementById('report-from-date').value = today; document.getElementById('report-to-date').value = today;
@@ -479,6 +515,10 @@
                 adsDetails = response.adsDetails.map(row => ({ adsName: row[0], startDate: row[1], endDate: row[2], dailyBudget: parseFloat(row[3]) || 0, startTime: row[4], endTime: row[5] }));
                 renderAll();
                 showNotification("App is ready!", false);
+
+                // **FIXED**: This will automatically refresh the campaign statuses every 30 seconds.
+                setInterval(renderAdsDetails, 30000);
+
             } catch (error) { showNotification("Critical Error loading data.", true); }
         };
     </script>
