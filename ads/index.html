@@ -1,184 +1,486 @@
-<!doctype html>
-<html lang=bn>
+<!DOCTYPE html>
+<html lang="bn">
 <head>
-<meta charset=UTF-8>
-<title>Ads Management</title>
-<link rel=icon type=image/webp href=https://i.postimg.cc/sxnjTBJz/5582655.webp>
-<meta name=viewport content="width=device-width,initial-scale=1">
-<script src=https://cdn.tailwindcss.com></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel=stylesheet>
-<script src=https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js></script>
-<script src=https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isBetween.js></script>
-<script src=https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js></script>
-<script src=https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js></script>
-<style>body{font-family:Inter,sans-serif;scroll-behavior:smooth}.modal{transition:opacity .25s ease}#notification-toast{z-index:1000;transition:transform .4s ease-in-out,opacity .4s ease-in-out}.table-container::-webkit-scrollbar{height:6px;width:6px}.table-container::-webkit-scrollbar-track{background:#f1f5f9}.table-container::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}.table-container::-webkit-scrollbar-thumb:hover{background:#64748b}.main-content::-webkit-scrollbar{width:8px}.main-content::-webkit-scrollbar-track{background:#f1f5f9}.main-content::-webkit-scrollbar-thumb{background:#a5b4fc;border-radius:4px}.main-content::-webkit-scrollbar-thumb:hover{background:#818cf8}#ads-details-body tr:nth-child(2n),#load-amount-body tr:nth-child(2n){background-color:#f8fafc}.nav-link.active{background-color:#4f46e5;color:#fff}.nav-link.active i{color:#fff}</style>
+    <meta charset="UTF-8">
+    <title>Ads Management</title>
+    <link rel="icon" type="image/webp" href="https://i.postimg.cc/sxnjTBJz/5582655.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isBetween.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        #notification-toast {
+            z-index: 1000;
+            transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+        }
+        .table-container::-webkit-scrollbar { height: 6px; width: 6px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f5f9; }
+        .table-container::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        .main-content::-webkit-scrollbar { width: 8px; }
+        .main-content::-webkit-scrollbar-track { background: #f1f5f9; }
+        .main-content::-webkit-scrollbar-thumb { background: #a5b4fc; border-radius: 4px; }
+        .main-content::-webkit-scrollbar-thumb:hover { background: #818cf8; }
+        
+        #load-amount-body tr:nth-child(even),
+        #ads-details-body tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .nav-link.active {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+        }
+         .nav-link.active i {
+            color: white;
+        }
+    </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
-<div class="flex h-screen">
-<aside id=sidebar class="fixed lg:relative inset-y-0 left-0 bg-white w-64 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col border-r border-slate-200">
-<div class="flex items-center justify-between h-16 border-b border-slate-200 px-4">
-<div class="flex items-center">
-<i data-feather=box class=text-indigo-600></i>
-<span class="ml-2 text-xl font-bold text-slate-800">Ads Management</span>
-</div>
-<button id=close-sidebar-btn class="lg:hidden text-slate-500 hover:text-slate-800">
-<i data-feather=x class="w-6 h-6"></i>
-</button>
-</div>
-<nav class="flex-1 p-4 space-y-2">
-<a href=# id=nav-dashboard class="nav-link flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-100 rounded-lg">
-<i data-feather=trello class="w-5 h-5 text-slate-500"></i>
-<span class=ml-3>Dashboard</span>
-</a>
-<a href=# id=nav-load-history class="nav-link flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-100 rounded-lg">
-<i data-feather=dollar-sign class="w-5 h-5 text-slate-500"></i>
-<span class=ml-3>Load History</span>
-</a>
-<a href=# id=nav-campaigns class="nav-link flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-100 rounded-lg">
-<i data-feather=target class="w-5 h-5 text-slate-500"></i>
-<span class=ml-3>Campaigns</span>
-</a>
-</nav>
-</aside>
-<div class="flex-1 flex flex-col overflow-hidden">
-<header class="flex justify-between items-center p-4 sm:p-6 bg-white border-b border-slate-200">
-<button id=open-sidebar-btn class="lg:hidden text-slate-500 hover:text-slate-800 mr-4">
-<i data-feather=menu class="w-6 h-6"></i>
-</button>
-<h1 id=header-title class="text-xl sm:text-2xl font-bold text-slate-900">Dashboard</h1>
-<div></div>
-</header>
-<main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-100 p-4 sm:p-6 main-content">
-<section id=dashboard-section class=content-section>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-<div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
-<div class="bg-purple-100 text-purple-600 p-3 rounded-full"><i data-feather=briefcase class="w-6 h-6"></i></div>
-<div>
-<h2 class="text-sm font-medium text-slate-500 mb-1">Total Loaded (TK)</h2>
-<p id=total-loaded-tk class="text-2xl sm:text-3xl font-bold text-slate-900">0</p>
-</div>
-</div>
-<div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
-<div class="bg-blue-100 text-blue-600 p-3 rounded-full"><i data-feather=dollar-sign class="w-6 h-6"></i></div>
-<div>
-<h2 class="text-sm font-medium text-slate-500 mb-1">Total Loaded (USD)</h2>
-<p id=total-usd class="text-2xl sm:text-3xl font-bold text-slate-900">$0.00</p>
-</div>
-</div>
-<div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
-<div class="bg-red-100 text-red-600 p-3 rounded-full"><i data-feather=trending-down class="w-6 h-6"></i></div>
-<div>
-<h2 class="text-sm font-medium text-slate-500 mb-1">Total Ad Cost (USD)</h2>
-<p id=total-cost class="text-2xl sm:text-3xl font-bold text-slate-900">$0.00</p>
-</div>
-</div>
-<div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
-<div class="bg-green-100 text-green-600 p-3 rounded-full"><i data-feather=credit-card class="w-6 h-6"></i></div>
-<div>
-<h2 class="text-sm font-medium text-slate-500 mb-1">Available Balance (USD)</h2>
-<p id=available-usd class="text-2xl sm:text-3xl font-bold text-slate-900">$0.00</p>
-</div>
-</div>
-</div>
-</section>
-<section id=load-history-section class="content-section hidden">
-<div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200">
-<div class="flex flex-wrap justify-between items-center mb-4 gap-4">
-<h2 class="text-xl font-bold">Load History</h2>
-<div class="flex items-center gap-4 flex-wrap">
-<p id=current-rate-display class="text-sm text-slate-600 font-medium whitespace-nowrap">Loading rate...</p>
-<div class="flex items-center gap-2">
-<input type=number step=0.01 id=custom-rate-input placeholder="Set Rate" class="w-24 p-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500">
-<button id=set-rate-btn class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-md font-semibold text-xs">Set</button>
-</div>
-<button onclick='openModal("load-modal")' class="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-semibold text-sm">
-<i data-feather=plus-circle class="w-4 h-4"></i>
-Add Load
-</button>
-</div>
-</div>
-<div class="overflow-x-auto table-container">
-<table class="w-full text-left min-w-[400px]">
-<thead class=bg-slate-100>
-<tr>
-<th class="p-3 font-semibold text-sm text-slate-600">Date</th>
-<th class="p-3 font-semibold text-sm text-slate-600">Recharges (Tk)</th>
-<th class="p-3 font-semibold text-sm text-slate-600">USD</th>
-</tr>
-</thead>
-<tbody id=load-amount-body class="divide-y divide-slate-200"></tbody>
-</table>
-</div>
-</div>
-</section>
-<section id=campaigns-section class="content-section hidden">
-<div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200">
-<div class="flex flex-wrap justify-between items-center mb-4 gap-3">
-<h2 class="text-xl font-bold">Campaigns</h2>
-<button onclick='openModal("ad-modal")' class="flex items-center gap-2 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition font-semibold text-sm">
-<i data-feather=plus-circle class="w-4 h-4"></i>
-Add Ad
-</button>
-</div>
-<div class="flex flex-wrap items-center gap-2 bg-slate-100 p-2 rounded-lg mb-4">
-<label for=report-from-date class="text-sm font-medium text-slate-700">From:</label>
-<input type=date id=report-from-date class="p-1 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500">
-<label for=report-to-date class="text-sm font-medium text-slate-700">To:</label>
-<input type=date id=report-to-date class="p-1 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500">
-<button id=download-report-btn class="flex items-center gap-2 bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 text-sm font-semibold w-full sm:w-auto mt-2 sm:mt-0">
-<i data-feather=download class="w-4 h-4"></i>
-Report
-</button>
-</div>
-<div class="overflow-x-auto table-container">
-<table class="w-full text-left">
-<thead class=bg-slate-100>
-<tr>
-<th class="p-3 font-semibold text-sm text-slate-600">Ad Name</th>
-<th class="p-3 font-semibold text-sm text-slate-600">Daily Budget</th>
-<th class="p-3 font-semibold text-sm text-slate-600">Duration</th>
-<th class="p-3 font-semibold text-sm text-slate-600">Total Cost</th>
-<th class="p-3 font-semibold text-sm text-slate-600">Status</th>
-<th class="p-3 font-semibold text-sm text-slate-600 text-right">Action</th>
-</tr>
-</thead>
-<tbody id=ads-details-body class="divide-y divide-slate-200"></tbody>
-</table>
-</div>
-</div>
-</section>
-</main>
-</div>
-</div>
-<div id=sidebar-overlay class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
-<div id=load-modal class="modal hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-40"><div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md"><h2 class="text-2xl font-bold mb-6">Add New Load Amount</h2><form id=load-form><div class=mb-4><label for=load-date class="block text-sm font-medium text-slate-700 mb-1">Date</label><input type=date id=load-date class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" required></div><div class=mb-4><label for=recharge-tk class="block text-sm font-medium text-slate-700 mb-1">Recharge Amount (Tk)</label><input type=number id=recharge-tk class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" required></div><div class=mb-6><label for=usd-amount class="block text-sm font-medium text-slate-700 mb-1">Amount (USD)</label><input type=number step=0.01 id=usd-amount class="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 cursor-not-allowed" readonly></div><div class="flex justify-end gap-4"><button type=button onclick='closeModal("load-modal")' class="bg-slate-200 text-slate-800 py-2 px-5 rounded-lg hover:bg-slate-300 font-medium">Cancel</button><button type=submit class="bg-blue-600 text-white py-2 px-5 rounded-lg hover:bg-blue-700 font-medium">Add Entry</button></div></form></div></div>
-<div id=ad-modal class="modal hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-40"><div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md"><h2 class="text-2xl font-bold mb-6">Add New Ad Campaign</h2><form id=ad-form><div class=mb-4><label for=ad-name class="block text-sm font-medium text-slate-700 mb-1">Ad Name</label><input id=ad-name class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label for=start-date class="block text-sm font-medium text-slate-700 mb-1">Start Date</label><input type=date id=start-date class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div><div><label for=start-time class="block text-sm font-medium text-slate-700 mb-1">Start Time</label><input type=time id=start-time class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label for=end-date class="block text-sm font-medium text-slate-700 mb-1">End Date</label><input type=date id=end-date class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div><div><label for=end-time class="block text-sm font-medium text-slate-700 mb-1">End Time</label><input type=time id=end-time class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div></div><div class=mb-6><label for=daily-budget class="block text-sm font-medium text-slate-700 mb-1">Daily Budget (USD)</label><input type=number step=0.01 id=daily-budget class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div><div class="flex justify-end gap-4"><button type=button onclick='closeModal("ad-modal")' class="bg-slate-200 text-slate-800 py-2 px-5 rounded-lg hover:bg-slate-300 font-medium">Cancel</button><button type=submit class="bg-indigo-600 text-white py-2 px-5 rounded-lg hover:bg-indigo-700 font-medium">Add Ad</button></div></form></div></div>
-<div id=edit-ad-modal class="modal hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-40">
-<div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md">
-<h2 class="text-2xl font-bold mb-4">Edit Ad Details</h2>
-<form id=edit-ad-form>
-<div class=mb-4>
-<p class="block text-sm font-medium text-slate-700 mb-1">Ad Name</p>
-<p id=edit-ad-name class="w-full p-3 bg-slate-100 rounded-lg"></p>
-</div>
-<div class="grid grid-cols-2 gap-4 mb-6">
-<div>
-<label for=edit-end-date class="block text-sm font-medium text-slate-700 mb-1">New End Date</label>
-<input type=date id=edit-end-date class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500" required>
-</div>
-<div>
-<label for=edit-end-time class="block text-sm font-medium text-slate-700 mb-1">New End Time</label>
-<input type=time id=edit-end-time class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500" required>
-</div>
-</div>
-<div class="flex justify-end gap-4">
-<button type=button onclick='closeModal("edit-ad-modal")' class="bg-slate-200 text-slate-800 py-2 px-5 rounded-lg hover:bg-slate-300 font-medium">Cancel</button>
-<button type=submit class="bg-green-600 text-white py-2 px-5 rounded-lg hover:bg-green-700 font-medium">Update Ad</button>
-</div>
-</form>
-</div>
-</div>
-<div id=notification-toast class="fixed top-5 right-5 bg-red-600 text-white py-3 px-5 rounded-lg shadow-xl opacity-0 translate-x-[120%] z-50"><p id=notification-message></p></div>
-<script>const WEB_APP_URL="https://script.google.com/macros/s/AKfycby1ckCjmuvwyGLImPjSRXxDZqv8ylTUsKgJitzr5UF4o9FC0f-coINeVspSIxkAsXM/exec";dayjs.extend(window.dayjs_plugin_isBetween);let loadAmounts=[],adsDetails=[],BDT_PER_USD=121;const elements={loadAmountBody:document.getElementById("load-amount-body"),adsDetailsBody:document.getElementById("ads-details-body"),totalUsd:document.getElementById("total-usd"),totalCost:document.getElementById("total-cost"),availableUsd:document.getElementById("available-usd"),totalLoadedTk:document.getElementById("total-loaded-tk"),loadForm:document.getElementById("load-form"),adForm:document.getElementById("ad-form"),editAdForm:document.getElementById("edit-ad-form"),rechargeTkInput:document.getElementById("recharge-tk"),usdAmountInput:document.getElementById("usd-amount"),rateDisplay:document.getElementById("current-rate-display"),customRateInput:document.getElementById("custom-rate-input"),setRateBtn:document.getElementById("set-rate-btn"),downloadReportBtn:document.getElementById("download-report-btn"),headerTitle:document.getElementById("header-title"),sidebar:document.getElementById("sidebar"),sidebarOverlay:document.getElementById("sidebar-overlay"),openSidebarBtn:document.getElementById("open-sidebar-btn"),closeSidebarBtn:document.getElementById("close-sidebar-btn")},navLinks={"dashboard-section":document.getElementById("nav-dashboard"),"load-history-section":document.getElementById("nav-load-history"),"campaigns-section":document.getElementById("nav-campaigns")},contentSections=document.querySelectorAll(".content-section");function showSection(e){contentSections.forEach((e=>{e.classList.add("hidden")})),document.getElementById(e).classList.remove("hidden"),Object.values(navLinks).forEach((e=>e.classList.remove("active"))),navLinks[e]&&navLinks[e].classList.add("active");const t=navLinks[e].querySelector("span").textContent;elements.headerTitle.textContent=t,window.innerWidth<1024&&(elements.sidebar.classList.add("-translate-x-full"),elements.sidebarOverlay.classList.add("hidden"))}async function callApi(e,t={}){document.body.style.cursor="wait";try{const a=await fetch(WEB_APP_URL,{method:"POST",mode:"cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:e,payload:t})});if(!a.ok)throw new Error(`HTTP error! status: ${a.status}`);const d=await a.json();if("error"===d.status)throw new Error(d.message);return d.data}catch(e){throw showNotification(`API Error: ${e.message}`),e}finally{document.body.style.cursor="default"}}function showNotification(e,t=!0){const a=document.getElementById("notification-toast");document.getElementById("notification-message").textContent=e,a.classList.remove("bg-red-600","bg-green-600"),a.classList.add(t?"bg-red-600":"bg-green-600"),a.classList.remove("opacity-0","translate-x-[120%]"),a.classList.add("opacity-100","translate-x-0"),setTimeout((()=>{a.classList.remove("opacity-100","translate-x-0"),a.classList.add("opacity-0","translate-x-[120%]")}),3e3)}function renderLoadAmounts(){let e=elements.loadAmountBody;e.innerHTML="",0===loadAmounts.length?e.innerHTML='<tr><td colspan="3" class="text-center p-4 text-slate-500">No load history found.</td></tr>':loadAmounts.slice().sort(((e,t)=>new Date(t.date)-new Date(e.date))).forEach((t=>{const a=`<tr class="hover:bg-slate-50"><td class="p-3 text-sm">${formatDate(t.date)}</td><td class="p-3 text-sm">${(t.recharges||0).toLocaleString("en-IN")}</td><td class="p-3 font-medium text-sm">${formatCurrency(t.usd,"USD")}</td></tr>`;e.innerHTML+=a}))}function renderAdsDetails(){let e=elements.adsDetailsBody;if(e.innerHTML="",0===adsDetails.length)return void(e.innerHTML='<tr><td colspan="6" class="text-center p-4 text-slate-500">No campaigns added yet.</td></tr>');adsDetails.slice().sort(((e,t)=>new Date(t.startDate)-new Date(e.startDate))).forEach((t=>{const a=t.startTime||"00:00:00",d=t.endTime||"23:59:59",n=dayjs(),s=dayjs(`${t.startDate}T${a}`),o=dayjs(`${t.endDate}T${d}`);let l,i;n.isAfter(o)?(l="Completed",i="bg-slate-200 text-slate-700"):n.isBefore(s)?(l="Scheduled",i="bg-blue-100 text-blue-800"):(l="Active",i="bg-green-100 text-green-800");const r=`<span class="px-3 py-1 text-xs font-semibold leading-tight rounded-full ${i}">${l}</span>`,c=dayjs(t.endDate).diff(dayjs(t.startDate),"day")+1,m=c*t.dailyBudget,u=`${formatDate(t.startDate)} to ${formatDate(t.endDate)}<br><span class="text-slate-500">(${c} days)</span>`,y=`<tr class="hover:bg-slate-50">\n                                <td class="p-3 font-medium text-sm align-top">${t.adsName}</td>\n                                <td class="p-3 text-sm align-top">${formatCurrency(t.dailyBudget,"USD")}</td>\n                                <td class="p-3 text-xs align-top">${u}</td>\n                                <td class="p-3 font-medium text-sm align-top">${formatCurrency(m,"USD")}</td>\n                                <td class="p-3 align-top">${r}</td>\n                                <td class="p-3 text-right align-top"><button onclick="openEditAdModal('${t.adsName}')" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium p-1 rounded hover:bg-indigo-50"><i data-feather="edit-2" class="w-4 h-4"></i></button></td>\n                             </tr>`;e.innerHTML+=y})),feather.replace({width:"1em",height:"1em"})}function calculateSummary(){const e=loadAmounts.reduce(((e,t)=>e+(t.usd||0)),0),t=loadAmounts.reduce(((e,t)=>e+(t.recharges||0)),0),a=adsDetails.reduce(((e,t)=>{const a=dayjs(t.endDate).diff(dayjs(t.startDate),"day")+1;return e+(a>0?a*(t.dailyBudget||0):0)}),0),d=e-a;elements.totalUsd.textContent=formatCurrency(e,"USD"),elements.totalCost.textContent=formatCurrency(a,"USD"),elements.availableUsd.textContent=formatCurrency(d,"USD"),elements.totalLoadedTk.textContent=formatCurrency(t,"BDT"),elements.availableUsd.classList.toggle("text-green-600",d>=0),elements.availableUsd.classList.toggle("text-red-600",d<0)}function renderAll(){renderLoadAmounts(),renderAdsDetails(),calculateSummary(),feather.replace()}Object.keys(navLinks).forEach((e=>{navLinks[e].addEventListener("click",(t=>{t.preventDefault(),showSection(e)}))})),elements.openSidebarBtn.addEventListener("click",(()=>{elements.sidebar.classList.remove("-translate-x-full"),elements.sidebarOverlay.classList.remove("hidden")})),elements.closeSidebarBtn.addEventListener("click",(()=>{elements.sidebar.classList.add("-translate-x-full"),elements.sidebarOverlay.classList.add("hidden")})),elements.sidebarOverlay.addEventListener("click",(()=>{elements.sidebar.classList.add("-translate-x-full"),elements.sidebarOverlay.classList.add("hidden")}));const formatCurrency=(e,t="USD")=>{const a=parseFloat(e)||0;return"BDT"===t?a.toLocaleString("en-IN",{minimumFractionDigits:0,maximumFractionDigits:0}):`$${a.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}`},formatDate=e=>dayjs(e).format("DD MMM, YYYY"),closeModal=e=>document.getElementById(e).classList.add("hidden"),openModal=e=>{const t=dayjs().format("YYYY-MM-DD"),a=dayjs().format("HH:mm");"load-modal"===e&&(document.getElementById("load-date").value=t),"ad-modal"===e&&(document.getElementById("start-date").value=t,document.getElementById("end-date").value=t,document.getElementById("start-time").value=a,document.getElementById("end-time").value="23:59"),document.getElementById(e).classList.remove("hidden")};function openEditAdModal(e){const t=adsDetails.find((t=>t.adsName===e));if(t){document.getElementById("edit-ad-name").textContent=t.adsName;const e=document.getElementById("edit-end-date"),a=dayjs(t.endDate);e.value=a.format("YYYY-MM-DD"),e.min=a.format("YYYY-MM-DD"),document.getElementById("edit-end-time").value=t.endTime||"23:59",openModal("edit-ad-modal")}}function updateRateDisplay(e,t=!1,a=!1){let d="Live";t&&(d="Custom"),a&&(d="Fallback"),elements.rateDisplay.textContent=`${d} Rate: 1 USD = ${parseFloat(e).toFixed(2)} BDT`}elements.setRateBtn.addEventListener("click",(()=>{const e=parseFloat(elements.customRateInput.value);!isNaN(e)&&e>0?(BDT_PER_USD=e,updateRateDisplay(BDT_PER_USD,!0),elements.customRateInput.value="",showNotification("Custom rate has been set.",!1)):showNotification("Please enter a valid number for the rate.")})),elements.rechargeTkInput.addEventListener("input",(()=>{const e=parseFloat(elements.rechargeTkInput.value);elements.usdAmountInput.value=!isNaN(e)&&e>0?(e/BDT_PER_USD).toFixed(2):""})),elements.loadForm.addEventListener("submit",(async e=>{e.preventDefault();const t={date:document.getElementById("load-date").value,recharges:parseFloat(elements.rechargeTkInput.value),usd:parseFloat(elements.usdAmountInput.value)};if(isNaN(t.usd)||t.usd<=0)showNotification("Please enter a valid recharge amount.");else{showNotification("Adding new load...",!1);try{await callApi("addLoadEntry",t),loadAmounts.push(t),renderAll(),showNotification("Load added successfully!",!1),closeModal("load-modal"),elements.loadForm.reset()}catch(e){}}})),elements.adForm.addEventListener("submit",(async e=>{e.preventDefault();const t={adsName:document.getElementById("ad-name").value,startDate:document.getElementById("start-date").value,startTime:document.getElementById("start-time").value,endDate:document.getElementById("end-date").value,endTime:document.getElementById("end-time").value,dailyBudget:parseFloat(document.getElementById("daily-budget").value)},a=dayjs(`${t.startDate}T${t.startTime}`);if(dayjs(`${t.endDate}T${t.endTime}`).isBefore(a))showNotification("End date/time cannot be before start date/time.");else{showNotification("Adding new ad...",!1);try{await callApi("addAdEntry",t),adsDetails.push(t),renderAll(),showNotification("Ad added successfully!",!1),closeModal("ad-modal"),elements.adForm.reset()}catch(e){}}})),elements.editAdForm.addEventListener("submit",(async e=>{e.preventDefault();const t=document.getElementById("edit-ad-name").textContent,a=document.getElementById("edit-end-date").value,d=document.getElementById("edit-end-time").value;showNotification("Updating ad...",!1);try{const e=await callApi("editAdDetails",{adName:t,newEndDate:a,newEndTime:d}),n=adsDetails.findIndex((e=>e.adsName===t));-1!==n&&(adsDetails[n].endDate=a,adsDetails[n].endTime=d),renderAll(),showNotification(e,!1),closeModal("edit-ad-modal")}catch(e){}})),elements.downloadReportBtn.addEventListener("click",(()=>{const e=document.getElementById("report-from-date").value,t=document.getElementById("report-to-date").value;if(!e||!t)return void showNotification('Please select both "From" and "To" dates.');const a=dayjs(e),d=dayjs(t),n=adsDetails.filter((e=>dayjs(e.startDate).isBefore(d.add(1,"day"))&&dayjs(e.endDate).isAfter(a.subtract(1,"day"))));if(0===n.length)return void showNotification("No ad data found for the selected date range.");const s=n.map((e=>({"Ad Name":e.adsName,"Start Date":formatDate(e.startDate),"Start Time":e.startTime||"","End Date":formatDate(e.endDate),"End Time":e.endTime||"","Duration (Days)":dayjs(e.endDate).diff(dayjs(e.startDate),"day")+1,"Daily Budget (USD)":e.dailyBudget,"Total Cost (USD)":parseFloat(((dayjs(e.endDate).diff(dayjs(e.startDate),"day")+1)*e.dailyBudget).toFixed(2))}))),o=XLSX.utils.json_to_sheet(s),l=XLSX.utils.book_new();XLSX.utils.book_append_sheet(l,o,"Ads Details Report"),o["!cols"]=[{wch:25},{wch:15},{wch:12},{wch:15},{wch:12},{wch:15},{wch:18},{wch:18}],XLSX.writeFile(l,"Ads_Details_Report.xlsx")})),window.onload=async function(){feather.replace(),showSection("dashboard-section");const e=dayjs().format("YYYY-MM-DD");if(document.getElementById("report-from-date").value=e,document.getElementById("report-to-date").value=e,WEB_APP_URL.startsWith("https")){showNotification("Loading initial data...",!1);try{const e=await callApi("getInitialData"),t=e.rateData;t.success?(BDT_PER_USD=parseFloat(t.rate),updateRateDisplay(BDT_PER_USD)):(BDT_PER_USD=parseFloat(t.fallbackRate),updateRateDisplay(BDT_PER_USD,!1,!0)),loadAmounts=e.loadAmounts.map((e=>({date:e[0],recharges:parseFloat(e[1])||0,usd:parseFloat(e[2])||0}))),adsDetails=e.adsDetails.map((e=>({adsName:e[0],startDate:e[1],endDate:e[2],dailyBudget:parseFloat(e[3])||0,startTime:e[4],endTime:e[5]}))),renderAll(),showNotification("App is ready!",!1)}catch(e){showNotification("Critical Error loading data.",!0)}}else showNotification("Please set your Web App URL in the script.")}</script>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 bg-white w-64 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col border-r border-slate-200">
+            <div class="flex items-center justify-between h-16 border-b border-slate-200 px-4">
+                <div class="flex items-center">
+                    <i data-feather="box" class="text-indigo-600"></i>
+                    <span class="ml-2 text-xl font-bold text-slate-800">Ads Management</span>
+                </div>
+                 <button id="close-sidebar-btn" class="lg:hidden text-slate-500 hover:text-slate-800">
+                    <i data-feather="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" id="nav-dashboard" class="nav-link flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-100 rounded-lg">
+                    <i data-feather="trello" class="w-5 h-5 text-slate-500"></i>
+                    <span class="ml-3">Dashboard</span>
+                </a>
+                 <a href="#" id="nav-load-history" class="nav-link flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-100 rounded-lg">
+                    <i data-feather="dollar-sign" class="w-5 h-5 text-slate-500"></i>
+                    <span class="ml-3">Load History</span>
+                </a>
+                <a href="#" id="nav-campaigns" class="nav-link flex items-center px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-indigo-100 rounded-lg">
+                    <i data-feather="target" class="w-5 h-5 text-slate-500"></i>
+                    <span class="ml-3">Campaigns</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="flex justify-between items-center p-4 sm:p-6 bg-white border-b border-slate-200">
+                 <button id="open-sidebar-btn" class="lg:hidden text-slate-500 hover:text-slate-800 mr-4">
+                    <i data-feather="menu" class="w-6 h-6"></i>
+                </button>
+                <h1 id="header-title" class="text-xl sm:text-2xl font-bold text-slate-900">Dashboard</h1>
+                <div></div>
+            </header>
+
+            <!-- Scrollable Content Area -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-100 p-4 sm:p-6 main-content">
+                
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="content-section">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
+                            <div class="bg-purple-100 text-purple-600 p-3 rounded-full"><i data-feather="briefcase" class="w-6 h-6"></i></div>
+                            <div>
+                                <h2 class="text-sm font-medium text-slate-500 mb-1">Total Loaded (TK)</h2>
+                                <p id="total-loaded-tk" class="text-2xl sm:text-3xl font-bold text-slate-900">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-full"><i data-feather="dollar-sign" class="w-6 h-6"></i></div>
+                            <div>
+                                <h2 class="text-sm font-medium text-slate-500 mb-1">Total Loaded (USD)</h2>
+                                <p id="total-usd" class="text-2xl sm:text-3xl font-bold text-slate-900">$0.00</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
+                            <div class="bg-red-100 text-red-600 p-3 rounded-full"><i data-feather="trending-down" class="w-6 h-6"></i></div>
+                            <div>
+                                <h2 class="text-sm font-medium text-slate-500 mb-1">Total Ad Cost (USD)</h2>
+                                <p id="total-cost" class="text-2xl sm:text-3xl font-bold text-slate-900">$0.00</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-5">
+                            <div class="bg-green-100 text-green-600 p-3 rounded-full"><i data-feather="credit-card" class="w-6 h-6"></i></div>
+                            <div>
+                                <h2 class="text-sm font-medium text-slate-500 mb-1">Available Balance (USD)</h2>
+                                <p id="available-usd" class="text-2xl sm:text-3xl font-bold text-slate-900">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Load History Section -->
+                <section id="load-history-section" class="content-section hidden">
+                     <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+                            <h2 class="text-xl font-bold">Load History</h2>
+                             <div class="flex items-center gap-4 flex-wrap">
+                                <p id="current-rate-display" class="text-sm text-slate-600 font-medium whitespace-nowrap">Loading rate...</p>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" step="0.01" id="custom-rate-input" placeholder="Set Rate" class="w-24 p-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500">
+                                    <button id="set-rate-btn" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-2 rounded-md font-semibold text-xs">Set</button>
+                                </div>
+                                <button onclick="openModal('load-modal')" class="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition font-semibold text-sm">
+                                    <i data-feather="plus-circle" class="w-4 h-4"></i>
+                                    Add Load
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto table-container">
+                            <table class="w-full text-left min-w-[400px]">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3 font-semibold text-sm text-slate-600">Date</th>
+                                        <th class="p-3 font-semibold text-sm text-slate-600">Recharges (Tk)</th>
+                                        <th class="p-3 font-semibold text-sm text-slate-600">USD</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="load-amount-body" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Campaigns Section -->
+                <section id="campaigns-section" class="content-section hidden">
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
+                            <h2 class="text-xl font-bold">Campaigns</h2>
+                            <button onclick="openModal('ad-modal')" class="flex items-center gap-2 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition font-semibold text-sm">
+                                 <i data-feather="plus-circle" class="w-4 h-4"></i>
+                                Add Ad
+                            </button>
+                        </div>
+                         <div class="flex flex-wrap items-center gap-2 bg-slate-100 p-2 rounded-lg mb-4">
+                            <label for="report-from-date" class="text-sm font-medium text-slate-700">From:</label>
+                            <input type="date" id="report-from-date" class="p-1 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500">
+                            <label for="report-to-date" class="text-sm font-medium text-slate-700">To:</label>
+                            <input type="date" id="report-to-date" class="p-1 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500">
+                            <button id="download-report-btn" class="flex items-center gap-2 bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 text-sm font-semibold w-full sm:w-auto mt-2 sm:mt-0">
+                                <i data-feather="download" class="w-4 h-4"></i>
+                                Report
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto table-container">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-3 font-semibold text-sm text-slate-600">Ads Name</th>
+                                        <th class="p-3 font-semibold text-sm text-slate-600">Daily Budget</th>
+                                        <th class="p-3 font-semibold text-sm text-slate-600">Duration</th>
+                                        <th class="p-3 font-semibold text-sm text-slate-600">Total Cost</th>
+                                        <th class="p-3 font-semibold text-sm text-slate-600">Status</th>
+                                        <th class="p-3 font-semibold text-sm text-slate-600 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ads-details-body" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
+
+    <!-- Modals -->
+    <div id="load-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-40"><div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md"><h2 class="text-2xl font-bold mb-6">Add New Load Amount</h2><form id="load-form"><div class="mb-4"><label for="load-date" class="block text-sm font-medium text-slate-700 mb-1">Date</label><input type="date" id="load-date" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" required></div><div class="mb-4"><label for="recharge-tk" class="block text-sm font-medium text-slate-700 mb-1">Recharge Amount (Tk)</label><input type="number" id="recharge-tk" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" required></div><div class="mb-6"><label for="usd-amount" class="block text-sm font-medium text-slate-700 mb-1">Amount (USD)</label><input type="number" step="0.01" id="usd-amount" class="w-full p-2.5 border border-slate-300 rounded-lg bg-slate-100 cursor-not-allowed" readonly></div><div class="flex justify-end gap-4"><button type="button" onclick="closeModal('load-modal')" class="bg-slate-200 text-slate-800 py-2 px-5 rounded-lg hover:bg-slate-300 font-medium">Cancel</button><button type="submit" class="bg-blue-600 text-white py-2 px-5 rounded-lg hover:bg-blue-700 font-medium">Add Entry</button></div></form></div></div>
+    
+    <div id="ad-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-40"><div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md"><h2 class="text-2xl font-bold mb-6">Add New Ad Campaign</h2><form id="ad-form"><div class="mb-4"><label for="ad-name" class="block text-sm font-medium text-slate-700 mb-1">Ads Name</label><input type="text" id="ad-name" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label for="start-date" class="block text-sm font-medium text-slate-700 mb-1">Start Date</label><input type="date" id="start-date" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div><div><label for="start-time" class="block text-sm font-medium text-slate-700 mb-1">Start Time</label><input type="time" id="start-time" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label for="end-date" class="block text-sm font-medium text-slate-700 mb-1">End Date</label><input type="date" id="end-date" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div><div><label for="end-time" class="block text-sm font-medium text-slate-700 mb-1">End Time</label><input type="time" id="end-time" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div></div><div class="mb-6"><label for="daily-budget" class="block text-sm font-medium text-slate-700 mb-1">Daily Budget (USD)</label><input type="number" step="0.01" id="daily-budget" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required></div><div class="flex justify-end gap-4"><button type="button" onclick="closeModal('ad-modal')" class="bg-slate-200 text-slate-800 py-2 px-5 rounded-lg hover:bg-slate-300 font-medium">Cancel</button><button type="submit" class="bg-indigo-600 text-white py-2 px-5 rounded-lg hover:bg-indigo-700 font-medium">Add Ad</button></div></form></div></div>
+    
+    <div id="edit-ad-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-40">
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">Edit Ad Details</h2>
+            <form id="edit-ad-form">
+                <div class="mb-4">
+                    <p class="block text-sm font-medium text-slate-700 mb-1">Ads Name</p>
+                    <p id="edit-ad-name" class="w-full p-3 bg-slate-100 rounded-lg"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="edit-end-date" class="block text-sm font-medium text-slate-700 mb-1">New End Date</label>
+                        <input type="date" id="edit-end-date" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div>
+                        <label for="edit-end-time" class="block text-sm font-medium text-slate-700 mb-1">New End Time</label>
+                        <input type="time" id="edit-end-time" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-4">
+                    <button type="button" onclick="closeModal('edit-ad-modal')" class="bg-slate-200 text-slate-800 py-2 px-5 rounded-lg hover:bg-slate-300 font-medium">Cancel</button>
+                    <button type="submit" class="bg-green-600 text-white py-2 px-5 rounded-lg hover:bg-green-700 font-medium">Update Ad</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification-toast" class="fixed top-5 right-5 bg-red-600 text-white py-3 px-5 rounded-lg shadow-xl opacity-0 translate-x-[120%] z-50"><p id="notification-message"></p></div>
+    
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbympzZ0JyGA6dMpdtVaDUPnrx5IV2Je_huDt4KpsfwBS2nSTu74lKXF9tRaPPSmPKT9-g/exec";
+
+        dayjs.extend(window.dayjs_plugin_isBetween);
+
+        let loadAmounts = [], adsDetails = [], BDT_PER_USD = 121.0;
+
+        // Caching DOM elements
+        const elements = {
+            loadAmountBody: document.getElementById('load-amount-body'),
+            adsDetailsBody: document.getElementById('ads-details-body'),
+            totalUsd: document.getElementById('total-usd'),
+            totalCost: document.getElementById('total-cost'),
+            availableUsd: document.getElementById('available-usd'),
+            totalLoadedTk: document.getElementById('total-loaded-tk'), // New element
+            loadForm: document.getElementById('load-form'),
+            adForm: document.getElementById('ad-form'),
+            editAdForm: document.getElementById('edit-ad-form'),
+            rechargeTkInput: document.getElementById('recharge-tk'),
+            usdAmountInput: document.getElementById('usd-amount'),
+            rateDisplay: document.getElementById('current-rate-display'),
+            customRateInput: document.getElementById('custom-rate-input'),
+            setRateBtn: document.getElementById('set-rate-btn'),
+            downloadReportBtn: document.getElementById('download-report-btn'),
+            headerTitle: document.getElementById('header-title'),
+            sidebar: document.getElementById('sidebar'),
+            sidebarOverlay: document.getElementById('sidebar-overlay'),
+            openSidebarBtn: document.getElementById('open-sidebar-btn'),
+            closeSidebarBtn: document.getElementById('close-sidebar-btn'),
+        };
+
+        const navLinks = {
+            'dashboard-section': document.getElementById('nav-dashboard'),
+            'load-history-section': document.getElementById('nav-load-history'),
+            'campaigns-section': document.getElementById('nav-campaigns'),
+        };
+
+        const contentSections = document.querySelectorAll('.content-section');
+
+        // Navigation Logic
+        function showSection(sectionId) {
+            contentSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            Object.values(navLinks).forEach(link => link.classList.remove('active'));
+            if(navLinks[sectionId]) {
+                navLinks[sectionId].classList.add('active');
+            }
+
+            const title = navLinks[sectionId].querySelector('span').textContent;
+            elements.headerTitle.textContent = title;
+            
+            // Close sidebar on navigation in mobile view
+            if (window.innerWidth < 1024) {
+                elements.sidebar.classList.add('-translate-x-full');
+                elements.sidebarOverlay.classList.add('hidden');
+            }
+        }
+
+        Object.keys(navLinks).forEach(id => {
+            navLinks[id].addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(id);
+            });
+        });
+        
+        // Sidebar Toggle Logic
+        elements.openSidebarBtn.addEventListener('click', () => {
+            elements.sidebar.classList.remove('-translate-x-full');
+            elements.sidebarOverlay.classList.remove('hidden');
+        });
+
+        elements.closeSidebarBtn.addEventListener('click', () => {
+            elements.sidebar.classList.add('-translate-x-full');
+            elements.sidebarOverlay.classList.add('hidden');
+        });
+        elements.sidebarOverlay.addEventListener('click', () => {
+             elements.sidebar.classList.add('-translate-x-full');
+            elements.sidebarOverlay.classList.add('hidden');
+        });
+
+
+        async function callApi(action, payload = {}) {
+            document.body.style.cursor = 'wait';
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action, payload })
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                if (result.status === 'error') throw new Error(result.message);
+                return result.data;
+            } catch (error) {
+                showNotification(`API Error: ${error.message}`);
+                throw error;
+            } finally {
+                document.body.style.cursor = 'default';
+            }
+        }
+
+        function showNotification(message, isError = true) {
+            const toast = document.getElementById('notification-toast'), messageEl = document.getElementById('notification-message');
+            messageEl.textContent = message;
+            toast.classList.remove('bg-red-600', 'bg-green-600');
+            toast.classList.add(isError ? 'bg-red-600' : 'bg-green-600');
+            toast.classList.remove('opacity-0', 'translate-x-[120%]');
+            toast.classList.add('opacity-100', 'translate-x-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-x-0');
+                toast.classList.add('opacity-0', 'translate-x-[120%]');
+            }, 3000);
+        }
+        
+        function renderLoadAmounts() { let body = elements.loadAmountBody; body.innerHTML = ''; if (loadAmounts.length === 0) { body.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-slate-500">No load history found.</td></tr>`; } else { loadAmounts.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(item => { const row = `<tr class="hover:bg-slate-50"><td class="p-3 text-sm">${formatDate(item.date)}</td><td class="p-3 text-sm">${(item.recharges || 0).toLocaleString('en-IN')}</td><td class="p-3 font-medium text-sm">${formatCurrency(item.usd, 'USD')}</td></tr>`; body.innerHTML += row; }); } }
+        
+        function renderAdsDetails() {
+            let body = elements.adsDetailsBody;
+            body.innerHTML = '';
+            if (adsDetails.length === 0) { body.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-500">No campaigns added yet.</td></tr>`; return; }
+            const sortedAds = adsDetails.slice().sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+            sortedAds.forEach(ad => {
+                const startTime = ad.startTime || '00:00:00', endTime = ad.endTime || '23:59:59';
+                const now = dayjs(), startDateTime = dayjs(`${ad.startDate}T${startTime}`), endDateTime = dayjs(`${ad.endDate}T${endTime}`);
+                let statusText, statusClasses;
+                if (now.isAfter(endDateTime)) { statusText = 'Completed'; statusClasses = 'bg-slate-200 text-slate-700'; } 
+                else if (now.isBefore(startDateTime)) { statusText = 'Scheduled'; statusClasses = 'bg-blue-100 text-blue-800'; } 
+                else { statusText = 'Active'; statusClasses = 'bg-green-100 text-green-800'; }
+                const statusHtml = `<span class="px-3 py-1 text-xs font-semibold leading-tight rounded-full ${statusClasses}">${statusText}</span>`;
+                const durationDays = dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1, totalCost = durationDays * ad.dailyBudget;
+                const durationHtml = `${formatDate(ad.startDate)} to ${formatDate(ad.endDate)}<br><span class="text-slate-500">(${durationDays} days)</span>`;
+                
+                const row = `<tr class="hover:bg-slate-50">
+                                <td class="p-3 font-medium text-sm align-top">${ad.adsName}</td>
+                                <td class="p-3 text-sm align-top">${formatCurrency(ad.dailyBudget, 'USD')}</td>
+                                <td class="p-3 text-xs align-top">${durationHtml}</td>
+                                <td class="p-3 font-medium text-sm align-top">${formatCurrency(totalCost, 'USD')}</td>
+                                <td class="p-3 align-top">${statusHtml}</td>
+                                <td class="p-3 text-right align-top"><button onclick="openEditAdModal('${ad.adsName}')" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium p-1 rounded hover:bg-indigo-50"><i data-feather="edit-2" class="w-4 h-4"></i></button></td>
+                             </tr>`;
+                body.innerHTML += row;
+            });
+            feather.replace({ width: '1em', height: '1em' });
+        }
+        
+        function calculateSummary() { 
+            const totalUsd = loadAmounts.reduce((sum, item) => sum + (item.usd || 0), 0); 
+            const totalTk = loadAmounts.reduce((sum, item) => sum + (item.recharges || 0), 0);
+            const totalCost = adsDetails.reduce((sum, ad) => { const durationDays = dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1; return sum + (durationDays > 0 ? durationDays * (ad.dailyBudget || 0) : 0); }, 0); 
+            const availableUsd = totalUsd - totalCost; 
+            
+            elements.totalUsd.textContent = formatCurrency(totalUsd, 'USD'); 
+            elements.totalCost.textContent = formatCurrency(totalCost, 'USD'); 
+            elements.availableUsd.textContent = formatCurrency(availableUsd, 'USD'); 
+            elements.totalLoadedTk.textContent = formatCurrency(totalTk, 'BDT');
+
+            elements.availableUsd.classList.toggle('text-green-600', availableUsd >= 0); 
+            elements.availableUsd.classList.toggle('text-red-600', availableUsd < 0); 
+        }
+
+        function renderAll() { renderLoadAmounts(); renderAdsDetails(); calculateSummary(); feather.replace(); }
+
+        const formatCurrency = (amount, currency = 'USD') => {
+            const amountFloat = parseFloat(amount) || 0;
+            if (currency === 'BDT') {
+                return amountFloat.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+            return `$${amountFloat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        };
+
+        const formatDate = (dateString) => dayjs(dateString).format('DD MMM, YYYY');
+        const closeModal = (modalId) => document.getElementById(modalId).classList.add('hidden');
+        const openModal = (modalId) => { 
+            const today = dayjs().format('YYYY-MM-DD'), nowTime = dayjs().format('HH:mm');
+            if (modalId === 'load-modal') document.getElementById('load-date').value = today; 
+            if (modalId === 'ad-modal') {
+                document.getElementById('start-date').value = today; document.getElementById('end-date').value = today;
+                document.getElementById('start-time').value = nowTime; document.getElementById('end-time').value = "23:59";
+            }
+            document.getElementById(modalId).classList.remove('hidden'); 
+        };
+        
+        function openEditAdModal(adName) {
+            const adToEdit = adsDetails.find(ad => ad.adsName === adName);
+            if (adToEdit) {
+                document.getElementById('edit-ad-name').textContent = adToEdit.adsName;
+                const endDateInput = document.getElementById('edit-end-date');
+                const currentEndDate = dayjs(adToEdit.endDate);
+                endDateInput.value = currentEndDate.format('YYYY-MM-DD');
+                endDateInput.min = currentEndDate.format('YYYY-MM-DD');
+                document.getElementById('edit-end-time').value = adToEdit.endTime || '23:59';
+                openModal('edit-ad-modal');
+            }
+        }
+
+        function updateRateDisplay(rate, isCustom = false, isFallback = false) { let label = 'Live'; if (isCustom) label = 'Custom'; if (isFallback) label = 'Fallback'; elements.rateDisplay.textContent = `${label} Rate: 1 USD = ${parseFloat(rate).toFixed(2)} BDT`; }
+        
+        elements.setRateBtn.addEventListener('click', () => { const customRate = parseFloat(elements.customRateInput.value); if (!isNaN(customRate) && customRate > 0) { BDT_PER_USD = customRate; updateRateDisplay(BDT_PER_USD, true); elements.customRateInput.value = ''; showNotification("Custom rate has been set.", false); } else { showNotification('Please enter a valid number for the rate.'); } });
+        elements.rechargeTkInput.addEventListener('input', () => { const bdtAmount = parseFloat(elements.rechargeTkInput.value); elements.usdAmountInput.value = (!isNaN(bdtAmount) && bdtAmount > 0) ? (bdtAmount / BDT_PER_USD).toFixed(2) : ''; });
+        
+        elements.loadForm.addEventListener('submit', async (e) => { e.preventDefault(); const newLoad = { date: document.getElementById('load-date').value, recharges: parseFloat(elements.rechargeTkInput.value), usd: parseFloat(elements.usdAmountInput.value) }; if (isNaN(newLoad.usd) || newLoad.usd <= 0) { showNotification("Please enter a valid recharge amount."); return; } showNotification("Adding new load...", false); try { await callApi('addLoadEntry', newLoad); loadAmounts.push(newLoad); renderAll(); showNotification("Load added successfully!", false); closeModal('load-modal'); elements.loadForm.reset(); } catch (error) { /* Handled by callApi */ } });
+        elements.adForm.addEventListener('submit', async (e) => { e.preventDefault(); const newAd = { adsName: document.getElementById('ad-name').value, startDate: document.getElementById('start-date').value, startTime: document.getElementById('start-time').value, endDate: document.getElementById('end-date').value, endTime: document.getElementById('end-time').value, dailyBudget: parseFloat(document.getElementById('daily-budget').value) }; const startDateTime = dayjs(`${newAd.startDate}T${newAd.startTime}`), endDateTime = dayjs(`${newAd.endDate}T${newAd.endTime}`); if (endDateTime.isBefore(startDateTime)) { showNotification("End date/time cannot be before start date/time."); return; } showNotification("Adding new ad...", false); try { await callApi('addAdEntry', newAd); adsDetails.push(newAd); renderAll(); showNotification("Ad added successfully!", false); closeModal('ad-modal'); elements.adForm.reset(); } catch (error) { /* Handled by callApi */ } });
+        elements.editAdForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const adName = document.getElementById('edit-ad-name').textContent;
+            const newEndDate = document.getElementById('edit-end-date').value;
+            const newEndTime = document.getElementById('edit-end-time').value;
+
+            showNotification("Updating ad...", false);
+            try {
+                const successMessage = await callApi('editAdDetails', { adName, newEndDate, newEndTime });
+                
+                const adIndex = adsDetails.findIndex(ad => ad.adsName === adName);
+                if (adIndex !== -1) {
+                    adsDetails[adIndex].endDate = newEndDate;
+                    adsDetails[adIndex].endTime = newEndTime;
+                }
+                renderAll();
+                showNotification(successMessage, false);
+                closeModal('edit-ad-modal');
+            } catch (error) { /* Handled by callApi */ }
+        });
+
+        elements.downloadReportBtn.addEventListener('click', () => { const fromDateStr = document.getElementById('report-from-date').value, toDateStr = document.getElementById('report-to-date').value; if (!fromDateStr || !toDateStr) { showNotification('Please select both "From" and "To" dates.'); return; } const fromDate = dayjs(fromDateStr), toDate = dayjs(toDateStr); const filteredAds = adsDetails.filter(ad => dayjs(ad.startDate).isBefore(toDate.add(1, 'day')) && dayjs(ad.endDate).isAfter(fromDate.subtract(1, 'day'))); if (filteredAds.length === 0) { showNotification('No ad data found for the selected date range.'); return; } const reportData = filteredAds.map(ad => ({ 'Ads Name': ad.adsName, 'Start Date': formatDate(ad.startDate), 'Start Time': ad.startTime || '', 'End Date': formatDate(ad.endDate), 'End Time': ad.endTime || '', 'Duration (Days)': dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1, 'Daily Budget (USD)': ad.dailyBudget, 'Total Cost (USD)': parseFloat(((dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1) * ad.dailyBudget).toFixed(2)) })); const worksheet = XLSX.utils.json_to_sheet(reportData); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Ads Details Report"); worksheet['!cols'] = [ { wch: 25 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, { wch: 18 }, { wch: 18 } ]; XLSX.writeFile(workbook, "Ads_Details_Report.xlsx"); });
+        
+        window.onload = async function() {
+            feather.replace();
+            showSection('dashboard-section'); // Set default view
+
+            const today = dayjs().format('YYYY-MM-DD');
+            document.getElementById('report-from-date').value = today; document.getElementById('report-to-date').value = today;
+            if (!WEB_APP_URL.startsWith("https")) { showNotification("Please set your Web App URL in the script."); return; }
+            showNotification("Loading initial data...", false);
+            try {
+                const response = await callApi('getInitialData');
+                const rateData = response.rateData;
+                if (rateData.success) { BDT_PER_USD = parseFloat(rateData.rate); updateRateDisplay(BDT_PER_USD); } 
+                else { BDT_PER_USD = parseFloat(rateData.fallbackRate); updateRateDisplay(BDT_PER_USD, false, true); }
+                loadAmounts = response.loadAmounts.map(row => ({ date: row[0], recharges: parseFloat(row[1]) || 0, usd: parseFloat(row[2]) || 0 }));
+                adsDetails = response.adsDetails.map(row => ({ adsName: row[0], startDate: row[1], endDate: row[2], dailyBudget: parseFloat(row[3]) || 0, startTime: row[4], endTime: row[5] }));
+                renderAll();
+                showNotification("App is ready!", false);
+            } catch (error) { showNotification("Critical Error loading data.", true); }
+        };
+    </script>
 </body>
 </html>
