@@ -209,6 +209,7 @@
 
         // --- Global State ---
         let loadAmounts = [], adsDetails = [], BDT_PER_USD = 121.0;
+        let notificationTimeout;
 
         // --- DOM Element Cache ---
         const elements = {
@@ -256,11 +257,18 @@
         }
 
         function showNotification(message, isSuccess = true) {
-            const toast = document.getElementById('notification-toast'), messageEl = document.getElementById('notification-message');
+            const toast = document.getElementById('notification-toast');
+            const messageEl = document.getElementById('notification-message');
+            
+            if (notificationTimeout) clearTimeout(notificationTimeout);
+
             messageEl.textContent = message;
+            
             toast.className = 'fixed top-5 right-5 text-white py-3 px-5 rounded-lg shadow-xl z-50 transition-transform duration-300 ease-in-out';
             toast.classList.add(isSuccess ? 'bg-green-600' : 'bg-red-600', 'opacity-100', 'translate-x-0');
-            setTimeout(() => {
+            
+            notificationTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-x-0');
                 toast.classList.add('opacity-0', 'translate-x-[120%]');
             }, 3000);
         }
@@ -485,11 +493,62 @@
             } catch (error) { /* Handled by callApi */ }
         });
 
-        elements.downloadReportBtn.addEventListener('click', () => { /* Download logic will be implemented here */ });
+        elements.downloadReportBtn.addEventListener('click', () => {
+            const fromDate = dayjs(document.getElementById('report-from-date').value);
+            const toDate = dayjs(document.getElementById('report-to-date').value);
+
+            if (!fromDate.isValid() || !toDate.isValid()) {
+                showNotification("Please select valid From and To dates.", false);
+                return;
+            }
+
+            if (toDate.isBefore(fromDate)) {
+                showNotification("'To' date cannot be before 'From' date.", false);
+                return;
+            }
+
+            const reportData = adsDetails.filter(ad => {
+                const adStart = dayjs(ad.startDate);
+                const adEnd = dayjs(ad.endDate);
+                return adStart.isBefore(toDate.add(1, 'day')) && adEnd.isAfter(fromDate.subtract(1, 'day'));
+            }).map(ad => {
+                const durationDays = dayjs(ad.endDate).diff(dayjs(ad.startDate), 'day') + 1;
+                const totalCost = (ad.budgetType === 'lifetime') ? ad.budgetAmount : durationDays * ad.budgetAmount;
+                return {
+                    'Ads Name': ad.adsName,
+                    'Start Date': formatDate(ad.startDate),
+                    'End Date': formatDate(ad.endDate),
+                    'Duration (Days)': durationDays,
+                    'Budget Type': ad.budgetType.charAt(0).toUpperCase() + ad.budgetType.slice(1),
+                    'Budget Amount (USD)': ad.budgetAmount,
+                    'Total Cost (USD)': totalCost
+                };
+            });
+
+            if (reportData.length === 0) {
+                showNotification("No campaign data found for the selected date range.", false);
+                return;
+            }
+
+            try {
+                const worksheet = XLSX.utils.json_to_sheet(reportData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Campaign Report");
+                
+                const colWidths = Object.keys(reportData[0]).map(key => ({ wch: Math.max(key.length, ...reportData.map(row => String(row[key]).length)) + 2 }));
+                worksheet["!cols"] = colWidths;
+
+                const fileName = `Campaign_Report_${fromDate.format('YYYY-MM-DD')}_to_${toDate.format('YYYY-MM-DD')}.xlsx`;
+                XLSX.writeFile(workbook, fileName);
+                showNotification("Report downloaded successfully!", true);
+            } catch (error) {
+                showNotification("Failed to generate report. See console for details.", false);
+                console.error("Report generation error:", error);
+            }
+        });
         
-        // --- NEW: Function to fetch live exchange rate ---
         async function fetchLiveRate() {
-            const API_KEY = '1c88817c8b26f4326848b712'; // User's API key
+            const API_KEY = '1c88817c8b26f4326848b712';
             const API_URL = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/USD`;
             try {
                 const response = await fetch(API_URL);
@@ -509,7 +568,6 @@
             }
         }
 
-        // --- UPDATED: Initialization on page load ---
         window.onload = async function() {
             feather.replace();
             showSection('dashboard-section');
@@ -524,7 +582,7 @@
             let rateIsLive = false;
             if (liveRate) {
                 BDT_PER_USD = liveRate;
-                updateRateDisplay(BDT_PER_USD); // This will show "Live Rate: ..."
+                updateRateDisplay(BDT_PER_USD);
                 rateIsLive = true;
             } else {
                 showNotification("Could not fetch live rate. Using fallback.", false);
@@ -533,19 +591,17 @@
             try {
                 const response = await callApi('getInitialData');
                 
-                // If fetching live rate failed, use the one from the sheet as a fallback
                 if (!rateIsLive) {
                      const rateData = response.rateData;
                      if (rateData && rateData.success) { 
                         BDT_PER_USD = parseFloat(rateData.rate); 
-                        updateRateDisplay(BDT_PER_USD, false, true); // Show "Fallback Rate: ..."
+                        updateRateDisplay(BDT_PER_USD, false, true);
                      } else { 
-                        BDT_PER_USD = 121.0; // Hardcoded fallback
+                        BDT_PER_USD = 121.0;
                         updateRateDisplay(BDT_PER_USD, false, true); 
                      }
                 }
                 
-                // Map data from Google Sheet
                 loadAmounts = response.loadAmounts.map(row => ({ date: row[0], recharges: parseFloat(row[1]) || 0, usd: parseFloat(row[2]) || 0 }));
                 
                 adsDetails = response.adsDetails.map(row => ({
@@ -561,15 +617,15 @@
                 renderAll();
                 showNotification("Data loaded successfully!", true);
 
-                setInterval(updateAdStatuses, 1000 * 60); // Check status every minute
+                setInterval(updateAdStatuses, 1000 * 60);
 
             } catch (error) {
                 showNotification("Could not load data from Sheet. Check console.", false);
-                if (!rateIsLive) { // If both live rate and sheet data failed
+                if (!rateIsLive) {
                     BDT_PER_USD = 121.0; 
                     updateRateDisplay(BDT_PER_USD, false, true);
                 }
-                renderAll(); // Render with whatever data we have
+                renderAll();
             }
         };
     </script>
