@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting...</title>
+  <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
+  <script type="text/javascript">
+    // URL-er path and query gulo niye nicchi
+    const path = window.location.pathname;
+    const search = window.location.search;
+    const hash = window.location.hash;
+
+    // Session Storage use kore redirection loop bondho kora
+    const redirected = sessionStorage.getItem('redirected');
+    sessionStorage.removeItem('redirected');
+
+    if (!redirected) {
+      // Jodi /product/ path hoy
+      if (path.startsWith('/product/')) {
+        const pathParts = path.split('/');
+        const id = pathParts[pathParts.length - 1];
+        sessionStorage.setItem('redirected', 'true');
+        window.location.replace(`/product-details.html?id=${id}${hash}`);
+      }
+      // Jodi /collection/ path hoy
+      else if (path.startsWith('/collection/')) {
+        const pathParts = path.split('/');
+        const id = pathParts[pathParts.length - 1];
+        sessionStorage.setItem('redirected', 'true');
+        window.location.replace(`/collection.html?id=${id}${hash}`);
+      }
+    }
+  </script>
+</head>
+<body>
+  <p>If you are not redirected automatically, please click <a id="redirect-link" href="#">here</a>.</p>
+</body>
+</html>
