@@ -4,23 +4,24 @@
   <meta charset="utf-8">
   <title>Redirecting...</title>
   <script type="text/javascript">
-    // 1. User kon URL-e jete cheyechilo, sheta dhore feli
     const originalPath = window.location.pathname;
 
-    // 2. Oi path-ti browser-er memory-te (sessionStorage) rekhe dei
     sessionStorage.setItem('originalPath', originalPath);
 
     let destination = null;
 
-    // 3. Path onujayi shothik HTML file-e redirect kori
     if (originalPath.startsWith('/collections/')) {
-      destination = '/collection.html';
+      // MODIFIED: Redirect to the folder, not the file
+      destination = '/collection/'; 
     } else if (originalPath.startsWith('/product-details/')) {
-      destination = '/product-details.html';
+      // MODIFIED: Redirect to the folder, not the file
+      destination = '/product-details/';
     } else if (originalPath.startsWith('/cart')) {
-      destination = '/cart.html';
+      // MODIFIED: Redirect to the folder, not the file
+      destination = '/cart/';
     } else if (originalPath.startsWith('/all-products')) {
-      destination = '/all-products.html';
+      // MODIFIED: Redirect to the folder, not the file
+      destination = '/all-products/';
     }
     
     if (destination) {
