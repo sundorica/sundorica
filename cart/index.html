@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart-Sundorica</title>
+    <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,31 +23,10 @@
             --success-color: #28a745;
         }
 
-        html {
-            height: 100%;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            background-color: var(--background-color);
-            color: var(--primary-color);
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        main.container {
-            flex-grow: 1;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            padding-left: 20px;
-            padding-right: 20px;
-            box-sizing: border-box;
-        }
+        html { height: 100%; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--background-color); color: var(--primary-color); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+        main.container { flex-grow: 1; }
+        .container { width: 100%; max-width: 100%; margin: 0 auto; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
         .header-wrapper { position: sticky; top: 0; z-index: 100; background-color: var(--background-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .main-header { padding: 15px 0; }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
@@ -57,96 +37,50 @@
         .header-icons a { color: var(--primary-color); }
         .cart-icon-link { position: relative; display: inline-block; }
         .cart-item-count { position: absolute; top: -8px; right: -12px; background-color: var(--danger-color); color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; line-height: 1; display: none; }
-        
-        .main-footer { 
-            background-color: var(--surface-color); 
-            padding: 5px 0; 
-            border-top: .5px solid var(--border-color); 
-            text-align: center;
-            display: none;
-        }
+        .main-footer { background-color: var(--surface-color); padding: 5px 0; border-top: .5px solid var(--border-color); text-align: center; display: none; }
         .social-links { margin-bottom: 10px; }
         .social-links a { font-size: 12px; color: var(--secondary-color); margin: 0 6px; }
         .copyright { font-size: 8px; color: var(--secondary-color); }
-
-        
-        /* Toast Notification Styles */
-        #toast-container {
-            position: fixed;
-            bottom: 20px; 
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-        .toast {
-            padding: 12px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 0;
-            transform: translateY(100%);
-            animation: slideInUp 0.5s forwards, fadeOutDown 0.5s 3.5s forwards;
-        }
-        .toast.error {
-            background-color: var(--danger-color);
-        }
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .toast { padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(100%); animation: slideInUp 0.5s forwards, fadeOutDown 0.5s 3.5s forwards; }
+        .toast.error { background-color: var(--danger-color); }
         @keyframes slideInUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOutDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(100%); } }
-
-        /* Cart Page Specific Styles */
-        .cart-layout {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 40px;
-            padding: 40px 0;
-        }
-        .cart-section-title {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 25px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
+        .cart-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; padding: 40px 0; }
+        .cart-section-title { font-size: 22px; font-weight: 600; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 16px; box-sizing: border-box; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(26,26,26,0.1); }
-
         #order-summary { background-color: var(--surface-color); padding: 25px; border-radius: 8px; height: fit-content; }
         .cart-items-list { max-height: 400px; overflow-y: auto; margin-bottom: 20px; }
         .cart-item { display: flex; gap: 15px; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); }
         .cart-item:last-child { border-bottom: none; margin-bottom: 0; }
+        
+        /* MODIFIED: Added styles for clickable elements in cart */
+        .cart-item-image { display: block; } /* Make the anchor a block element */
         .cart-item-image img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; }
+        .cart-item-name-link { text-decoration: none; color: inherit; }
+        .cart-item-name-link:hover .cart-item-name { color: var(--accent-color); }
+        .cart-item-name { font-weight: 600; margin-bottom: 5px; transition: color 0.2s ease; }
+        
         .cart-item-details { flex-grow: 1; }
-        .cart-item-name { font-weight: 600; margin-bottom: 5px; }
         .cart-item-variant { font-size: 13px; color: var(--secondary-color); }
-        .cart-item-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .cart-item-actions { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; }
         .quantity-selector { display: flex; align-items: center; border: 1px solid var(--border-color); border-radius: 5px; }
         .quantity-btn { background: none; border: none; padding: 5px 10px; cursor: pointer; font-size: 16px; }
         .quantity-btn:disabled { cursor: not-allowed; color: #ccc; }
         .item-quantity { padding: 0 10px; font-weight: 500; }
-        .remove-item-btn { color: var(--danger-color); background: none; border: none; cursor: pointer; font-size: 18px; }
-        
+        .remove-item-btn { color: var(--danger-color); background: none; border: none; cursor: pointer; font-size: 18px; margin-top: 10px; }
         .empty-cart-message { text-align: center; padding: 40px; background-color: var(--surface-color); border-radius: 8px; }
         .empty-cart-message h3 { margin-top: 0; }
         .btn-shop-now { display: inline-block; background-color: var(--primary-color); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: 500; }
-        
         .order-totals { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
         .total-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px; }
         .total-row.grand-total { font-size: 18px; font-weight: 700; margin-top: 15px; }
         .complete-order-btn { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: background-color 0.3s ease; }
         .complete-order-btn:hover { background-color: #333; }
         .complete-order-btn:disabled { background-color: var(--secondary-color); cursor: not-allowed; }
-
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { background-color: white; padding: 40px; border-radius: 8px; max-width: 90%; width: 450px; text-align: center; transform: scale(0.9); transition: transform 0.3s ease; }
@@ -155,7 +89,6 @@
         .modal-content h2 { margin-top: 0; }
         .modal-content p { color: var(--secondary-color); font-size: 16px; }
         .order-details-summary { margin: 20px 0; padding: 15px; background-color: var(--surface-color); border-radius: 6px; }
-        
         @media (max-width: 991px) { .cart-layout { grid-template-columns: 1fr; } #order-summary { margin-top: 40px; } }
 
     </style>
@@ -174,10 +107,10 @@
         <header class="main-header">
             <div class="container header-content">
                 <div class="store-logo">
-                    <a href="index.html" id="store-logo-link"></a>
+                    <a href="/" id="store-logo-link"></a>
                 </div>
                 <div class="header-icons">
-                    <a href="cart.html" class="cart-icon-link">
+                    <a href="/cart/" class="cart-icon-link">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-item-count">0</span>
                     </a>
@@ -239,7 +172,7 @@
              <div class="empty-cart-message">
                 <h3>Your cart is empty!</h3>
                 <p>Looks like you haven't added anything to your cart yet.</p>
-                <a href="index.html" class="btn-shop-now">Continue Shopping</a>
+                <a href="/" class="btn-shop-now">Continue Shopping</a>
             </div>
         </div>
     </main>
@@ -260,7 +193,7 @@
                 <strong>Order ID:</strong> <span id="final-order-id"></span><br>
                 <strong>Total Amount:</strong> <span id="final-total-amount"></span>
             </div>
-            <a href="index.html" class="btn-shop-now">Continue Shopping</a>
+            <a href="/" class="btn-shop-now">Continue Shopping</a>
         </div>
     </div>
 
@@ -329,72 +262,46 @@
             }
         }
         
-        // *** UPDATED: Function to verify cart against database stock ***
         async function verifyCartStock() {
             if (cart.length === 0) return;
-
             const productIds = [...new Set(cart.map(item => item.productId))];
             const productPromises = productIds.map(id => getDoc(doc(db, "products", id)));
             const productSnaps = await Promise.all(productPromises);
-            
             const productsData = {};
             productSnaps.forEach(snap => {
-                if (snap.exists()) {
-                    productsData[snap.id] = snap.data();
-                }
+                if (snap.exists()) { productsData[snap.id] = snap.data(); }
             });
-
             let cartWasAdjusted = false;
             const verifiedCart = [];
-
             for (const item of cart) {
                 const product = productsData[item.productId];
-                
-                // If product doesn't exist or is not active, remove from cart
                 if (!product || product.status !== 'active') {
                     showToast(`"${item.name}" is no longer available and has been removed.`, 'error');
-                    cartWasAdjusted = true;
-                    continue;
+                    cartWasAdjusted = true; continue;
                 }
-
                 let stock = 0;
-                // Check variant stock
                 if (item.variantDetails && Object.keys(item.variantDetails).length > 0) {
-                    const variant = product.variants.find(v => 
-                        Object.keys(item.variantDetails).every(key => v[key] === item.variantDetails[key])
-                    );
+                    const variant = product.variants.find(v => Object.keys(item.variantDetails).every(key => v[key] === item.variantDetails[key]));
                     stock = variant ? variant.quantity : 0;
-                } else { // Check simple product stock
-                    stock = product.quantity || 0;
-                }
-                
+                } else { stock = product.quantity || 0; }
                 item.stock = stock;
-
                 if (stock === 0) {
                     showToast(`"${item.name}" is out of stock and has been removed.`, 'error');
-                    cartWasAdjusted = true;
-                    continue;
+                    cartWasAdjusted = true; continue;
                 }
-
                 if (item.quantity > stock) {
                     showToast(`Quantity for "${item.name}" adjusted to stock limit (${stock})`, 'error');
-                    item.quantity = stock;
-                    cartWasAdjusted = true;
+                    item.quantity = stock; cartWasAdjusted = true;
                 }
-                
                 verifiedCart.push(item);
             }
-
             cart = verifiedCart;
-            if (cartWasAdjusted) {
-                localStorage.setItem('cart', JSON.stringify(cart));
-            }
+            if (cartWasAdjusted) { localStorage.setItem('cart', JSON.stringify(cart)); }
         }
-
+        
+        // MODIFIED: This function now adds clean links to product pages
         async function renderCartItems() {
             const cartItemsList = document.getElementById('cart-items-list');
-            
-            // First, verify stock before rendering
             await verifyCartStock();
             updateCartCount();
 
@@ -402,8 +309,7 @@
                 document.getElementById('cart-view').style.display = 'none';
                 document.getElementById('empty-cart-view').style.display = 'block';
                 cartItemsList.innerHTML = '';
-                updateTotals();
-                return;
+                updateTotals(); return;
             }
             
             document.getElementById('cart-view').style.display = 'block';
@@ -416,12 +322,18 @@
                 itemElement.className = 'cart-item';
                 itemElement.dataset.id = item.id;
                 itemElement.dataset.stock = item.stock;
+
+                // Use the clean URL stored in item.productPage
+                const productUrl = item.productPage || '#';
+
                 itemElement.innerHTML = `
-                    <div class="cart-item-image">
+                    <a href="${productUrl}" class="cart-item-image">
                         <img src="${item.image || 'https://placehold.co/80x80/eee/ccc?text=No+Image'}" alt="${item.name}">
-                    </div>
+                    </a>
                     <div class="cart-item-details">
-                        <div class="cart-item-name">${item.name}</div>
+                        <a href="${productUrl}" class="cart-item-name-link">
+                            <div class="cart-item-name">${item.name}</div>
+                        </a>
                         ${variantText ? `<div class="cart-item-variant">${variantText}</div>` : ''}
                         <div class="cart-item-price">Tk ${item.price}</div>
                     </div>
@@ -442,41 +354,30 @@
         function updateItemQuantityUI(itemId, newQuantity) {
             const itemElement = document.querySelector(`.cart-item[data-id="${itemId}"]`);
             if (!itemElement) return;
-
             itemElement.querySelector('.item-quantity').textContent = newQuantity;
             const stock = parseInt(itemElement.dataset.stock, 10);
             itemElement.querySelector('.increase-qty').disabled = newQuantity >= stock;
-
             updateTotals();
         }
-
 
         function updateTotals() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const selectedZone = shippingZones.find(zone => zone.id === document.getElementById('deliveryZone').value);
             const shippingCharges = selectedZone ? selectedZone.amount : 0;
             const totalAmount = subtotal + shippingCharges;
-
             document.getElementById('subtotal').textContent = `Tk ${subtotal.toFixed(2)}`;
             document.getElementById('shipping-charges').textContent = `Tk ${shippingCharges.toFixed(2)}`;
             document.getElementById('total-amount').textContent = `Tk ${totalAmount.toFixed(2)}`;
-            
             const orderBtn = document.getElementById('complete-order-btn');
             const form = document.getElementById('shipping-form');
-            if (cart.length > 0 && form.checkValidity()) {
-                orderBtn.disabled = false;
-            } else {
-                orderBtn.disabled = true;
-            }
+            orderBtn.disabled = !(cart.length > 0 && form.checkValidity());
         }
 
         async function fetchShippingZones() {
             const zonesCollection = collection(db, "shipping_zones");
             const zonesSnap = await getDocs(zonesCollection);
             const deliveryZoneSelect = document.getElementById('deliveryZone');
-            
             shippingZones = zonesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
             shippingZones.forEach(zone => {
                 const option = document.createElement('option');
                 option.value = zone.id;
@@ -489,25 +390,23 @@
             const itemIndex = cart.findIndex(item => item.id === itemId);
             if (itemIndex > -1) {
                 const newQuantity = cart[itemIndex].quantity + change;
-
                 if (newQuantity <= 0) {
                     cart.splice(itemIndex, 1);
                     localStorage.setItem('cart', JSON.stringify(cart));
                     updateCartCount();
-                    renderCartItems(); // Full re-render needed for item removal
+                    renderCartItems();
                 } else {
                     cart[itemIndex].quantity = newQuantity;
                     localStorage.setItem('cart', JSON.stringify(cart));
                     updateCartCount();
-                    updateItemQuantityUI(itemId, newQuantity); // Lightweight update
+                    updateItemQuantityUI(itemId, newQuantity);
                 }
             }
         }
 
         function handleFormValidation() {
             const form = document.getElementById('shipping-form');
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
+            form.querySelectorAll('input, select, textarea').forEach(input => {
                 input.addEventListener('input', updateTotals);
             });
         }
@@ -518,7 +417,7 @@
             orderBtn.disabled = true;
             orderBtn.textContent = 'Processing...';
 
-            await renderCartItems(); // Final stock check before placing order
+            await renderCartItems();
             if (cart.length === 0) {
                 showToast("Your cart is empty or items are out of stock.", "error");
                 orderBtn.disabled = false;
@@ -536,7 +435,8 @@
                 customerDetails: { name: form.fullName.value, phone: form.phone.value, address: form.address.value, },
                 products: cart.map(item => ({
                     name: item.name, price: item.price, quantity: item.quantity, imageUrl: item.image || '',
-                    productId: item.productId, variantDetails: item.variantDetails || {}
+                    productId: item.productId, variantDetails: item.variantDetails || {},
+                    productPage: item.productPage || '' // Storing the clean URL in the order
                 })),
                 summary: { subtotal: subtotalValue, shipping: shippingValue, total: totalValue, },
                 status: 'Pending', orderDate: serverTimestamp() 
@@ -547,12 +447,10 @@
                     const counterRef = doc(db, "counters", "order_counter");
                     const counterSnap = await transaction.get(counterRef);
                     let nextId = counterSnap.exists() ? counterSnap.data().lastId + 1 : 1001;
-                    
                     const newOrderRef = doc(collection(db, "orders"));
                     orderData.orderId = nextId; 
                     transaction.set(newOrderRef, orderData);
                     transaction.set(counterRef, { lastId: nextId });
-                    
                     return nextId;
                 });
                 
@@ -560,16 +458,14 @@
                 document.getElementById('final-total-amount').textContent = `Tk ${totalValue.toFixed(2)}`;
                 document.getElementById('thank-you-modal').classList.add('active');
 
-                // Fire Purchase event
                 if (typeof fbq === 'function') {
                     fbq('track', 'Purchase', {
-                        value: totalValue,
-                        currency: 'BDT',
+                        value: totalValue, currency: 'BDT',
                         content_name: 'Order Confirmation',
                         content_ids: orderData.products.map(p => p.productId),
                         content_type: 'product',
                         num_items: orderData.products.reduce((sum, p) => sum + p.quantity, 0),
-                        order_id: newOrderId // Using the new custom order ID
+                        order_id: newOrderId
                     });
                 }
                 
@@ -577,7 +473,6 @@
                 localStorage.removeItem('cart');
                 updateCartCount();
                 renderCartItems();
-
 
             } catch (error) {
                 console.error("Error placing order: ", error);
@@ -589,27 +484,19 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
-            
             await loadSharedComponents();
             await fetchShippingZones();
-            
             document.querySelector('.main-footer').style.display = 'block';
-
             cart = JSON.parse(localStorage.getItem('cart')) || [];
-            await renderCartItems(); // This now includes stock verification
+            await renderCartItems();
             
-            // Fire InitiateCheckout event if the cart is not empty
             if (typeof fbq === 'function' && cart.length > 0) {
                 const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                const num_items = cart.reduce((sum, item) => sum + item.quantity, 0);
-                const content_ids = cart.map(item => item.productId);
-
                 fbq('track', 'InitiateCheckout', {
-                    content_ids: content_ids,
+                    content_ids: cart.map(item => item.productId),
                     content_type: 'product',
-                    num_items: num_items,
-                    value: subtotal,
-                    currency: 'BDT'
+                    num_items: cart.reduce((sum, item) => sum + item.quantity, 0),
+                    value: subtotal, currency: 'BDT'
                 });
             }
 
@@ -619,9 +506,7 @@
                 const target = event.target;
                 const cartItemDiv = target.closest('.cart-item');
                 if (!cartItemDiv) return;
-                
                 const itemId = cartItemDiv.dataset.id;
-                
                 if (target.closest('.increase-qty')) {
                     const stock = parseInt(cartItemDiv.dataset.stock, 10);
                     const currentItem = cart.find(item => item.id === itemId);
@@ -633,13 +518,12 @@
                 } else if (target.closest('.decrease-qty')) {
                     handleQuantityChange(itemId, -1);
                 } else if (target.closest('.remove-item-btn')) {
-                    handleQuantityChange(itemId, -Infinity); // Using a large negative number to ensure removal
+                    handleQuantityChange(itemId, -Infinity);
                 }
             });
 
             document.getElementById('deliveryZone').addEventListener('change', updateTotals);
             document.getElementById('complete-order-btn').addEventListener('click', handleCompleteOrder);
-            
             document.getElementById('phone').addEventListener('input', function(e) {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
