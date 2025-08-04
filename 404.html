@@ -4,40 +4,27 @@
   <meta charset="utf-8">
   <title>Redirecting...</title>
   <script type="text/javascript">
-    // Page load howar shomoy je path-e user ashte cheyechilo, sheta dhore feli
-    const path = window.location.pathname;
-    const search = window.location.search;
-    const hash = window.location.hash;
+    // 1. User kon URL-e jete cheyechilo, sheta dhore feli
+    const originalPath = window.location.pathname;
 
-    // Ekti trick jate page-ti bar bar redirect na hoy
-    const redirected = sessionStorage.getItem('redirected');
-    if (!redirected) {
-      sessionStorage.setItem('redirected', 'true');
+    // 2. Oi path-ti browser-er memory-te (sessionStorage) rekhe dei
+    sessionStorage.setItem('originalPath', originalPath);
 
-      let destination = null;
+    let destination = null;
 
-      // Jodi URL-ti /collections/ diye shuru hoy
-      if (path.startsWith('/collections/')) {
-        // Tahole user-ke shorashori collection.html file-e pathiye daw
-        destination = '/collection.html';
-      } 
-      // Jodi URL-ti /product-details/ diye shuru hoy
-      else if (path.startsWith('/product-details/')) {
-        // Tahole user-ke shorashori product-details.html file-e pathiye daw
-        destination = '/product-details.html';
-      }
-      // Add other page redirects here if needed
-      else if (path.startsWith('/cart')) {
-          destination = '/cart.html';
-      }
-      else if (path.startsWith('/all-products')) {
-          destination = '/all-products.html';
-      }
-
-      if (destination) {
-        // Redirect to the actual file. The script on that page will read the original path.
-        window.location.replace(destination + search + hash);
-      }
+    // 3. Path onujayi shothik HTML file-e redirect kori
+    if (originalPath.startsWith('/collections/')) {
+      destination = '/collection.html';
+    } else if (originalPath.startsWith('/product-details/')) {
+      destination = '/product-details.html';
+    } else if (originalPath.startsWith('/cart')) {
+      destination = '/cart.html';
+    } else if (originalPath.startsWith('/all-products')) {
+      destination = '/all-products.html';
+    }
+    
+    if (destination) {
+      window.location.replace(destination);
     }
   </script>
 </head>
