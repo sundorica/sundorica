@@ -5,14 +5,13 @@ name: Generate Sitemap
 on:
   push:
     branches:
-      - main # গুরুত্বপূর্ণ: আপনার মূল ব্রাঞ্চের নাম main না হলে সেটি এখানে লিখুন
+      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
-    # ফাইল সেভ করার অনুমতি দেওয়ার জন্য এই অংশটি যোগ করা হয়েছে
     permissions:
       contents: write
 
@@ -42,5 +41,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Auto-generate sitemap.xml"
-          # public ফোল্ডারের পাথ এখানে আপডেট করা হয়েছে
-          file_pattern: public/sitemap.xml
+          file_pattern: sitemap.xml
