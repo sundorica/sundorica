@@ -11,6 +11,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    # ফাইল সেভ করার অনুমতি দেওয়ার জন্য এই অংশটি যোগ করা হয়েছে
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -37,5 +41,6 @@ jobs:
       - name: Commit and push sitemap
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Auto-generate sitemap"
-          file_pattern: sitemap.xml
+          commit_message: "Auto-generate sitemap.xml"
+          # public ফোল্ডারের পাথ এখানে আপডেট করা হয়েছে
+          file_pattern: public/sitemap.xml
