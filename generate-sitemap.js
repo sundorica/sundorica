@@ -81,7 +81,7 @@ async function generateSitemap() {
   // Convert the XML object to a string
   const xml = urlset.end({ prettyPrint: true });
 
-  // Write the sitemap to a file
+  // Write the sitemap to a file in the root directory
   fs.writeFileSync("sitemap.xml", xml);
   console.log("sitemap.xml successfully generated!");
 }
