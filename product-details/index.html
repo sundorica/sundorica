@@ -14,15 +14,136 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-zoom.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-thumbnail.min.css" />
 
-    <link rel="stylesheet" href="/style.css">
-    <script src="/meta-pixel-config.js"></script>
 
+    <style>
+        /* General Styles */
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #666666;
+            --accent-color: #007bff;
+            --background-color: #ffffff;
+            --surface-color: #f8f9fa;
+            --border-color: #e9ecef;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+        }
+
+        html { height: 100%; }
+        body {
+            font-family: 'Inter', sans-serif; margin: 0; background-color: var(--background-color);
+            color: var(--primary-color); line-height: 1.6; display: flex; flex-direction: column;
+            min-height: 100vh;
+        }
+        main { flex-grow: 1; }
+        .container { width: 100%; max-width: 100%; margin: 0 auto; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
+        section { padding: 40px 0; }
+        .header-wrapper { position: sticky; top: 0; z-index: 100; background-color: var(--background-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .main-header { padding: 15px 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .store-logo a { text-decoration: none; color: var(--primary-color); }
+        .store-logo img { max-height: 45px; display: block; }
+        .store-logo .store-name { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 700; }
+        .main-nav { display: none; }
+        @media (min-width: 992px) { .main-nav { display: block; } }
+        .main-nav ul { margin: 0; padding: 0; list-style: none; display: flex; gap: 25px; }
+        .main-nav li { position: relative; }
+        .main-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .has-submenu > a i { font-size: 0.7em; transition: transform 0.3s ease; }
+        .has-submenu.active > a i { transform: rotate(180deg); }
+        .submenu { display: none; position: absolute; top: 100%; left: 0; background-color: white; list-style: none; padding: 10px 0; margin-top: 10px; min-width: 200px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border-color); opacity: 0; transform: translateY(10px); transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none; z-index: 10; }
+        .main-nav .has-submenu.active > .submenu { display: block; opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .submenu li { padding: 0 15px; }
+        .submenu a { padding: 8px 0; width: 100%; }
+        .header-icons { display: flex; align-items: center; gap: 15px; font-size: 20px; }
+        .header-icons a { color: var(--primary-color); }
+        .mobile-menu-toggle { display: none; font-size: 24px; cursor: pointer; }
+        .mobile-search-header, .desktop-search-header { display: none; align-items: center; padding: 15px 0; width: 100%; }
+        .mobile-search-header .search-icon, .desktop-search-header .search-icon { padding: 0 10px; font-size: 20px; color: var(--secondary-color); }
+        .mobile-search-header input, .desktop-search-header input { flex-grow: 1; border: none; outline: none; font-size: 16px; }
+        .mobile-search-header .close-search-btn, .desktop-search-header .close-desktop-search-btn { background: none; border: none; font-size: 24px; cursor: pointer; padding: 0 10px; }
+        body.search-active .header-content, body.desktop-search-active .header-content { display: none; }
+        body.search-active .mobile-search-header { display: flex; }
+        @media (min-width: 992px) { #mobile-search-icon, #mobile-menu-toggle { display: none; } #desktop-search-trigger { display: inline-block; } body.desktop-search-active .desktop-search-header { display: flex; } }
+        @media (max-width: 991px) { .main-nav { display: none; } .mobile-menu-toggle { display: block; } #desktop-search-trigger { display: none; } }
+        .main-footer { background-color: var(--surface-color); padding: 5px 0; border-top: .5px solid var(--border-color); text-align: center; display: none; }
+        .social-links { margin-bottom: 10px; }
+        .social-links a { font-size: 12px; color: var(--secondary-color); margin: 0 6px; }
+        .copyright { font-size: 8px; color: var(--secondary-color); }
+        .mobile-nav-panel { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background-color: white; z-index: 102; transition: right 0.4s ease-in-out; padding: 20px; box-sizing: border-box; box-shadow: -2px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
+        .mobile-nav-panel.active { right: 0; }
+        .mobile-nav-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .mobile-nav-header h3 { margin: 0; }
+        .close-mobile-nav { font-size: 24px; cursor: pointer; }
+        .mobile-nav-panel ul { list-style: none; padding: 0; margin: 20px 0 0 0; }
+        .mobile-nav-panel li { border-bottom: 1px solid var(--border-color); }
+        .mobile-nav-panel a { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; text-decoration: none; color: var(--primary-color); font-weight: 500; }
+        .mobile-nav-panel .submenu { display: block; position: static; opacity: 1; transform: none; pointer-events: auto; box-shadow: none; border: none; margin: 0; min-width: unset; background-color: transparent; list-style: none; padding-left: 20px; padding-top: 0; padding-bottom: 0; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; }
+        .mobile-nav-panel .has-submenu.active > .submenu { max-height: 500px; }
+        .mobile-nav-panel .has-submenu > a i { transition: transform 0.3s ease; }
+        .mobile-nav-panel .has-submenu.active > a i { transform: rotate(180deg); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 101; display: none; }
+        .overlay.active { display: block; }
+        .cart-icon-link { position: relative; display: inline-block; }
+        .cart-item-count { position: absolute; top: -8px; right: -12px; background-color: var(--danger-color); color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; line-height: 1; display: none; }
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { padding: 15px 20px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(100%); animation: slideInUp 0.5s forwards, fadeOutDown 0.5s 3.5s forwards; }
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--danger-color); }
+        .toast i { font-size: 20px; }
+        @keyframes slideInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOutDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(100%); } }
+        .product-details-layout { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        .main-image a { display: block; cursor: zoom-in; }
+        .main-image img { width: 100%; height: auto; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); }
+        .thumbnail-images { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .thumbnail-images .thumbnail-link { display: block; cursor: pointer; border: 2px solid transparent; border-radius: 6px; transition: border-color 0.3s ease; }
+        .thumbnail-images .thumbnail-link.active, .thumbnail-images .thumbnail-link:hover { border-color: var(--primary-color); }
+        .thumbnail-images img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 4px; }
+        @media (min-width: 768px) {
+            .product-details-layout { grid-template-columns: 1fr 1fr; gap: 50px; }
+            .product-gallery { display: grid; grid-template-columns: 100px 1fr; gap: 20px; align-items: start; }
+            .thumbnail-images { grid-template-columns: 1fr; order: 1; margin-top: 0; }
+            .main-image { order: 2; }
+            .action-buttons { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 767px) { .product-info-details .product-name { font-size: 20px; } .main-image { order: 1; } .thumbnail-images { order: 2; } }
+        .product-info-details .product-name { font-size: 24px; font-weight: 600; margin-bottom: 15px; }
+        .product-info-details .product-price { font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        .product-info-details .compare-at-price { font-size: 18px; text-decoration: line-through; color: var(--danger-color); }
+        .variant-selector { margin-bottom: 15px; } .variant-selector.hidden { display: none; }
+        .variant-selector .variant-label { font-weight: 500; margin-bottom: 10px; display: block; }
+        .variant-options { display: flex; flex-wrap: wrap; gap: 10px; }
+        .variant-btn { padding: 8px 15px; border: 1px solid var(--border-color); border-radius: 5px; cursor: pointer; background-color: white; transition: all 0.3s ease; }
+        .variant-btn.hidden { display: none; }
+        .variant-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .size-chart-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; font-size: 14px; color: var(--secondary-color); cursor: pointer; text-decoration: underline; }
+        .action-buttons { display: grid; grid-template-columns: 1fr; gap: 15px; margin: 25px 0; }
+        .add-to-cart-btn, .buy-now-btn { display: block; width: 100%; padding: 15px; border: 1px solid var(--primary-color); border-radius: 5px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .add-to-cart-btn { background-color: var(--surface-color); color: var(--primary-color); }
+        .add-to-cart-btn:hover { background-color: var(--border-color); }
+        .buy-now-btn { background-color: var(--primary-color); color: white; }
+        .buy-now-btn:hover { background-color: #333; }
+        .add-to-cart-btn:disabled, .buy-now-btn:disabled { background-color: #ccc; border-color: #ccc; cursor: not-allowed; }
+        .product-info-details .product-description { margin-top: 25px; color: var(--secondary-color); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 8px; max-width: 90%; width: 700px; max-height: 90vh; overflow-y: auto; position: relative; transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; background: none; border: none; cursor: pointer; }
+        #size-chart-content table { width: 100%; border-collapse: collapse; text-align: center; }
+        #size-chart-content th, #size-chart-content td { border: 1px solid var(--border-color); padding: 8px; }
+        #size-chart-content th { background-color: var(--surface-color); }
+        @media (max-width: 767px) { .lg-toolbar { padding-right: 50px !important; } }
+        .lg-toolbar .lg-close { background-color: rgba(0,0,0,0.5); color: #fff; border-radius: 50%; display: block !important; opacity: 1 !important; position: fixed; top: 15px; right: 15px; width: 35px; height: 35px; font-size: 22px; padding: 0; line-height: 35px; text-align: center; cursor: pointer; }
+    </style>
+
+    <script src="meta-pixel-config.js"></script>
     <noscript>
         <img height="1" width="1" style="display:none"
              src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1"
         />
     </noscript>
-</head>
+    </head>
 <body>
     
     <div id="toast-container"></div>
@@ -95,8 +216,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/thumbnail/lg-thumbnail.min.js"></script>
 
     <script type="module">
-        // This is the complete, correct script from our previous discussions.
-        // It's designed to work with clean URLs and the 404.html redirect system.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
@@ -121,7 +240,9 @@
             const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
             toast.innerHTML = `<i class="fas ${iconClass}"></i><span>${message}</span>`;
             toastContainer.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 4000);
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
         }
 
         function updateCartCount() {
@@ -410,6 +531,7 @@
 
             function getSelectedItem() {
                 let selectedItem = null;
+                // MODIFIED: Updated product page link to be a clean URL
                 const productSlug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
                 const cleanProductPageUrl = `/product-details/${productSlug}/${product.id}`;
 
@@ -484,6 +606,7 @@
                             value: item.price, currency: 'BDT'
                         });
                     }
+                    // MODIFIED: Updated Buy Now link to be a clean URL
                     window.location.href = '/cart/';
                 });
             }
@@ -492,27 +615,33 @@
             updateButtonState();
         }
 
+        /* === MODIFIED: This is the main updated function for this page === */
         async function loadProductDetails() {
             try {
+                // 1. Check browser memory (sessionStorage) for the path from the 404 redirect
                 let path = sessionStorage.getItem('originalPath');
                 if (path) {
                     sessionStorage.removeItem('originalPath');
                 } else {
+                    // If no path in memory, use the current window's path
                     path = window.location.pathname;
                 }
 
+                // 2. Get the product ID from the end of the path (e.g., ".../product-name/PRODUCT_ID")
                 const pathParts = path.split('/');
-                const productId = pathParts.pop() || pathParts.pop();
+                const productId = pathParts[pathParts.length - 1];
 
                 if (!productId) {
                     throw new Error("Product ID not found in URL.");
                 }
 
+                // 3. Use the productId to fetch the document from Firestore
                 const productSnap = await getDoc(doc(db, "products", productId));
 
                 let productData = null;
                 if (productSnap.exists()) {
                     productData = { id: productSnap.id, ...productSnap.data() };
+                    // Fetch size chart if it exists
                     if (productData.sizeChartId) {
                         const pageSnap = await getDoc(doc(db, "pages", productData.sizeChartId));
                         if (pageSnap.exists()) {
@@ -521,12 +650,15 @@
                     }
                 }
 
+                // Render the product details (or a "not found" message if productData is null)
                 renderProductDetails(productData, path);
+                
+                // 4. Clean up the URL in the browser bar to show the pretty URL
                 window.history.replaceState(null, '', path);
 
             } catch (error) {
                 console.error("Error loading product details:", error);
-                renderProductDetails(null);
+                renderProductDetails(null); // Render the "not found" state
             }
         }
         
@@ -538,6 +670,7 @@
                 const mobileValue = document.getElementById('mobileSearchInput').value; 
                 const searchTerm = desktopValue || mobileValue; 
                 if (searchTerm) { 
+                    // MODIFIED: Updated search link to be a clean URL
                     window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`; 
                 } 
             }; 
