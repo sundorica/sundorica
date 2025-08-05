@@ -1,63 +1,89 @@
-// ফাইলের নাম: generate-sitemap.js
+// generate-sitemap.js
 
-const admin = require('firebase-admin');
-const builder = require('xmlbuilder');
-const fs = require('fs');
+const { initializeApp } = require("firebase/app");
+const { getFirestore, collection, getDocs } = require("firebase/firestore");
+const { create } = require("xmlbuilder2");
+const fs = require("fs");
 
-// GitHub Secret থেকে Firebase Key পড়া
-if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-  throw new Error("FIREBASE_SERVICE_ACCOUNT secret is not set in GitHub Actions.");
+// Helper function to convert text to a URL-friendly slug
+function slugify(text) {
+  if (typeof text !== 'string') return '';
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+    .replace(/\-\-+/g, "-") // Replace multiple - with single -
+    .replace(/^-+/, "") // Trim - from start of text
+    .replace(/-+$/, ""); // Trim - from end of text
 }
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
-// Firebase App চালু করা (আপনার দেওয়া সঠিক URL সহ)
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://nasir-9102c-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
+// Your Firebase configuration is read from environment variables (GitHub Secrets)
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+};
 
-const db = admin.firestore();
-const DOMAIN = "https://www.sundorica.com"; // আপনার ডোমেইন
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// প্রোডাক্টের নাম থেকে slug তৈরির ফাংশন
-function createSlug(name) {
-    if (!name) return '';
-    return name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-}
+const BASE_URL = "https://www.sundorica.com";
 
 async function generateSitemap() {
-  console.log('Starting sitemap generation...');
-  const root = builder.create('urlset', { version: '1.0', encoding: 'UTF-8' }).att('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
-
-  // স্ট্যাটিক পেইজের লিংক
-  root.ele('url').ele('loc', `${DOMAIN}/`);
-  root.ele('url').ele('loc', `${DOMAIN}/all-products/`);
-  root.ele('url').ele('loc', `${DOMAIN}/cart/`);
-
-  // কালেকশন পেইজের লিংক
-  const collectionsSnap = await db.collection('collections').get();
-  collectionsSnap.forEach(doc => {
-    const collection = doc.data();
-    if (collection.slug) {
-        root.ele('url').ele('loc', `${DOMAIN}/collections/${collection.slug}`);
-    }
+  const urlset = create({ version: "1.0", encoding: "UTF-8" }).ele("urlset", {
+    xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
   });
 
-  // সকল অ্যাক্টিভ প্রোডাক্টের লিংক
-  const productsSnap = await db.collection('products').where('status', '==', 'active').get();
-  productsSnap.forEach(doc => {
-    const product = doc.data();
-    const productSlug = createSlug(product.name);
-    const productId = doc.id;
-    root.ele('url').ele('loc', `${DOMAIN}/product-details/${productSlug}/${productId}`);
+  // 1. Add static pages - আপনার অন্য কোনো পেজ থাকলে এখানে যোগ করুন
+  const staticPages = ["/", "/collections", "/cart", "/about", "/contact"]; 
+  staticPages.forEach((page) => {
+    urlset.ele("url").ele("loc").txt(`${BASE_URL}${page}`).up();
   });
 
-  // sitemap.xml ফাইলটি তৈরি করা
-  fs.writeFileSync('sitemap.xml', xml);
-  console.log('Sitemap generated successfully!');
+  // 2. Fetch and add collection pages
+  try {
+    const collectionsSnapshot = await getDocs(collection(db, "collections"));
+    collectionsSnapshot.forEach((doc) => {
+      const slug = doc.data().slug;
+      if (slug) {
+        urlset.ele("url").ele("loc").txt(`${BASE_URL}/collections/${slug}`).up();
+      }
+    });
+    console.log("Successfully fetched and added collection pages.");
+  } catch (error) {
+    console.error("Error fetching collections:", error);
+  }
+
+  // 3. Fetch and add product pages
+  try {
+    const productsSnapshot = await getDocs(collection(db, "products"));
+    productsSnapshot.forEach((doc) => {
+      const productData = doc.data();
+      const productId = doc.id;
+      // Get the category from the first item in the 'collections' array field
+      const category = productData.collections && productData.collections[0] ? productData.collections[0] : 'general';
+      const categorySlug = slugify(category);
+      
+      if (productId && categorySlug) {
+        urlset.ele("url").ele("loc").txt(`${BASE_URL}/product-details/${categorySlug}/${productId}`).up();
+      }
+    });
+    console.log("Successfully fetched and added product pages.");
+  } catch (error) {
+    console.error("Error fetching products:", error);
+  }
+
+  // Convert the XML object to a string
+  const xml = urlset.end({ prettyPrint: true });
+
+  // Write the sitemap to a file
+  fs.writeFileSync("sitemap.xml", xml);
+  console.log("sitemap.xml successfully generated!");
 }
 
-generateSitemap().catch(error => {
-    console.error('Sitemap generation failed:', error);
-    process.exit(1);
-});
+generateSitemap();
