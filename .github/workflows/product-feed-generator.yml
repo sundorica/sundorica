@@ -1,0 +1,37 @@
+# ফাইলের পাথ: .github/workflows/product-feed-generator.yml
+
+name: Generate Meta Product Feed
+
+on:
+  push:
+    branches:
+      - main  # যখন main branch এ কোড পুশ করা হবে
+  schedule:
+    - cron: '0 0 * * *' # প্রতিদিন মধ্যরাতে স্বয়ংক্রিয়ভাবে রান হবে
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install firebase-admin xmlbuilder
+
+      - name: Generate Product Feed
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node generate-product-feed.js
+
+      - name: Commit and Push Product Feed
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 'Automated: Update product_feed.xml'
+          file_pattern: 'product_feed.xml'
