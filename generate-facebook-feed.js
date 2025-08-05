@@ -39,15 +39,15 @@ async function generateFacebookFeed() {
     productsSnapshot.forEach((doc) => {
       const productData = doc.data();
 
-      // ব্যবহারকারীর অনুরোধ অনুযায়ী, quantity শূন্য বা কম হলে ফিডে যোগ করা হবে না
       if (!productData.quantity || productData.quantity <= 0) {
-        return; // Skip this product
+        return; 
       }
       
       const productId = doc.id;
-      const category = productData.collections && productData.collections[0] ? productData.collections[0] : 'general';
-      const categorySlug = slugify(category);
-      const productLink = `${BASE_URL}/product-details/${categorySlug}/${productId}`;
+      // === এই অংশটি পরিবর্তন করা হয়েছে ===
+      const productName = productData.name;
+      const productNameSlug = slugify(productName);
+      const productLink = `${BASE_URL}/product-details/${productNameSlug}/${productId}`;
 
       const item = rss.ele("item");
       item.ele("g:id").txt(productId).up();
@@ -55,9 +55,9 @@ async function generateFacebookFeed() {
       item.ele("g:description").txt(productData.description || "No description available").up();
       item.ele("g:link").txt(productLink).up();
       item.ele("g:image_link").txt(productData.imageUrls[0]).up();
-      item.ele("g:availability").txt("in stock").up(); // যেহেতু আমরা আগেই ফিল্টার করেছি
+      item.ele("g:availability").txt("in stock").up();
       item.ele("g:price").txt(`${productData.price} BDT`).up();
-      item.ele("g:brand").txt("Sundorica").up(); // ডিফল্ট ব্র্যান্ডের নাম
+      item.ele("g:brand").txt("Sundorica").up();
       item.ele("g:condition").txt("new").up();
     });
     console.log("Successfully fetched products for Facebook feed.");
