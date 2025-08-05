@@ -8,14 +8,7 @@ const fs = require("fs");
 // Helper function to convert text to a URL-friendly slug
 function slugify(text) {
   if (typeof text !== 'string') return '';
-  return text
-    .toString()
-    .toLowerCase()
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
-    .replace(/\-\-+/g, "-") // Replace multiple - with single -
-    .replace(/^-+/, "") // Trim - from start of text
-    .replace(/-+$/, ""); // Trim - from end of text
+  return text.toString().toLowerCase().replace(/\s+/g, "-").replace(/[^\w\-]+/g, "").replace(/\-\-+/g, "-").replace(/^-+/, "").replace(/-+$/, "");
 }
 
 // Your Firebase configuration is read from environment variables (GitHub Secrets)
@@ -39,7 +32,7 @@ async function generateSitemap() {
     xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
   });
 
-  // 1. Add static pages - আপনার অন্য কোনো পেজ থাকলে এখানে যোগ করুন
+  // 1. Add static pages
   const staticPages = ["/", "/collections", "/cart", "/about", "/contact"]; 
   staticPages.forEach((page) => {
     urlset.ele("url").ele("loc").txt(`${BASE_URL}${page}`).up();
@@ -65,12 +58,12 @@ async function generateSitemap() {
     productsSnapshot.forEach((doc) => {
       const productData = doc.data();
       const productId = doc.id;
-      // Get the category from the first item in the 'collections' array field
-      const category = productData.collections && productData.collections[0] ? productData.collections[0] : 'general';
-      const categorySlug = slugify(category);
+      // === এই অংশটি পরিবর্তন করা হয়েছে ===
+      const productName = productData.name;
+      const productNameSlug = slugify(productName);
       
-      if (productId && categorySlug) {
-        urlset.ele("url").ele("loc").txt(`${BASE_URL}/product-details/${categorySlug}/${productId}`).up();
+      if (productId && productNameSlug) {
+        urlset.ele("url").ele("loc").txt(`${BASE_URL}/product-details/${productNameSlug}/${productId}`).up();
       }
     });
     console.log("Successfully fetched and added product pages.");
@@ -78,10 +71,7 @@ async function generateSitemap() {
     console.error("Error fetching products:", error);
   }
 
-  // Convert the XML object to a string
   const xml = urlset.end({ prettyPrint: true });
-
-  // Write the sitemap to a file in the root directory
   fs.writeFileSync("sitemap.xml", xml);
   console.log("sitemap.xml successfully generated!");
 }
