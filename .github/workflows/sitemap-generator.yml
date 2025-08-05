@@ -1,35 +1,29 @@
 # ফাইলের পাথ: .github/workflows/sitemap-generator.yml
-
 name: Generate Sitemap
 
 on:
   push:
     branches:
-      - main  # যখন main branch এ কোড পুশ করা হবে
+      - main
   schedule:
-    - cron: '0 0 * * 0' # প্রতি রবিবার মধ্যরাতে স্বয়ংক্রিয়ভাবে রান হবে
+    - cron: '0 0 * * 0'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-
       - name: Install Dependencies
         run: npm install firebase-admin xmlbuilder
-
       - name: Generate Sitemap
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: node generate-sitemap.js
-
       - name: Commit and Push Sitemap
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
