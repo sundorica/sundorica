@@ -8,7 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
+    
     <style>
         /* All your CSS styles remain the same... */
         :root {
@@ -29,7 +32,7 @@
         main { flex-grow: 1; }
         .container { width: 100%; max-width: 100%; margin: 0 auto; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
         section { padding: 40px 0; }
-        h2.section-title { text-align: center; font-size: 28px; margin-bottom: 40px; }
+        .section-title { text-align: center; font-size: 28px; margin-bottom: 40px; }
         .header-wrapper { position: sticky; top: 0; z-index: 100; background-color: var(--background-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .main-header { padding: 15px 0; }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
@@ -149,7 +152,7 @@
         <section class="container">
             <h2 class="section-title" id="collection-title">Loading Collection...</h2>
             <div class="product-grid" id="product-grid">
-                </div>
+            </div>
         </section>
     </main>
 
@@ -188,7 +191,6 @@
             }
         }
 
-        // This function will be populated by loadSharedComponents
         function createMenuItems(items, parentUl, slugMap) { 
              items.forEach(item => { 
                 const li = document.createElement('li'); 
@@ -213,14 +215,15 @@
             }); 
         }
 
+        // UPDATED: Added rel="noopener noreferrer" for security and best practices
         function renderSocialLinks(links) {
             const container = document.getElementById('social-links');
             if (!links || !container) return;
             let html = '';
-            if (links.facebook) html += `<a href="${links.facebook}" target="_blank"><i class="fab fa-facebook-f"></i></a>`;
-            if (links.instagram) html += `<a href="${links.instagram}" target="_blank"><i class="fab fa-instagram"></i></a>`;
-            if (links.twitter) html += `<a href="${links.twitter}" target="_blank"><i class="fab fa-twitter"></i></a>`;
-            if (links.youtube) html += `<a href="${links.youtube}" target="_blank"><i class="fab fa-youtube"></i></a>`;
+            if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>`;
+            if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>`;
+            if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>`;
+            if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>`;
             container.innerHTML = html;
         }
         
@@ -259,8 +262,6 @@
                     const navContainer = document.getElementById('main-nav');
                     const mobileNavContainer = document.getElementById('mobile-nav-links');
                     const ul = document.createElement('ul');
-
-                    // MODIFIED: Pass mobile `ul` to the function
                     const mobileUl = document.createElement('ul');
                     
                     createMenuItems(menuData.items, ul, collectionSlugMap);
@@ -314,69 +315,99 @@
             });
         }
         
-        /* === MODIFIED: This is the main updated function for this page === */
+        // NEW: Function to add SEO elements for the collection page
+        function addCollectionSeoTags(collectionData, path, products) {
+            const pageUrl = `https://www.sundorica.com${path}`;
+
+            // 1. Add/Update Canonical URL
+            let canonicalLink = document.querySelector("link[rel='canonical']");
+            if (!canonicalLink) {
+                canonicalLink = document.createElement('link');
+                canonicalLink.rel = 'canonical';
+                document.head.appendChild(canonicalLink);
+            }
+            canonicalLink.href = pageUrl;
+            
+            // 2. Add/Update JSON-LD Schema for ItemList
+            let schemaScript = document.querySelector('script[type="application/ld+json"]');
+            if (!schemaScript) {
+                schemaScript = document.createElement('script');
+                schemaScript.type = 'application/ld+json';
+                document.head.appendChild(schemaScript);
+            }
+
+            const schema = {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "name": collectionData.name,
+                "description": collectionData.description || `Explore the ${collectionData.name} collection at Sundorica.`,
+                "url": pageUrl,
+                "numberOfItems": products.length,
+                "itemListElement": products.map((product, index) => {
+                    const productSlug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+                    const productUrl = `https://www.sundorica.com/product-details/${productSlug}/${product.id}`;
+                    return {
+                        "@type": "ListItem",
+                        "position": index + 1,
+                        "item": {
+                            "@type": "Product",
+                            "url": productUrl,
+                            "name": product.name,
+                            "image": (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : '',
+                            "offers": {
+                                "@type": "Offer",
+                                "priceCurrency": "BDT",
+                                "price": product.price
+                            }
+                        }
+                    };
+                })
+            };
+            
+            schemaScript.textContent = JSON.stringify(schema);
+        }
+
         async function loadCollectionProducts() {
             try {
-                // 1. Check browser memory (sessionStorage) for the path from the 404 redirect
-                let path = sessionStorage.getItem('originalPath');
-                if (path) {
-                    // Use it once, then remove it
-                    sessionStorage.removeItem('originalPath');
-                } else {
-                    // If no path in memory, use the current window's path (for direct visits or refreshes)
-                    path = window.location.pathname;
-                }
+                let path = sessionStorage.getItem('originalPath') || window.location.pathname;
+                if (sessionStorage.getItem('originalPath')) sessionStorage.removeItem('originalPath');
                 
-                // 2. Get the slug from the path (e.g., "unstitched")
                 const pathParts = path.split('/');
                 const collectionSlug = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
 
-                if (!collectionSlug) {
-                    throw new Error("Collection slug not found in URL.");
-                }
+                if (!collectionSlug) throw new Error("Collection slug not found in URL.");
 
-                // 3. Use the slug to find the correct collection document in Firestore
                 const collectionsRef = collection(db, "collections");
                 const q = query(collectionsRef, where("slug", "==", collectionSlug), limit(1));
                 const querySnapshot = await getDocs(q);
 
-                if (querySnapshot.empty) {
-                    throw new Error(`Collection with slug '${collectionSlug}' not found.`);
-                }
+                if (querySnapshot.empty) throw new Error(`Collection with slug '${collectionSlug}' not found.`);
 
                 const collectionDoc = querySnapshot.docs[0];
                 const collectionData = collectionDoc.data();
                 const collectionName = collectionData.name;
 
-                // Update the page title and browser history to show the clean URL
                 document.getElementById('collection-title').textContent = collectionName;
                 document.title = `${collectionName} - Sundorica`;
-                window.history.replaceState(null, '', path); // Make sure URL bar shows the clean URL
+                window.history.replaceState(null, '', path);
 
-                // Fire ViewCategory event for Meta Pixel
                 if (typeof fbq === 'function') {
-                    fbq('track', 'ViewCategory', {
-                        content_name: collectionName,
-                        content_category: collectionName,
-                    });
+                    fbq('track', 'ViewCategory', { content_name: collectionName, content_category: collectionName });
                 }
 
-                // 4. Use the collection NAME to find all products
                 const productsRef = collection(db, "products");
                 const productsQuery = query(productsRef, where("collections", "array-contains", collectionName));
                 const productsSnap = await getDocs(productsQuery);
                 
                 allCollectionProducts = productsSnap.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
-                    .filter(p => p.status === 'active');
-                
-                allCollectionProducts.sort((a, b) => {
-                    const timeA = a.createdAt?.toMillis() || 0;
-                    const timeB = b.createdAt?.toMillis() || 0;
-                    return timeB - timeA;
-                });
+                    .filter(p => p.status === 'active')
+                    .sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 
                 renderProducts(allCollectionProducts);
+
+                // Add SEO Tags after products are loaded
+                addCollectionSeoTags(collectionData, path, allCollectionProducts);
 
             } catch (error) {
                 console.error("Error loading collection products:", error);
