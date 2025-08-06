@@ -5,15 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sundorica</title>
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
-    
-    <link rel="preload" as="image" href="/path/to/your/main-hero-image.webp">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <script src="/meta-pixel-config.js"></script>
 
@@ -23,6 +18,7 @@
         />
     </noscript>
     <style>
+        /* All your CSS styles remain the same... */
         :root {
             --primary-color: #1a1a1a;
             --secondary-color: #666666;
@@ -110,8 +106,13 @@
         .off-badge { position: absolute; top: 8px; right: 8px; background-color: var(--danger-color); color: white; padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; z-index: 2; }
         .view-all-container { text-align: center; margin-top: 40px; }
         .view-all-container .btn { background-color: var(--primary-color); color: white; text-decoration: none; padding: 12px 30px; border-radius: 5px; font-weight: 600; }
-        .main-footer { background-color: var(--surface-color); padding: 15px 0; border-top: .5px solid var(--border-color); text-align: center; display: none; }
-        .copyright { font-size: 12px; color: var(--secondary-color); }
+        .main-footer { background-color: var(--surface-color); padding: 20px 0; border-top: .5px solid var(--border-color); text-align: center; display: none; }
+        .footer-links { margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .footer-links a { color: var(--secondary-color); text-decoration: none; font-size: 12px; cursor: pointer; }
+        .footer-links a:hover { color: var(--primary-color); }
+        .social-links { margin-bottom: 10px; }
+        .social-links a { font-size: 12px; color: var(--secondary-color); margin: 0 6px; }
+        .copyright { font-size: 8px; color: var(--secondary-color); }
         .mobile-nav-panel { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background-color: white; z-index: 102; transition: right 0.4s ease-in-out; padding: 20px; box-sizing: border-box; box-shadow: -2px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
         .mobile-nav-panel.active { right: 0; }
         .mobile-nav-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
@@ -129,122 +130,24 @@
         @media (max-width: 768px) { .slide-content .btn { font-size: 12px; padding: 8px 20px; } }
 
         /* --- Messenger Icon CSS --- */
-        .messenger-chat-icon {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            z-index: 1000;
-            cursor: pointer;
-        }
-        .messenger-chat-icon i {
-            font-size: 50px;
-            color: #00B2FF;
-            transition: transform 0.2s ease-in-out;
-        }
-        .messenger-chat-icon:hover i {
-            transform: scale(1.1);
-        }
-        @media (max-width: 768px) {
-            .messenger-chat-icon {
-                bottom: 20px;
-                right: 20px;
-            }
-            .messenger-chat-icon i {
-                font-size: 40px;
-            }
-        }
+        .messenger-chat-icon { position: fixed; bottom: 25px; right: 25px; z-index: 1000; cursor: pointer; }
+        .messenger-chat-icon i { font-size: 50px; color: #00B2FF; transition: transform 0.2s ease-in-out; }
+        .messenger-chat-icon:hover i { transform: scale(1.1); }
+        @media (max-width: 768px) { .messenger-chat-icon { bottom: 20px; right: 20px; } .messenger-chat-icon i { font-size: 40px; } }
 
-        /* --- Footer Links & Modal CSS --- */
-        .footer-links {
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .footer-links a {
-            color: var(--secondary-color);
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        .footer-links a:hover {
-            color: var(--primary-color);
-            text-decoration: underline;
-        }
-        .social-links { margin-bottom: 10px; }
-        .social-links a { font-size: 14px; color: var(--secondary-color); margin: 0 8px; }
-
-        @media (min-width: 769px) {
-            .main-footer .container {
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .footer-links {
-                order: 1;
-                justify-content: flex-start;
-                margin-bottom: 0;
-            }
-            .copyright {
-                order: 2;
-            }
-            .social-links {
-                order: 3;
-                margin-bottom: 0;
-            }
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 103;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            max-width: 600px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            animation: fadeInModal 0.3s ease-out;
-        }
-        @keyframes fadeInModal {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .close-modal-btn {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close-modal-btn:hover { color: #000; }
-        .modal-content h2 { margin-top: 0; font-size: 22px; }
-        .modal-content h3 { font-size: 18px; margin-top: 20px; margin-bottom: 10px; }
-        .modal-content p, .modal-content li { font-size: 15px; line-height: 1.7; }
-        .modal-content ul { padding-left: 20px; list-style-type: disc; }
-        .modal-content a { color: var(--accent-color); }
+        /* --- Info Modal CSS --- */
+        .info-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 103; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .info-modal-overlay.active { display: flex; }
+        .info-modal-content { background-color: white; padding: 25px; border-radius: 8px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; position: relative; animation: modal-fade-in 0.3s ease; }
+        @keyframes modal-fade-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .info-modal-close { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #888; }
+        .info-modal-close:hover { color: #000; }
+        #info-modal-title { margin-top: 0; margin-bottom: 20px; font-size: 22px; color: var(--primary-color); }
+        #info-modal-body p, #info-modal-body li { font-size: 14px; line-height: 1.7; color: var(--secondary-color); margin-bottom: 1em; }
+        #info-modal-body h4 { font-size: 16px; margin-top: 20px; margin-bottom: 10px; color: var(--primary-color); }
+        #info-modal-body ul { padding-left: 20px; margin-bottom: 1em; }
+        #info-modal-body ul li { margin-bottom: 0.5em; }
+        #info-modal-body .contact-info p { font-size: 16px; line-height: 1.8; margin-bottom: 0.5em; }
     </style>
 </head>
 <body>
@@ -310,74 +213,27 @@
     <footer class="main-footer">
         <div class="container">
             <div class="footer-links">
-                <a id="about-link">About</a>
-                <a id="contact-link">Contact</a>
-                <a id="privacy-link">Privacy Policy</a>
+                <a data-modal="about">About</a>
+                <a data-modal="contact">Contact</a>
+                <a data-modal="privacy">Privacy Policy</a>
             </div>
-            <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
             <div class="social-links" id="social-links"></div>
+            <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
         </div>
     </footer>
 
     <a href="https://m.me/670864642785681" class="messenger-chat-icon" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on Messenger">
         <i class="fab fa-facebook-messenger"></i>
     </a>
-
-    <div id="about-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal-btn">&times;</span>
-            <h2>About</h2>
-            <p>Sundorica is a celebration of feminine elegance — where timeless skincare meets graceful fashion. Our brand blends the essence of natural beauty with style, offering premium skincare products designed for radiant, healthy skin, alongside modern clothing crafted for confidence and comfort.</p>
-            <p>From nourishing serums to breathable fabrics, Sundorica empowers every woman to feel beautiful — inside and out. Rooted in purity, luxury, and purpose, we believe beauty is not just what you wear, but how you care for yourself.</p>
-            <p><strong>Sundorica – Where Beauty Meets Style.</strong></p>
+    
+    <div id="info-modal" class="info-modal-overlay">
+        <div class="info-modal-content">
+            <button class="info-modal-close">&times;</button>
+            <h3 id="info-modal-title"></h3>
+            <div id="info-modal-body"></div>
         </div>
     </div>
 
-    <div id="contact-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal-btn">&times;</span>
-            <h2>Contact</h2>
-            <p><strong>Phone:</strong> <a href="tel:+8801994887927">+8801994887927</a></p>
-            <p><strong>Email:</strong> <a href="mailto:sundorica@gmail.com">sundorica@gmail.com</a></p>
-        </div>
-    </div>
-
-    <div id="privacy-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal-btn">&times;</span>
-            <h2>Privacy Policy</h2>
-            <p>At Sundorica, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your information when you interact with our brand through our Facebook page, online platforms, and during the purchase of skincare or clothing products.</p>
-            <h3>1. Information We Collect</h3>
-            <ul>
-                <li>Name</li>
-                <li>Phone number</li>
-                <li>Email address</li>
-                <li>Delivery/shipping address</li>
-                <li>Product preferences</li>
-                <li>Your messages via Messenger, comments, or email</li>
-            </ul>
-            <h3>2. How We Use Your Information</h3>
-            <ul>
-                <li>Process and deliver your orders</li>
-                <li>Communicate with you about your purchases</li>
-                <li>Provide customer service</li>
-                <li>Send you order updates or promotional offers (if you agree)</li>
-                <li>Improve our products and services</li>
-            </ul>
-            <h3>3. Data Sharing</h3>
-            <p>We do not share or sell your personal information to any third parties. Your data is only used by our internal team for order fulfillment and communication.</p>
-            <h3>4. Data Security</h3>
-            <p>We take reasonable precautions to protect your data from unauthorized access, misuse, or disclosure. All information is kept confidential and used only for business purposes.</p>
-            <h3>5. Your Rights</h3>
-            <p>You may request:</p>
-            <ul>
-                <li>To view the data we hold about you</li>
-                <li>To correct or delete your personal information</li>
-                <li>To opt out of promotional messages at any time</li>
-            </ul>
-            <p>We value your trust and are committed to handling your personal information responsibly.</p>
-        </div>
-    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
@@ -513,7 +369,7 @@
             function getPositionX(event) { return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX; }
             function animation() { setSliderPosition(); if (isDragging) requestAnimationFrame(animation); }
             function setSliderPosition() { sliderTrack.style.transform = `translateX(${currentTranslate}px)`; }
-            
+
             function renderProducts(productsToRender) { 
                 const grid = document.getElementById('product-grid'); grid.innerHTML = ''; 
                 if (productsToRender.length === 0) { grid.innerHTML = '<p style="text-align: center;">No products found.</p>'; return; } 
@@ -535,50 +391,101 @@
             }
             
             function renderSocialLinks(links) { const container = document.getElementById('social-links'); if (!links) return; let html = ''; if (links.facebook) html += `<a href="${links.facebook}" target="_blank"><i class="fab fa-facebook-f"></i></a>`; if (links.instagram) html += `<a href="${links.instagram}" target="_blank"><i class="fab fa-instagram"></i></a>`; if (links.twitter) html += `<a href="${links.twitter}" target="_blank"><i class="fab fa-twitter"></i></a>`; if (links.youtube) html += `<a href="${links.youtube}" target="_blank"><i class="fab fa-youtube"></i></a>`; container.innerHTML = html; }
-            
             function setCopyrightYear() { document.getElementById('copyright-year').textContent = new Date().getFullYear(); }
-            
-            function setupEventListeners() { const handleSearch = () => { const desktopValue = document.getElementById('desktopSearchInput').value; const mobileValue = document.getElementById('mobileSearchInput').value; const searchTerm = (desktopValue || mobileValue).trim(); if (searchTerm) { if (typeof fbq === 'function') { fbq('track', 'Search', { search_string: searchTerm }); } window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`; } }; const desktopSearchInput = document.getElementById('desktopSearchInput'); const mobileSearchInput = document.getElementById('mobileSearchInput'); if (desktopSearchInput) { desktopSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } if (mobileSearchInput) { mobileSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } const desktopSearchTrigger = document.getElementById('desktop-search-trigger'); const closeDesktopSearchBtn = document.querySelector('.close-desktop-search-btn'); if (desktopSearchTrigger) { desktopSearchTrigger.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('desktop-search-active'); desktopSearchInput.focus(); }); } if (closeDesktopSearchBtn) { closeDesktopSearchBtn.addEventListener('click', () => { document.body.classList.remove('desktop-search-active'); }); } const mobileSearchIcon = document.getElementById('mobile-search-icon'); const closeSearchBtn = document.querySelector('.close-search-btn'); if(mobileSearchIcon) { mobileSearchIcon.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('search-active'); mobileSearchInput.focus(); }); } if(closeSearchBtn) { closeSearchBtn.addEventListener('click', () => { document.body.classList.remove('search-active'); }); } const mobileMenuToggle = document.querySelector('.mobile-menu-toggle'); const mobileNavPanel = document.getElementById('mobile-nav-panel'); const closeMobileNav = document.querySelector('.close-mobile-nav'); const overlay = document.getElementById('overlay'); const closeMenu = () => { mobileNavPanel.classList.remove('active'); overlay.classList.remove('active'); }; if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', () => { mobileNavPanel.classList.add('active'); overlay.classList.add('active'); }); if (closeMobileNav) closeMobileNav.addEventListener('click', closeMenu); if (overlay) overlay.addEventListener('click', closeMenu); }
+            function setupEventListeners() { 
+                const handleSearch = () => { const desktopValue = document.getElementById('desktopSearchInput').value; const mobileValue = document.getElementById('mobileSearchInput').value; const searchTerm = (desktopValue || mobileValue).trim(); if (searchTerm) { if (typeof fbq === 'function') { fbq('track', 'Search', { search_string: searchTerm }); } window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`; } }; const desktopSearchInput = document.getElementById('desktopSearchInput'); const mobileSearchInput = document.getElementById('mobileSearchInput'); if (desktopSearchInput) { desktopSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } if (mobileSearchInput) { mobileSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } const desktopSearchTrigger = document.getElementById('desktop-search-trigger'); const closeDesktopSearchBtn = document.querySelector('.close-desktop-search-btn'); if (desktopSearchTrigger) { desktopSearchTrigger.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('desktop-search-active'); desktopSearchInput.focus(); }); } if (closeDesktopSearchBtn) { closeDesktopSearchBtn.addEventListener('click', () => { document.body.classList.remove('desktop-search-active'); }); } const mobileSearchIcon = document.getElementById('mobile-search-icon'); const closeSearchBtn = document.querySelector('.close-search-btn'); if(mobileSearchIcon) { mobileSearchIcon.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('search-active'); mobileSearchInput.focus(); }); } if(closeSearchBtn) { closeSearchBtn.addEventListener('click', () => { document.body.classList.remove('search-active'); }); } const mobileMenuToggle = document.querySelector('.mobile-menu-toggle'); const mobileNavPanel = document.getElementById('mobile-nav-panel'); const closeMobileNav = document.querySelector('.close-mobile-nav'); const overlay = document.getElementById('overlay'); const closeMenu = () => { mobileNavPanel.classList.remove('active'); overlay.classList.remove('active'); }; if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', () => { mobileNavPanel.classList.add('active'); overlay.classList.add('active'); }); if (closeMobileNav) closeMobileNav.addEventListener('click', closeMenu); if (overlay) overlay.addEventListener('click', closeMenu); 
 
-            function setupModalListeners() {
-                const modalTriggers = {
-                    'about-link': 'about-modal',
-                    'contact-link': 'contact-modal',
-                    'privacy-link': 'privacy-modal'
-                };
-
-                for (const triggerId in modalTriggers) {
-                    const trigger = document.getElementById(triggerId);
-                    const modalId = modalTriggers[triggerId];
-                    const modal = document.getElementById(modalId);
-
-                    if (trigger && modal) {
-                        trigger.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            modal.classList.add('active');
-                        });
-
-                        const closeBtn = modal.querySelector('.close-modal-btn');
-                        if (closeBtn) {
-                            closeBtn.addEventListener('click', () => {
-                                modal.classList.remove('active');
-                            });
-                        }
-
-                        modal.addEventListener('click', (e) => {
-                            if (e.target === modal) {
-                                modal.classList.remove('active');
-                            }
-                        });
+                // --- New Modal Logic ---
+                const modalContent = {
+                    about: {
+                        title: 'About',
+                        body: `
+                            <p>Sundorica is a celebration of feminine elegance — where timeless skincare meets graceful fashion. Our brand blends the essence of natural beauty with style, offering premium skincare products designed for radiant, healthy skin, alongside modern clothing crafted for confidence and comfort.</p>
+                            <p>From nourishing serums to breathable fabrics, Sundorica empowers every woman to feel beautiful — inside and out. Rooted in purity, luxury, and purpose, we believe beauty is not just what you wear, but how you care for yourself.</p>
+                            <p><strong>Sundorica – Where Beauty Meets Style.</strong></p>
+                        `
+                    },
+                    contact: {
+                        title: 'Contact',
+                        body: `
+                            <div class="contact-info">
+                                <p>+8801994887927</p>
+                                <p>Email: sundorica@gmail.com</p>
+                            </div>
+                        `
+                    },
+                    privacy: {
+                        title: 'Privacy Policy',
+                        body: `
+                            <p>At Sundorica, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your information when you interact with our brand through our Facebook page, online platforms, and during the purchase of skincare or clothing products.</p>
+                            <h4>1. Information We Collect</h4>
+                            <ul>
+                                <li>Name</li>
+                                <li>Phone number</li>
+                                <li>Email address</li>
+                                <li>Delivery/shipping address</li>
+                                <li>Product preferences</li>
+                                <li>Your messages via Messenger, comments, or email</li>
+                            </ul>
+                            <h4>2. How We Use Your Information</h4>
+                            <ul>
+                                <li>Process and deliver your orders</li>
+                                <li>Communicate with you about your purchases</li>
+                                <li>Provide customer service</li>
+                                <li>Send you order updates or promotional offers (if you agree)</li>
+                                <li>Improve our products and services</li>
+                            </ul>
+                            <h4>3. Data Sharing</h4>
+                            <ul>
+                                <li>We do not share or sell your personal information to any third parties. Your data is only used by our internal team for order fulfillment and communication.</li>
+                            </ul>
+                            <h4>4. Data Security</h4>
+                            <ul>
+                                <li>We take reasonable precautions to protect your data from unauthorized access, misuse, or disclosure. All information is kept confidential and used only for business purposes.</li>
+                            </ul>
+                            <h4>5. Your Rights</h4>
+                            <p>You may request:</p>
+                            <ul>
+                                <li>To view the data we hold about you</li>
+                                <li>To correct or delete your personal information</li>
+                                <li>To opt out of promotional messages at any time</li>
+                            </ul>
+                            <p>We value your trust and are committed to handling your personal information responsibly.</p>
+                        `
                     }
-                }
+                };
+                const modalOverlay = document.getElementById('info-modal');
+                const modalTitle = document.getElementById('info-modal-title');
+                const modalBody = document.getElementById('info-modal-body');
+                const closeModalBtn = document.querySelector('.info-modal-close');
+                const footerLinks = document.querySelectorAll('.footer-links a');
+                
+                footerLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const modalType = link.getAttribute('data-modal');
+                        if (modalContent[modalType]) {
+                            modalTitle.textContent = modalContent[modalType].title;
+                            modalBody.innerHTML = modalContent[modalType].body;
+                            modalOverlay.classList.add('active');
+                        }
+                    });
+                });
+                const closeModal = () => {
+                    modalOverlay.classList.remove('active');
+                };
+                closeModalBtn.addEventListener('click', closeModal);
+                modalOverlay.addEventListener('click', (e) => {
+                    if (e.target === modalOverlay) {
+                        closeModal();
+                    }
+                });
             }
 
             // Initializing the page
             setCopyrightYear();
             await loadFrontendData();
             setupEventListeners();
-            setupModalListeners();
             updateCartCount();
         });
     </script>
