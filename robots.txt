@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /pos/
+Disallow: /admin/
+Disallow: /ads/
+Disallow: /cart/
+Disallow: /generate-facebook-feed.js
+Disallow: /generate-sitemap.js
+
+Allow: /
+
+Sitemap: https://www.sundorica.com/sitemap.xml
