@@ -18,7 +18,6 @@
         />
     </noscript>
     <style>
-        /* All your CSS styles remain the same... */
         :root {
             --primary-color: #1a1a1a;
             --secondary-color: #666666;
@@ -106,13 +105,67 @@
         .off-badge { position: absolute; top: 8px; right: 8px; background-color: var(--danger-color); color: white; padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; z-index: 2; }
         .view-all-container { text-align: center; margin-top: 40px; }
         .view-all-container .btn { background-color: var(--primary-color); color: white; text-decoration: none; padding: 12px 30px; border-radius: 5px; font-weight: 600; }
-        .main-footer { background-color: var(--surface-color); padding: 20px 0; border-top: .5px solid var(--border-color); text-align: center; display: none; }
-        .footer-links { margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
-        .footer-links a { color: var(--secondary-color); text-decoration: none; font-size: 12px; cursor: pointer; }
-        .footer-links a:hover { color: var(--primary-color); }
-        .social-links { margin-bottom: 10px; }
-        .social-links a { font-size: 12px; color: var(--secondary-color); margin: 0 6px; }
-        .copyright { font-size: 8px; color: var(--secondary-color); }
+        
+        /* --- Footer Styles --- */
+        .main-footer {
+            background-color: var(--surface-color);
+            padding: 5px 0;
+            border-top: .5px solid var(--border-color);
+            display: none;
+        }
+        .main-footer .container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 50px; /* Ensures footer has enough height */
+        }
+        .footer-center-content {
+            text-align: center;
+        }
+        .social-links {
+            margin-bottom: 10px;
+        }
+        .social-links a {
+            font-size: 12px;
+            color: var(--secondary-color);
+            margin: 0 6px;
+        }
+        .copyright {
+            font-size: 8px;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+        .footer-left-links {
+            position: absolute;
+            left: 20px; /* Aligns to the container's padding */
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 15px; /* Horizontal gap for desktop */
+        }
+        .footer-left-links a {
+            font-size: 12px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .footer-left-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        /* --- Mobile Footer Styles --- */
+        @media (max-width: 768px) {
+            .footer-left-links {
+                flex-direction: column; /* Stacks links vertically */
+                align-items: flex-start; /* Aligns them to the left */
+                gap: 5px; /* Vertical gap for mobile */
+            }
+            .footer-left-links a {
+                 font-size: 11px;
+            }
+        }
+        
         .mobile-nav-panel { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background-color: white; z-index: 102; transition: right 0.4s ease-in-out; padding: 20px; box-sizing: border-box; box-shadow: -2px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
         .mobile-nav-panel.active { right: 0; }
         .mobile-nav-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
@@ -212,13 +265,15 @@
 
     <footer class="main-footer">
         <div class="container">
-            <div class="footer-links">
+            <div class="footer-left-links">
                 <a data-modal="about">About</a>
                 <a data-modal="contact">Contact</a>
                 <a data-modal="privacy">Privacy Policy</a>
             </div>
-            <div class="social-links" id="social-links"></div>
-            <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
+            <div class="footer-center-content">
+                <div class="social-links" id="social-links"></div>
+                <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
+            </div>
         </div>
     </footer>
 
@@ -395,7 +450,7 @@
             function setupEventListeners() { 
                 const handleSearch = () => { const desktopValue = document.getElementById('desktopSearchInput').value; const mobileValue = document.getElementById('mobileSearchInput').value; const searchTerm = (desktopValue || mobileValue).trim(); if (searchTerm) { if (typeof fbq === 'function') { fbq('track', 'Search', { search_string: searchTerm }); } window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`; } }; const desktopSearchInput = document.getElementById('desktopSearchInput'); const mobileSearchInput = document.getElementById('mobileSearchInput'); if (desktopSearchInput) { desktopSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } if (mobileSearchInput) { mobileSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } const desktopSearchTrigger = document.getElementById('desktop-search-trigger'); const closeDesktopSearchBtn = document.querySelector('.close-desktop-search-btn'); if (desktopSearchTrigger) { desktopSearchTrigger.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('desktop-search-active'); desktopSearchInput.focus(); }); } if (closeDesktopSearchBtn) { closeDesktopSearchBtn.addEventListener('click', () => { document.body.classList.remove('desktop-search-active'); }); } const mobileSearchIcon = document.getElementById('mobile-search-icon'); const closeSearchBtn = document.querySelector('.close-search-btn'); if(mobileSearchIcon) { mobileSearchIcon.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('search-active'); mobileSearchInput.focus(); }); } if(closeSearchBtn) { closeSearchBtn.addEventListener('click', () => { document.body.classList.remove('search-active'); }); } const mobileMenuToggle = document.querySelector('.mobile-menu-toggle'); const mobileNavPanel = document.getElementById('mobile-nav-panel'); const closeMobileNav = document.querySelector('.close-mobile-nav'); const overlay = document.getElementById('overlay'); const closeMenu = () => { mobileNavPanel.classList.remove('active'); overlay.classList.remove('active'); }; if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', () => { mobileNavPanel.classList.add('active'); overlay.classList.add('active'); }); if (closeMobileNav) closeMobileNav.addEventListener('click', closeMenu); if (overlay) overlay.addEventListener('click', closeMenu); 
 
-                // --- New Modal Logic ---
+                // --- Modal Logic ---
                 const modalContent = {
                     about: {
                         title: 'About',
@@ -458,7 +513,7 @@
                 const modalTitle = document.getElementById('info-modal-title');
                 const modalBody = document.getElementById('info-modal-body');
                 const closeModalBtn = document.querySelector('.info-modal-close');
-                const footerLinks = document.querySelectorAll('.footer-links a');
+                const footerLinks = document.querySelectorAll('.footer-left-links a');
                 
                 footerLinks.forEach(link => {
                     link.addEventListener('click', (e) => {
