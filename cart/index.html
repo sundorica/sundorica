@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart-Sundorica</title>
+    
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://www.sundorica.com/cart/">
+
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
 
     <style>
         /* General & Shared Styles */
@@ -56,14 +62,11 @@
         .cart-items-list { max-height: 400px; overflow-y: auto; margin-bottom: 20px; }
         .cart-item { display: flex; gap: 15px; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); }
         .cart-item:last-child { border-bottom: none; margin-bottom: 0; }
-        
-        /* MODIFIED: Added styles for clickable elements in cart */
-        .cart-item-image { display: block; } /* Make the anchor a block element */
+        .cart-item-image { display: block; } 
         .cart-item-image img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; }
         .cart-item-name-link { text-decoration: none; color: inherit; }
         .cart-item-name-link:hover .cart-item-name { color: var(--accent-color); }
         .cart-item-name { font-weight: 600; margin-bottom: 5px; transition: color 0.2s ease; }
-        
         .cart-item-details { flex-grow: 1; }
         .cart-item-variant { font-size: 13px; color: var(--secondary-color); }
         .cart-item-actions { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; }
@@ -237,14 +240,15 @@
             }
         }
         
+        // UPDATED: Added rel="noopener noreferrer" for security and best practices
         function renderSocialLinks(links) {
             const container = document.getElementById('social-links');
             if (!links || !container) return;
             let html = '';
-            if (links.facebook) html += `<a href="${links.facebook}" target="_blank"><i class="fab fa-facebook-f"></i></a>`;
-            if (links.instagram) html += `<a href="${links.instagram}" target="_blank"><i class="fab fa-instagram"></i></a>`;
-            if (links.twitter) html += `<a href="${links.twitter}" target="_blank"><i class="fab fa-twitter"></i></a>`;
-            if (links.youtube) html += `<a href="${links.youtube}" target="_blank"><i class="fab fa-youtube"></i></a>`;
+            if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>`;
+            if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>`;
+            if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>`;
+            if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>`;
             container.innerHTML = html;
         }
 
@@ -300,7 +304,6 @@
             if (cartWasAdjusted) { localStorage.setItem('cart', JSON.stringify(cart)); }
         }
         
-        // MODIFIED: This function now adds clean links to product pages
         async function renderCartItems() {
             const cartItemsList = document.getElementById('cart-items-list');
             await verifyCartStock();
@@ -324,7 +327,6 @@
                 itemElement.dataset.id = item.id;
                 itemElement.dataset.stock = item.stock;
 
-                // Use the clean URL stored in item.productPage
                 const productUrl = item.productPage || '#';
 
                 itemElement.innerHTML = `
@@ -418,11 +420,12 @@
             orderBtn.disabled = true;
             orderBtn.textContent = 'Processing...';
 
-            await renderCartItems();
+            await verifyCartStock(); // Re-verify stock before completing order
             if (cart.length === 0) {
                 showToast("Your cart is empty or items are out of stock.", "error");
                 orderBtn.disabled = false;
                 orderBtn.textContent = 'Complete Order';
+                renderCartItems(); // Re-render to show empty cart view
                 return;
             }
 
@@ -437,7 +440,7 @@
                 products: cart.map(item => ({
                     name: item.name, price: item.price, quantity: item.quantity, imageUrl: item.image || '',
                     productId: item.productId, variantDetails: item.variantDetails || {},
-                    productPage: item.productPage || '' // Storing the clean URL in the order
+                    productPage: item.productPage || ''
                 })),
                 summary: { subtotal: subtotalValue, shipping: shippingValue, total: totalValue, },
                 status: 'Pending', orderDate: serverTimestamp() 
