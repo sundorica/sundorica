@@ -8,11 +8,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-zoom.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-thumbnail.min.css" />
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery.min.css"></noscript>
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-zoom.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-zoom.min.css"></noscript>
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-thumbnail.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-thumbnail.min.css"></noscript>
 
 
     <style>
@@ -208,7 +215,7 @@
         <div class="modal-content">
             <button class="modal-close-btn" id="modal-close-btn">&times;</button>
             <div id="size-chart-content">
-            </div>
+                </div>
         </div>
     </div>
 
@@ -268,7 +275,6 @@
                     li.classList.add('has-submenu'); 
                     linkHTML += ` <i class="fas fa-chevron-down"></i>`; 
                 } 
-                linkHTML += `</a>`; 
                 li.innerHTML = linkHTML; 
                 if (item.children && item.children.length > 0) { 
                     const subUl = document.createElement('ul'); 
@@ -279,8 +285,18 @@
                 parentUl.appendChild(li); 
             }); 
         }
-
-        function renderSocialLinks(links) { const container = document.getElementById('social-links'); if (!links || !container) return; let html = ''; if (links.facebook) html += `<a href="${links.facebook}" target="_blank"><i class="fab fa-facebook-f"></i></a>`; if (links.instagram) html += `<a href="${links.instagram}" target="_blank"><i class="fab fa-instagram"></i></a>`; if (links.twitter) html += `<a href="${links.twitter}" target="_blank"><i class="fab fa-twitter"></i></a>`; if (links.youtube) html += `<a href="${links.youtube}" target="_blank"><i class="fab fa-youtube"></i></a>`; container.innerHTML = html; }
+        
+        // UPDATED: Added rel="noopener noreferrer" for security and best practices
+        function renderSocialLinks(links) {
+            const container = document.getElementById('social-links');
+            if (!links || !container) return;
+            let html = '';
+            if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>`;
+            if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>`;
+            if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>`;
+            if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>`;
+            container.innerHTML = html;
+        }
         
         async function loadSharedComponents() { 
             const [storeDetailsSnap, navigationSnap, allCollectionsSnap] = await Promise.all([ 
@@ -288,7 +304,17 @@
                 getDoc(doc(db, "navigation", "main-menu")),
                 getDocs(collection(db, "collections"))
             ]); 
-            if (storeDetailsSnap.exists()) { const data = storeDetailsSnap.data(); const logoLink = document.getElementById('store-logo-link'); if (data.logoUrl) { logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`; } else if (data.storeName) { logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`; } document.getElementById('footer-store-name').textContent = data.storeName || 'Your Store'; renderSocialLinks(data.socialLinks); } 
+            if (storeDetailsSnap.exists()) { 
+                const data = storeDetailsSnap.data(); 
+                const logoLink = document.getElementById('store-logo-link'); 
+                if (data.logoUrl) { 
+                    logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`; 
+                } else if (data.storeName) { 
+                    logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`; 
+                } 
+                document.getElementById('footer-store-name').textContent = data.storeName || 'Your Store'; 
+                renderSocialLinks(data.socialLinks); 
+            } 
             
             const collectionSlugMap = new Map();
             if (!allCollectionsSnap.empty) {
@@ -300,7 +326,21 @@
                 });
             }
 
-            if (navigationSnap.exists()) { const menuData = navigationSnap.data(); if (menuData.items) { const navContainer = document.getElementById('main-nav'); const mobileNavContainer = document.getElementById('mobile-nav-links'); const ul = document.createElement('ul'); const mobileUl = document.createElement('ul'); createMenuItems(menuData.items, ul, collectionSlugMap); navContainer.innerHTML = ''; navContainer.appendChild(ul); createMenuItems(menuData.items, mobileUl, collectionSlugMap); mobileNavContainer.innerHTML = ''; mobileNavContainer.appendChild(mobileUl); } } 
+            if (navigationSnap.exists()) { 
+                const menuData = navigationSnap.data(); 
+                if (menuData.items) { 
+                    const navContainer = document.getElementById('main-nav'); 
+                    const mobileNavContainer = document.getElementById('mobile-nav-links'); 
+                    const ul = document.createElement('ul'); 
+                    const mobileUl = document.createElement('ul'); 
+                    createMenuItems(menuData.items, ul, collectionSlugMap); 
+                    navContainer.innerHTML = ''; 
+                    navContainer.appendChild(ul); 
+                    createMenuItems(menuData.items, mobileUl, collectionSlugMap); 
+                    mobileNavContainer.innerHTML = ''; 
+                    mobileNavContainer.appendChild(mobileUl); 
+                } 
+            } 
         }
         
         let currentSelections = {};
@@ -312,6 +352,41 @@
                 priceHTML += `<span class="compare-at-price">Tk ${priceData.comparePrice}</span>`;
             }
             return priceHTML;
+        }
+
+        // NEW: Function to add Product Schema for SEO
+        function addProductSchema(product, path) {
+            const existingSchema = document.querySelector('script[type="application/ld+json"]');
+            if (existingSchema) existingSchema.remove();
+
+            if (!product) return;
+
+            const schema = {
+                "@context": "https://schema.org/",
+                "@type": "Product",
+                "name": product.name,
+                "image": product.imageUrls || [],
+                "description": product.description,
+                "sku": product.id, // Using product ID as SKU
+                "offers": {
+                    "@type": "Offer",
+                    "url": `https://www.sundorica.com${path}`,
+                    "priceCurrency": "BDT",
+                    "price": product.price,
+                    "availability": (product.quantity > 0 || (product.variants && product.variants.some(v => v.quantity > 0)))
+                        ? "https://schema.org/InStock"
+                        : "https://schema.org/OutOfStock",
+                    "seller": {
+                        "@type": "Organization",
+                        "name": "Sundorica"
+                    }
+                }
+            };
+            
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.textContent = JSON.stringify(schema);
+            document.head.appendChild(script);
         }
 
         function renderProductDetails(product, path) {
@@ -329,6 +404,9 @@
             canonicalLink.rel = 'canonical';
             canonicalLink.href = `https://www.sundorica.com${path}`; 
             document.head.appendChild(canonicalLink);
+
+            // Add Product Schema for SEO
+            addProductSchema(product, path);
 
             if (typeof fbq === 'function') {
                 fbq('track', 'ViewContent', {
@@ -532,7 +610,6 @@
 
             function getSelectedItem() {
                 let selectedItem = null;
-                // MODIFIED: Updated product page link to be a clean URL
                 const productSlug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
                 const cleanProductPageUrl = `/product-details/${productSlug}/${product.id}`;
 
@@ -607,7 +684,6 @@
                             value: item.price, currency: 'BDT'
                         });
                     }
-                    // MODIFIED: Updated Buy Now link to be a clean URL
                     window.location.href = '/cart/';
                 });
             }
@@ -616,19 +692,15 @@
             updateButtonState();
         }
 
-        /* === MODIFIED: This is the main updated function for this page === */
         async function loadProductDetails() {
             try {
-                // 1. Check browser memory (sessionStorage) for the path from the 404 redirect
                 let path = sessionStorage.getItem('originalPath');
                 if (path) {
                     sessionStorage.removeItem('originalPath');
                 } else {
-                    // If no path in memory, use the current window's path
                     path = window.location.pathname;
                 }
 
-                // 2. Get the product ID from the end of the path (e.g., ".../product-name/PRODUCT_ID")
                 const pathParts = path.split('/');
                 const productId = pathParts[pathParts.length - 1];
 
@@ -636,13 +708,11 @@
                     throw new Error("Product ID not found in URL.");
                 }
 
-                // 3. Use the productId to fetch the document from Firestore
                 const productSnap = await getDoc(doc(db, "products", productId));
 
                 let productData = null;
                 if (productSnap.exists()) {
                     productData = { id: productSnap.id, ...productSnap.data() };
-                    // Fetch size chart if it exists
                     if (productData.sizeChartId) {
                         const pageSnap = await getDoc(doc(db, "pages", productData.sizeChartId));
                         if (pageSnap.exists()) {
@@ -650,16 +720,12 @@
                         }
                     }
                 }
-
-                // Render the product details (or a "not found" message if productData is null)
                 renderProductDetails(productData, path);
-                
-                // 4. Clean up the URL in the browser bar to show the pretty URL
                 window.history.replaceState(null, '', path);
 
             } catch (error) {
                 console.error("Error loading product details:", error);
-                renderProductDetails(null); // Render the "not found" state
+                renderProductDetails(null); 
             }
         }
         
@@ -671,7 +737,6 @@
                 const mobileValue = document.getElementById('mobileSearchInput').value; 
                 const searchTerm = desktopValue || mobileValue; 
                 if (searchTerm) { 
-                    // MODIFIED: Updated search link to be a clean URL
                     window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`; 
                 } 
             }; 
