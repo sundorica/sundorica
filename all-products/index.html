@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Products-Sundorica</title>
+
+    <link rel="canonical" href="https://www.sundorica.com/all-products/">
+    <meta name="description" content="Explore all products from Sundorica. Find the latest collections of skincare and fashion items.">
+
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
+    
     <style>
         /* General Styles */
         :root {
@@ -188,7 +195,6 @@
             }
         }
 
-        // MODIFIED: This function is now consistent with other pages
         function createMenuItems(items, parentUl, slugMap) {
             items.forEach(item => {
                 const li = document.createElement('li');
@@ -212,19 +218,19 @@
                 parentUl.appendChild(li);
             });
         }
-
+        
+        // UPDATED: Added rel="noopener noreferrer" for security and best practices
         function renderSocialLinks(links) {
             const container = document.getElementById('social-links');
             if (!links || !container) return;
             let html = '';
-            if (links.facebook) html += `<a href="${links.facebook}" target="_blank"><i class="fab fa-facebook-f"></i></a>`;
-            if (links.instagram) html += `<a href="${links.instagram}" target="_blank"><i class="fab fa-instagram"></i></a>`;
-            if (links.twitter) html += `<a href="${links.twitter}" target="_blank"><i class="fab fa-twitter"></i></a>`;
-            if (links.youtube) html += `<a href="${links.youtube}" target="_blank"><i class="fab fa-youtube"></i></a>`;
+            if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>`;
+            if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>`;
+            if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>`;
+            if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>`;
             container.innerHTML = html;
         }
 
-        // MODIFIED: This function is now consistent with other pages
         async function loadSharedComponents() {
             const [storeDetailsSnap, navigationSnap, allCollectionsSnap] = await Promise.all([
                 getDoc(doc(db, "settings", "store_details")),
@@ -273,7 +279,6 @@
             }
         }
 
-        // MODIFIED: Product links are now clean URLs
         function renderProducts(productsToRender) {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
@@ -296,7 +301,6 @@
                 }
 
                 const cardLink = document.createElement('a');
-                // Creating a clean URL for the product link
                 const productSlug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
                 cardLink.href = `/product-details/${productSlug}/${product.id}`;
                 
@@ -313,6 +317,46 @@
                     </div>`;
                 grid.appendChild(cardLink);
             });
+        }
+        
+        // NEW: Function to add SEO Schema for the "All Products" page
+        function addAllProductsSeoTags(products) {
+            let schemaScript = document.querySelector('script[type="application/ld+json"]');
+            if (!schemaScript) {
+                schemaScript = document.createElement('script');
+                schemaScript.type = 'application/ld+json';
+                document.head.appendChild(schemaScript);
+            }
+
+            const schema = {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "name": "All Products",
+                "description": "Browse all available products from Sundorica.",
+                "url": "https://www.sundorica.com/all-products/",
+                "numberOfItems": products.length,
+                "itemListElement": products.map((product, index) => {
+                    const productSlug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+                    const productUrl = `https://www.sundorica.com/product-details/${productSlug}/${product.id}`;
+                    return {
+                        "@type": "ListItem",
+                        "position": index + 1,
+                        "item": {
+                            "@type": "Product",
+                            "url": productUrl,
+                            "name": product.name,
+                            "image": (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : '',
+                            "offers": {
+                                "@type": "Offer",
+                                "priceCurrency": "BDT",
+                                "price": product.price
+                            }
+                        }
+                    };
+                })
+            };
+            
+            schemaScript.textContent = JSON.stringify(schema);
         }
 
         async function loadAllProducts() {
@@ -339,6 +383,9 @@
             } else {
                 renderProducts(allProducts);
             }
+            
+            // Add SEO tags after products are loaded
+            addAllProductsSeoTags(allProducts);
         }
 
         function addMenuEventListeners() {
@@ -366,7 +413,7 @@
             const mobileSearchInput = document.getElementById('mobileSearchInput');
             desktopSearchInput.addEventListener('input', handleSearch);
             mobileSearchInput.addEventListener('input', handleSearch);
-            
+
             document.getElementById('desktop-search-trigger').addEventListener('click', (e) => {
                 e.preventDefault();
                 document.body.classList.add('desktop-search-active');
