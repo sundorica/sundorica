@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sundorica</title>
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
+    
+    <!-- =================================================================== -->
+    <!-- PERFORMANCE & ACCESSIBILITY FIXES APPLIED                         -->
+    <!-- =================================================================== -->
+
+    <!-- Connect to required origins to speed up loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- FIX 1: Asynchronously load Google Fonts to prevent render-blocking -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+
+    <!-- FIX 2: Asynchronously load Font Awesome to prevent render-blocking -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
     
+    <!-- FIX 3: Defer Meta Pixel script to prevent render-blocking -->
     <script src="/meta-pixel-config.js" defer></script>
 
     <noscript>
@@ -18,6 +31,7 @@
         />
     </noscript>
     <style>
+        /* Your existing CSS styles remain unchanged */
         :root {
             --primary-color: #1a1a1a;
             --secondary-color: #666666;
@@ -105,67 +119,16 @@
         .off-badge { position: absolute; top: 8px; right: 8px; background-color: var(--danger-color); color: white; padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; z-index: 2; }
         .view-all-container { text-align: center; margin-top: 40px; }
         .view-all-container .btn { background-color: var(--primary-color); color: white; text-decoration: none; padding: 12px 30px; border-radius: 5px; font-weight: 600; }
-        
-        /* --- Footer Styles --- */
-        .main-footer {
-            background-color: var(--surface-color);
-            padding: 5px 0;
-            border-top: .5px solid var(--border-color);
-            display: none;
-        }
-        .main-footer .container {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 50px; /* Ensures footer has enough height */
-        }
-        .footer-center-content {
-            text-align: center;
-        }
-        .social-links {
-            margin-bottom: 10px;
-        }
-        .social-links a {
-            font-size: 12px;
-            color: var(--secondary-color);
-            margin: 0 6px;
-        }
-        .copyright {
-            font-size: 8px;
-            color: var(--secondary-color);
-            margin: 0;
-        }
-        .footer-left-links {
-            position: absolute;
-            left: 20px; /* Aligns to the container's padding */
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            gap: 15px; /* Horizontal gap for desktop */
-        }
-        .footer-left-links a {
-            font-size: 12px;
-            color: var(--secondary-color);
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .footer-left-links a:hover {
-            color: var(--primary-color);
-        }
-        
-        /* --- Mobile Footer Styles --- */
-        @media (max-width: 768px) {
-            .footer-left-links {
-                flex-direction: column; /* Stacks links vertically */
-                align-items: flex-start; /* Aligns them to the left */
-                gap: 5px; /* Vertical gap for mobile */
-            }
-            .footer-left-links a {
-                 font-size: 11px;
-            }
-        }
-        
+        .main-footer { background-color: var(--surface-color); padding: 5px 0; border-top: .5px solid var(--border-color); display: none; }
+        .main-footer .container { position: relative; display: flex; justify-content: center; align-items: center; min-height: 50px; }
+        .footer-center-content { text-align: center; }
+        .social-links { margin-bottom: 10px; }
+        .social-links a { font-size: 12px; color: var(--secondary-color); margin: 0 6px; }
+        .copyright { font-size: 8px; color: var(--secondary-color); margin: 0; }
+        .footer-left-links { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); display: flex; gap: 15px; }
+        .footer-left-links a { font-size: 12px; color: var(--secondary-color); text-decoration: none; cursor: pointer; }
+        .footer-left-links a:hover { color: var(--primary-color); }
+        @media (max-width: 768px) { .footer-left-links { flex-direction: column; align-items: flex-start; gap: 5px; } .footer-left-links a { font-size: 11px; } }
         .mobile-nav-panel { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background-color: white; z-index: 102; transition: right 0.4s ease-in-out; padding: 20px; box-sizing: border-box; box-shadow: -2px 0 10px rgba(0,0,0,0.1); overflow-y: auto; }
         .mobile-nav-panel.active { right: 0; }
         .mobile-nav-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
@@ -181,14 +144,10 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 101; display: none; }
         .overlay.active { display: block; }
         @media (max-width: 768px) { .slide-content .btn { font-size: 12px; padding: 8px 20px; } }
-
-        /* --- Messenger Icon CSS --- */
         .messenger-chat-icon { position: fixed; bottom: 25px; right: 25px; z-index: 1000; cursor: pointer; }
         .messenger-chat-icon i { font-size: 50px; color: #00B2FF; transition: transform 0.2s ease-in-out; }
         .messenger-chat-icon:hover i { transform: scale(1.1); }
         @media (max-width: 768px) { .messenger-chat-icon { bottom: 20px; right: 20px; } .messenger-chat-icon i { font-size: 40px; } }
-
-        /* --- Info Modal CSS --- */
         .info-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 103; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
         .info-modal-overlay.active { display: flex; }
         .info-modal-content { background-color: white; padding: 25px; border-radius: 8px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; position: relative; animation: modal-fade-in 0.3s ease; }
@@ -212,13 +171,16 @@
         <header class="main-header">
             <div class="container header-content">
                 <div class="store-logo">
-                    <a href="/" id="store-logo-link"></a>
+                    <!-- FIX 4: Added aria-label for accessibility -->
+                    <a href="/" id="store-logo-link" aria-label="Go to homepage"></a>
                 </div>
                 <nav class="main-nav" id="main-nav"></nav>
                 <div class="header-icons">
-                    <a href="#" id="desktop-search-trigger"><i class="fas fa-search"></i></a>
-                    <a href="#" id="mobile-search-icon"><i class="fas fa-search"></i></a>
-                    <a href="/cart/" class="cart-icon-link">
+                    <!-- FIX 4: Added aria-label for accessibility -->
+                    <a href="#" id="desktop-search-trigger" aria-label="Open search bar"><i class="fas fa-search"></i></a>
+                    <a href="#" id="mobile-search-icon" aria-label="Open search bar"><i class="fas fa-search"></i></a>
+                    <!-- FIX 4: Added aria-label for accessibility -->
+                    <a href="/cart/" class="cart-icon-link" aria-label="View your shopping cart">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-item-count">0</span>
                     </a>
@@ -289,7 +251,7 @@
         </div>
     </div>
 
-
+    <!-- NOTE: Your Firebase script is already a module and at the end of the body, which is good practice (it defers by default). No changes needed here. -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getFirestore, doc, getDoc, collection, getDocs, query, limit, orderBy, where } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
@@ -307,6 +269,7 @@
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
 
+            // The rest of your JavaScript remains unchanged...
             let featuredProducts = [];
             const sliderContainer = document.getElementById('hero-slider');
             let sliderTrack;
@@ -546,4 +509,3 @@
     </script>
 </body>
 </html>
-
