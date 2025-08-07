@@ -1,10 +1,7 @@
-// cleanup-cloudinary.js (Final Version)
-
 const { initializeApp } = require("firebase/app");
 const { getFirestore, collection, getDocs } = require("firebase/firestore");
 const cloudinary = require("cloudinary").v2;
 
-// --- Firebase এবং Cloudinary কনফিগারেশন ---
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -21,8 +18,6 @@ cloudinary.config({
   secure: true,
 });
 
-// --- Helper Function ---
-// Cloudinary URL থেকে public_id বের করার জন্য
 function getPublicIdFromUrl(url) {
   try {
     const parts = url.split("/");
@@ -34,11 +29,9 @@ function getPublicIdFromUrl(url) {
   }
 }
 
-// --- মূল ফাংশন ---
 async function cleanupOrphanedImages() {
   console.log("Starting cleanup process...");
 
-  // ১. Firebase থেকে বর্তমানে ব্যবহৃত সব ছবির public_id সংগ্রহ করা
   const firebaseApp = initializeApp(firebaseConfig);
   const db = getFirestore(firebaseApp);
   const productsRef = collection(db, "products");
@@ -63,13 +56,12 @@ async function cleanupOrphanedImages() {
     return;
   }
 
-  // ২. শুধুমাত্র 'sundorica' ফোল্ডার থেকে সব ছবির তালিকা আনা
   const cloudinaryPublicIds = [];
   try {
     let next_cursor = null;
     do {
       const result = await cloudinary.search
-        .expression('resource_type:image AND folder=sundorica') // শুধু sundorica ফোল্ডারে খুঁজবে
+        .expression('resource_type:image AND folder=sundorica')
         .max_results(500)
         .next_cursor(next_cursor)
         .execute();
@@ -86,12 +78,10 @@ async function cleanupOrphanedImages() {
     return;
   }
 
-  // ৩. অপ্রয়োজনীয় বা "Orphan" ছবি খুঁজে বের করা (public_id দিয়ে)
   const idsToDelete = cloudinaryPublicIds.filter(publicId => !firebasePublicIds.has(publicId));
 
   console.log(`Found ${idsToDelete.length} orphan images to delete.`);
 
-  // ৪. অপ্রয়োজনীয় ছবিগুলো ডিলিট করা
   if (idsToDelete.length > 0) {
     console.log("Deleting the following public IDs:", idsToDelete);
     try {
