@@ -41,7 +41,6 @@ main.container { flex-grow: 1; }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(26,26,26,0.1); }
 #order-summary { background-color: var(--surface-color); padding: 25px; border-radius: 8px; height: fit-content; }
 .cart-items-list { max-height: 400px; overflow-y: auto; margin-bottom: 20px; }
-.loader-placeholder { text-align: center; padding: 20px; color: var(--secondary-color); }
 .cart-item { display: flex; gap: 15px; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); }
 .cart-item:last-child { border-bottom: none; margin-bottom: 0; }
 .cart-item-image { display: block; } 
