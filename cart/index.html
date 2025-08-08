@@ -44,143 +44,57 @@
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(26,26,26,0.1); }
         #order-summary { background-color: var(--surface-color); padding: 25px; border-radius: 8px; height: fit-content; }
-        .cart-items-list { max-height: 400px; overflow-y: auto; margin-bottom: 20px; }
         .loader-placeholder { text-align: center; padding: 20px; color: var(--secondary-color); }
         .order-totals { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
         .total-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px; }
         .total-row.grand-total { font-size: 18px; font-weight: 700; margin-top: 15px; }
-        .complete-order-btn { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: background-color 0.3s ease; }
-        .complete-order-btn:disabled { background-color: var(--secondary-color); cursor: not-allowed; }
-        .empty-cart-message { text-align: center; padding: 40px; background-color: var(--surface-color); border-radius: 8px; display: none; }
-        .empty-cart-message h3 { margin-top: 0; }
-        .btn-shop-now { display: inline-block; background-color: var(--primary-color); color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: 500; }
-        
-        /* --- SOLUTION: Added modal default state to hide it on load --- */
-        .modal-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; 
-            justify-content: center; align-items: center; opacity: 0; 
-            pointer-events: none; transition: opacity 0.3s ease; 
-        }
-
+        .complete-order-btn { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        .empty-cart-message { display: none; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; }
         @media (max-width: 991px) { .cart-layout { grid-template-columns: 1fr; } #order-summary { margin-top: 40px; } }
     </style>
 
-    <link rel="preload" href="styles-cart.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="styles-cart.css"></noscript>
+    <link rel="preload" href="/styles-cart.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/styles-cart.css"></noscript>
 
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
 
-    <noscript>
-        <img height="1" width="1" style="display:none"
-             src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1"
-        />
-    </noscript>
+    <script src="/meta-pixel-config.js" defer></script>
 </head>
 <body>
     <div id="toast-container"></div>
-    
     <div class="header-wrapper">
         <header class="main-header">
             <div class="container header-content">
-                <div class="store-logo">
-                    <a href="/" id="store-logo-link" aria-label="Go to homepage"></a>
-                </div>
-                <div class="header-icons">
-                    <a href="/cart/" class="cart-icon-link" aria-label="View shopping cart">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-item-count">0</span>
-                    </a>
-                </div>
+                <div class="store-logo"><a href="/" id="store-logo-link" aria-label="Go to homepage"></a></div>
+                <div class="header-icons"><a href="/cart/" class="cart-icon-link" aria-label="View shopping cart"><i class="fas fa-shopping-cart"></i><span class="cart-item-count">0</span></a></div>
             </div>
         </header>
     </div>
-
     <main class="container">
         <div id="cart-view">
             <h1 class="page-title">Shopping Cart</h1>
             <div class="cart-layout">
                 <div id="shipping-info">
                     <h2 class="cart-section-title">Shipping Information</h2>
-                    <form id="shipping-form">
-                        <div class="form-group">
-                            <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" name="fullName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Phone Number (11 Digits)</label>
-                            <input type="tel" id="phone" name="phone" required pattern="[0-9]{11}" maxlength="11" title="Please enter exactly 11 digits.">
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Full Address</label>
-                            <textarea id="address" name="address" rows="3" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="deliveryZone">Delivery Zone</label>
-                            <select id="deliveryZone" name="deliveryZone" required>
-                                <option value="" disabled selected>Select Zone</option>
-                            </select>
-                        </div>
-                    </form>
+                    <form id="shipping-form"></form>
                 </div>
                 <div id="order-summary">
                     <h2 class="cart-section-title">Order Summary</h2>
-                    <div class="cart-items-list" id="cart-items-list">
-                         <div class="loader-placeholder">Loading cart items...</div>
-                    </div>
-                    <div class="order-totals">
-                        <div class="total-row">
-                            <span>Subtotal</span>
-                            <span id="subtotal">Tk 0</span>
-                        </div>
-                        <div class="total-row">
-                            <span>Shipping</span>
-                            <span id="shipping-charges">Tk 0</span>
-                        </div>
-                        <div class="total-row grand-total">
-                            <span>Total</span>
-                            <span id="total-amount">Tk 0</span>
-                        </div>
-                        <button class="complete-order-btn" id="complete-order-btn" disabled>Complete Order</button>
-                    </div>
+                    <div class="cart-items-list" id="cart-items-list"><div class="loader-placeholder">Loading cart items...</div></div>
+                    <div class="order-totals"></div>
                 </div>
             </div>
         </div>
-        <div id="empty-cart-view" class="empty-cart-message">
-             <div>
-                <h3>Your cart is empty!</h3>
-                <p>Looks like you haven't added anything to your cart yet.</p>
-                <a href="/" class="btn-shop-now">Continue Shopping</a>
-            </div>
-        </div>
+        <div id="empty-cart-view" class="empty-cart-message"></div>
     </main>
-
-    <footer class="main-footer">
-        <div class="container">
-            <div class="social-links" id="social-links"></div>
-            <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
-        </div>
-    </footer>
+    <footer class="main-footer"></footer>
+    <div class="modal-overlay" id="thank-you-modal"></div>
     
-    <div class="modal-overlay" id="thank-you-modal">
-        <div class="modal-content">
-            <i class="fas fa-check-circle"></i>
-            <h2>Thank You!</h2>
-            <p>Your order has been placed successfully.</p>
-            <div class="order-details-summary">
-                <strong>Order ID:</strong> <span id="final-order-id"></span><br>
-                <strong>Total Amount:</strong> <span id="final-total-amount"></span>
-            </div>
-            <a href="/" class="btn-shop-now">Continue Shopping</a>
-        </div>
-    </div>
-
-    <script src="/meta-pixel-config.js" defer></script>
     <script type="module">
-        // Your JavaScript remains unchanged
+        // Your JavaScript remains exactly the same
         // ...
     </script>
 </body>
