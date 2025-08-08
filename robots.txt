@@ -1,11 +1,23 @@
 User-agent: *
+
+# Admin, POS, and user-specific folders
 Disallow: /pos/
 Disallow: /admin/
 Disallow: /ads/
 Disallow: /cart/
-Disallow: /generate-facebook-feed.js
+
+# Disallow crawling of template/base folders for the SPA.
+# Crawlers should use the sitemap to find full, dynamic URLs.
+Disallow: /all-products/
+Disallow: /collection/
+Disallow: /product-details/
+
+# Disallow script, config, and data feed files
 Disallow: /generate-sitemap.js
+Disallow: /generate-facebook-feed.js
+Disallow: /cleanup-cloudinary.js
+Disallow: /meta-pixel-config.js
+Disallow: /facebook_feed.xml
 
-Allow: /
-
+# Point all crawlers to the correct sitemap
 Sitemap: https://www.sundorica.com/sitemap.xml
