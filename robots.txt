@@ -1,10 +1,13 @@
 User-agent: *
 
-# Admin, POS, and user-specific folders
+# Admin, POS, and other private folders
 Disallow: /pos/
 Disallow: /admin/
 Disallow: /ads/
 Disallow: /cart/
+
+# Build and deployment folders
+Disallow: /.github/
 
 # Disallow crawling of template/base folders for the SPA.
 # Crawlers should use the sitemap to find full, dynamic URLs.
