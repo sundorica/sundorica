@@ -15,87 +15,443 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://www.gstatic.com">
 
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
-    
-    <style id="critical-css">
-        :root {
-            --primary-color: #1a1a1a; --secondary-color: #666666; --accent-color: #007bff;
-            --background-color: #ffffff; --surface-color: #f8f9fa; --border-color: #e9ecef;
-            --danger-color: #dc3545; --success-color: #28a745;
-        }
-        html { height: 100%; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--background-color); color: var(--primary-color); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
-        main.container { flex-grow: 1; }
-        .container { width: 100%; max-width: 100%; margin: 0 auto; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
-        .header-wrapper { position: sticky; top: 0; z-index: 100; background-color: var(--background-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .main-header { padding: 15px 0; }
-        .header-content { display: flex; justify-content: space-between; align-items: center; }
-        .store-logo a { text-decoration: none; color: var(--primary-color); }
-        .store-logo img { max-height: 45px; display: block; }
-        .store-logo .store-name { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 700; }
-        .header-icons { display: flex; align-items: center; gap: 15px; font-size: 20px; }
-        .header-icons a { color: var(--primary-color); }
-        .cart-icon-link { position: relative; display: inline-block; }
-        .cart-item-count { position: absolute; top: -8px; right: -12px; background-color: var(--danger-color); color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; line-height: 1; display: none; }
-        .cart-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; padding: 40px 0; }
-        h1.page-title { text-align:center; margin-bottom: 30px; }
-        .cart-section-title { font-size: 22px; font-weight: 600; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-        #order-summary { background-color: var(--surface-color); padding: 25px; border-radius: 8px; height: fit-content; }
-        .loader-placeholder { text-align: center; padding: 20px; color: var(--secondary-color); }
-        .order-totals { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
-        .total-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px; }
-        .total-row.grand-total { font-size: 18px; font-weight: 700; margin-top: 15px; }
-        .complete-order-btn { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; }
-        .empty-cart-message { display: none; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; }
-        @media (max-width: 991px) { .cart-layout { grid-template-columns: 1fr; } #order-summary { margin-top: 40px; } }
-    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="styles-cart.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <link rel="preload" href="/styles-cart.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/styles-cart.css"></noscript>
-
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
-
-    <script src="/meta-pixel-config.js" defer></script>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+             src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1"
+        />
+    </noscript>
 </head>
 <body>
     <div id="toast-container"></div>
+    
     <div class="header-wrapper">
         <header class="main-header">
             <div class="container header-content">
-                <div class="store-logo"><a href="/" id="store-logo-link" aria-label="Go to homepage"></a></div>
-                <div class="header-icons"><a href="/cart/" class="cart-icon-link" aria-label="View shopping cart"><i class="fas fa-shopping-cart"></i><span class="cart-item-count">0</span></a></div>
+                <div class="store-logo">
+                    <a href="/" id="store-logo-link" aria-label="Go to homepage"></a>
+                </div>
+                <div class="header-icons">
+                    <a href="/cart/" class="cart-icon-link" aria-label="View shopping cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-item-count">0</span>
+                    </a>
+                </div>
             </div>
         </header>
     </div>
+
     <main class="container">
         <div id="cart-view">
-            <h1 class="page-title">Shopping Cart</h1>
+            <h1 style="text-align:center; margin-bottom: 30px;">Shopping Cart</h1>
             <div class="cart-layout">
                 <div id="shipping-info">
                     <h2 class="cart-section-title">Shipping Information</h2>
-                    <form id="shipping-form"></form>
+                    <form id="shipping-form">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number (11 Digits)</label>
+                            <input type="tel" id="phone" name="phone" required pattern="[0-9]{11}" maxlength="11" title="Please enter exactly 11 digits.">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Full Address</label>
+                            <textarea id="address" name="address" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="deliveryZone">Delivery Zone</label>
+                            <select id="deliveryZone" name="deliveryZone" required>
+                                <option value="" disabled selected>Select Zone</option>
+                            </select>
+                        </div>
+                    </form>
                 </div>
                 <div id="order-summary">
                     <h2 class="cart-section-title">Order Summary</h2>
-                    <div class="cart-items-list" id="cart-items-list"><div class="loader-placeholder">Loading cart items...</div></div>
-                    <div class="order-totals"></div>
+                    <div class="cart-items-list" id="cart-items-list">
+                         <div class="loader-placeholder">Loading cart items...</div>
+                    </div>
+                    <div class="order-totals">
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal">Tk 0</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Shipping</span>
+                            <span id="shipping-charges">Tk 0</span>
+                        </div>
+                        <div class="total-row grand-total">
+                            <span>Total</span>
+                            <span id="total-amount">Tk 0</span>
+                        </div>
+                        <button class="complete-order-btn" id="complete-order-btn" disabled>Complete Order</button>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="empty-cart-view" class="empty-cart-message"></div>
+        <div id="empty-cart-view" style="display: none;">
+             <div class="empty-cart-message">
+                <h3>Your cart is empty!</h3>
+                <p>Looks like you haven't added anything to your cart yet.</p>
+                <a href="/" class="btn-shop-now">Continue Shopping</a>
+            </div>
+        </div>
     </main>
-    <footer class="main-footer"></footer>
-    <div class="modal-overlay" id="thank-you-modal"></div>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="social-links" id="social-links"></div>
+            <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
+        </div>
+    </footer>
     
+    <div class="modal-overlay" id="thank-you-modal">
+        <div class="modal-content">
+            <i class="fas fa-check-circle"></i>
+            <h2>Thank You!</h2>
+            <p>Your order has been placed successfully.</p>
+            <div class="order-details-summary">
+                <strong>Order ID:</strong> <span id="final-order-id"></span><br>
+                <strong>Total Amount:</strong> <span id="final-total-amount"></span>
+            </div>
+            <a href="/" class="btn-shop-now">Continue Shopping</a>
+        </div>
+    </div>
+
+    <script src="/meta-pixel-config.js" defer></script>
+
     <script type="module">
-        // Your JavaScript remains exactly the same
-        // ...
+        // --- IMPORTANT CHANGE: DEFERRING FIREBASE LOGIC ---
+        // This new structure ensures the page is visible instantly, while data loads in the background.
+
+        async function loadFirebaseAndApp() {
+            // Dynamically import Firebase modules only when needed
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js");
+            const { getFirestore, collection, getDocs, doc, getDoc, runTransaction, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
+                authDomain: "nasir-9102c.firebaseapp.com",
+                projectId: "nasir-9102c",
+                storageBucket: "nasir-9102c.firebasestorage.app",
+                messagingSenderId: "182224792140",
+                appId: "1:182224792140:web:42348e8b24f94cdf07e2e9",
+                measurementId: "G-8R5J241MJM"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            return getFirestore(app);
+        }
+
+        let cart = [];
+        let shippingZones = [];
+        
+        // --- All your application logic functions remain here ---
+        // (I have copied them exactly as they were, no changes needed for them)
+        function showToast(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const countElement = document.querySelector('.cart-item-count');
+            if (countElement) {
+                countElement.textContent = totalItems;
+                countElement.style.display = totalItems > 0 ? 'block' : 'none';
+            }
+        }
+        
+        function renderSocialLinks(links) {
+            const container = document.getElementById('social-links');
+            if (!links || !container) return;
+            let html = '';
+            // UPDATED: Added rel="noopener noreferrer" and aria-label for accessibility
+            if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`;
+            if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`;
+            if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`;
+            if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>`;
+            container.innerHTML = html;
+        }
+
+        async function loadSharedComponents(db) {
+            const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+            const storeDetailsSnap = await getDoc(doc(db, "settings", "store_details"));
+            if (storeDetailsSnap.exists()) {
+                const data = storeDetailsSnap.data();
+                const logoLink = document.getElementById('store-logo-link');
+                if (data.logoUrl) {
+                    logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`;
+                } else if (data.storeName) {
+                    logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`;
+                }
+                document.getElementById('footer-store-name').textContent = data.storeName || 'Your Store';
+                renderSocialLinks(data.socialLinks);
+            }
+        }
+        
+        async function verifyCartStock(db) {
+            if (cart.length === 0) return;
+            const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+            const productIds = [...new Set(cart.map(item => item.productId))];
+            const productPromises = productIds.map(id => getDoc(doc(db, "products", id)));
+            const productSnaps = await Promise.all(productPromises);
+            const productsData = {};
+            productSnaps.forEach(snap => { if (snap.exists()) { productsData[snap.id] = snap.data(); } });
+            let cartWasAdjusted = false;
+            const verifiedCart = [];
+            for (const item of cart) {
+                const product = productsData[item.productId];
+                if (!product || product.status !== 'active') {
+                    showToast(`"${item.name}" is no longer available and has been removed.`, 'error');
+                    cartWasAdjusted = true; continue;
+                }
+                let stock = 0;
+                if (item.variantDetails && Object.keys(item.variantDetails).length > 0) {
+                    const variant = product.variants.find(v => Object.keys(item.variantDetails).every(key => v[key] === item.variantDetails[key]));
+                    stock = variant ? variant.quantity : 0;
+                } else { stock = product.quantity || 0; }
+                item.stock = stock;
+                if (stock === 0) {
+                    showToast(`"${item.name}" is out of stock and has been removed.`, 'error');
+                    cartWasAdjusted = true; continue;
+                }
+                if (item.quantity > stock) {
+                    showToast(`Quantity for "${item.name}" adjusted to stock limit (${stock})`, 'error');
+                    item.quantity = stock; cartWasAdjusted = true;
+                }
+                verifiedCart.push(item);
+            }
+            cart = verifiedCart;
+            if (cartWasAdjusted) { localStorage.setItem('cart', JSON.stringify(cart)); }
+        }
+        
+        async function renderCartItems(db) {
+            const cartItemsList = document.getElementById('cart-items-list');
+            await verifyCartStock(db);
+            updateCartCount();
+
+            if (cart.length === 0) {
+                document.getElementById('cart-view').style.display = 'none';
+                document.getElementById('empty-cart-view').style.display = 'block';
+                cartItemsList.innerHTML = '';
+                updateTotals(); return;
+            }
+            
+            document.getElementById('cart-view').style.display = 'block';
+            document.getElementById('empty-cart-view').style.display = 'none';
+            cartItemsList.innerHTML = '';
+
+            cart.forEach(item => {
+                const variantText = item.variantDetails ? Object.entries(item.variantDetails).map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`).join(', ') : '';
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.dataset.id = item.id;
+                itemElement.dataset.stock = item.stock;
+                const productUrl = item.productPage || '#';
+                itemElement.innerHTML = `
+                    <a href="${productUrl}" class="cart-item-image">
+                        <img src="${item.image || 'https://placehold.co/80x80/eee/ccc?text=No+Image'}" alt="${item.name}">
+                    </a>
+                    <div class="cart-item-details">
+                        <a href="${productUrl}" class="cart-item-name-link"><div class="cart-item-name">${item.name}</div></a>
+                        ${variantText ? `<div class="cart-item-variant">${variantText}</div>` : ''}
+                        <div class="cart-item-price">Tk ${item.price}</div>
+                    </div>
+                    <div class="cart-item-actions">
+                         <div class="quantity-selector">
+                            <button class="quantity-btn decrease-qty">-</button>
+                            <span class="item-quantity">${item.quantity}</span>
+                            <button class="quantity-btn increase-qty" ${item.quantity >= item.stock ? 'disabled' : ''}>+</button>
+                        </div>
+                        <button class="remove-item-btn"><i class="fas fa-trash-alt"></i></button>
+                    </div>`;
+                cartItemsList.appendChild(itemElement);
+            });
+            updateTotals();
+        }
+        
+        function updateItemQuantityUI(itemId, newQuantity) {
+            const itemElement = document.querySelector(`.cart-item[data-id="${itemId}"]`);
+            if (!itemElement) return;
+            itemElement.querySelector('.item-quantity').textContent = newQuantity;
+            const stock = parseInt(itemElement.dataset.stock, 10);
+            itemElement.querySelector('.increase-qty').disabled = newQuantity >= stock;
+            updateTotals();
+        }
+
+        function updateTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const selectedZone = shippingZones.find(zone => zone.id === document.getElementById('deliveryZone').value);
+            const shippingCharges = selectedZone ? selectedZone.amount : 0;
+            const totalAmount = subtotal + shippingCharges;
+            document.getElementById('subtotal').textContent = `Tk ${subtotal.toFixed(2)}`;
+            document.getElementById('shipping-charges').textContent = `Tk ${shippingCharges.toFixed(2)}`;
+            document.getElementById('total-amount').textContent = `Tk ${totalAmount.toFixed(2)}`;
+            const orderBtn = document.getElementById('complete-order-btn');
+            const form = document.getElementById('shipping-form');
+            orderBtn.disabled = !(cart.length > 0 && form.checkValidity());
+        }
+
+        async function fetchShippingZones(db) {
+            const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+            const zonesCollection = collection(db, "shipping_zones");
+            const zonesSnap = await getDocs(zonesCollection);
+            const deliveryZoneSelect = document.getElementById('deliveryZone');
+            shippingZones = zonesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            shippingZones.forEach(zone => {
+                const option = document.createElement('option');
+                option.value = zone.id;
+                option.textContent = `${zone.name} - Tk ${zone.amount}`;
+                deliveryZoneSelect.appendChild(option);
+            });
+        }
+        
+        function handleQuantityChange(itemId, change, db) {
+            const itemIndex = cart.findIndex(item => item.id === itemId);
+            if (itemIndex > -1) {
+                const newQuantity = cart[itemIndex].quantity + change;
+                if (newQuantity <= 0) {
+                    cart.splice(itemIndex, 1);
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCartCount();
+                    renderCartItems(db);
+                } else {
+                    cart[itemIndex].quantity = newQuantity;
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCartCount();
+                    updateItemQuantityUI(itemId, newQuantity);
+                }
+            }
+        }
+
+        function handleFormValidation() {
+            const form = document.getElementById('shipping-form');
+            form.querySelectorAll('input, select, textarea').forEach(input => {
+                input.addEventListener('input', updateTotals);
+            });
+        }
+        
+        async function handleCompleteOrder(event, db) {
+            event.preventDefault();
+            const orderBtn = document.getElementById('complete-order-btn');
+            orderBtn.disabled = true;
+            orderBtn.textContent = 'Processing...';
+
+            await verifyCartStock(db);
+            if (cart.length === 0) {
+                showToast("Your cart is empty or items are out of stock.", "error");
+                orderBtn.disabled = false; orderBtn.textContent = 'Complete Order';
+                renderCartItems(db); return;
+            }
+            const { doc, collection, runTransaction, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+            const form = document.getElementById('shipping-form');
+            const subtotalValue = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const selectedZoneData = shippingZones.find(zone => zone.id === form.deliveryZone.value);
+            const shippingValue = selectedZoneData.amount;
+            const totalValue = subtotalValue + shippingValue;
+
+            const orderData = {
+                customerDetails: { name: form.fullName.value, phone: form.phone.value, address: form.address.value, },
+                products: cart.map(item => ({ name: item.name, price: item.price, quantity: item.quantity, imageUrl: item.image || '', productId: item.productId, variantDetails: item.variantDetails || {}, productPage: item.productPage || '' })),
+                summary: { subtotal: subtotalValue, shipping: shippingValue, total: totalValue, },
+                status: 'Pending', orderDate: serverTimestamp() 
+            };
+
+            try {
+                const newOrderId = await runTransaction(db, async (transaction) => {
+                    const counterRef = doc(db, "counters", "order_counter");
+                    const counterSnap = await transaction.get(counterRef);
+                    let nextId = counterSnap.exists() ? counterSnap.data().lastId + 1 : 1001;
+                    const newOrderRef = doc(collection(db, "orders"));
+                    orderData.orderId = nextId; 
+                    transaction.set(newOrderRef, orderData);
+                    transaction.set(counterRef, { lastId: nextId });
+                    return nextId;
+                });
+                
+                document.getElementById('final-order-id').textContent = `#${newOrderId}`;
+                document.getElementById('final-total-amount').textContent = `Tk ${totalValue.toFixed(2)}`;
+                document.getElementById('thank-you-modal').classList.add('active');
+
+                if (typeof fbq === 'function') {
+                    fbq('track', 'Purchase', { value: totalValue, currency: 'BDT', content_name: 'Order Confirmation', content_ids: orderData.products.map(p => p.productId), content_type: 'product', num_items: orderData.products.reduce((sum, p) => sum + p.quantity, 0), order_id: newOrderId });
+                }
+                
+                cart = []; localStorage.removeItem('cart'); updateCartCount(); renderCartItems(db);
+
+            } catch (error) {
+                console.error("Error placing order: ", error);
+                showToast("There was an error placing your order.", "error");
+                orderBtn.disabled = false; orderBtn.textContent = 'Complete Order';
+            }
+        }
+        
+        // --- FINAL EXECUTION LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // These actions are safe and do not depend on Firebase
+            document.getElementById('copyright-year').textContent = new Date().getFullYear();
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+            updateCartCount(); // Update count immediately from localStorage
+            handleFormValidation();
+            document.getElementById('phone').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, ''); });
+
+            const loadDynamicContent = async () => {
+                try {
+                    const db = await loadFirebaseAndApp();
+                    await loadSharedComponents(db);
+                    await fetchShippingZones(db);
+                    await renderCartItems(db);
+                    
+                    document.querySelector('.main-footer').style.display = 'block';
+
+                    if (typeof fbq === 'function' && cart.length > 0) {
+                        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                        fbq('track', 'InitiateCheckout', { content_ids: cart.map(item => item.productId), content_type: 'product', num_items: cart.reduce((sum, item) => sum + item.quantity, 0), value: subtotal, currency: 'BDT' });
+                    }
+
+                    document.body.addEventListener('click', (event) => {
+                        const target = event.target;
+                        const cartItemDiv = target.closest('.cart-item');
+                        if (!cartItemDiv) return;
+                        const itemId = cartItemDiv.dataset.id;
+                        if (target.closest('.increase-qty')) {
+                            const stock = parseInt(cartItemDiv.dataset.stock, 10);
+                            const currentItem = cart.find(item => item.id === itemId);
+                            if (currentItem && currentItem.quantity < stock) { handleQuantityChange(itemId, 1, db); } 
+                            else { showToast('Maximum stock limit reached', 'error'); }
+                        } else if (target.closest('.decrease-qty')) {
+                            handleQuantityChange(itemId, -1, db);
+                        } else if (target.closest('.remove-item-btn')) {
+                            handleQuantityChange(itemId, -Infinity, db);
+                        }
+                    });
+
+                    document.getElementById('deliveryZone').addEventListener('change', updateTotals);
+                    document.getElementById('complete-order-btn').addEventListener('click', (e) => handleCompleteOrder(e, db));
+                    
+                } catch (error) {
+                    console.error("Failed to load page content:", error);
+                    showToast("Could not load page content. Please refresh.", "error");
+                }
+            };
+            
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(loadDynamicContent);
+            } else {
+                setTimeout(loadDynamicContent, 300); // Fallback
+            }
+        });
     </script>
 </body>
 </html>
