@@ -16,6 +16,45 @@
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     
+    <style id="critical-css">
+        :root {
+            --primary-color: #1a1a1a; --secondary-color: #666666; --accent-color: #007bff;
+            --background-color: #ffffff; --surface-color: #f8f9fa; --border-color: #e9ecef;
+            --danger-color: #dc3545; --success-color: #28a745;
+        }
+        html { height: 100%; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--background-color); color: var(--primary-color); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex-grow: 1; }
+        .container { width: 100%; max-width: 100%; margin: 0 auto; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
+        section { padding: 40px 0; }
+        .header-wrapper { position: sticky; top: 0; z-index: 100; background-color: var(--background-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .main-header { padding: 15px 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .store-logo a { text-decoration: none; color: var(--primary-color); }
+        .store-logo img { max-height: 45px; display: block; }
+        .store-logo .store-name { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 700; }
+        .main-nav { display: none; }
+        .main-nav ul { margin: 0; padding: 0; list-style: none; display: flex; gap: 25px; }
+        .main-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+        .header-icons { display: flex; align-items: center; gap: 15px; font-size: 20px; }
+        .header-icons a { color: var(--primary-color); }
+        .cart-icon-link { position: relative; display: inline-block; }
+        .cart-item-count { position: absolute; top: -8px; right: -12px; background-color: var(--danger-color); color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; line-height: 1; display: none; }
+        .mobile-menu-toggle { display: none; font-size: 24px; cursor: pointer; }
+        .mobile-search-header, .desktop-search-header { display: none; }
+        body.search-active .header-content, body.desktop-search-active .header-content { display: none; }
+        body.search-active .mobile-search-header { display: flex; }
+        .main-footer { display: none; }
+        .mobile-nav-panel { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background-color: white; z-index: 102; transition: right 0.4s ease-in-out; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 101; display: none; }
+        .overlay.active { display: block; }
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        @media (min-width: 992px) { .main-nav { display: block; } #mobile-search-icon, #mobile-menu-toggle { display: none; } #desktop-search-trigger { display: inline-block; } body.desktop-search-active .desktop-search-header { display: flex; } }
+        @media (max-width: 991px) { .main-nav { display: none; } .mobile-menu-toggle { display: block; } #desktop-search-trigger { display: none; } }
+    </style>
+
     <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="styles.css"></noscript>
 
@@ -110,15 +149,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/thumbnail/lg-thumbnail.min.js" defer></script>
 
     <script type="module">
-        // --- IMPORTANT CHANGE: DEFERRING FIREBASE LOGIC ---
-        // The core logic is now wrapped in functions that are called *after* the initial page has loaded.
-        // This stops Firebase from blocking the initial render of your page.
+        // --- YOUR JAVASCRIPT IS ALREADY WELL-OPTIMIZED ---
+        // It uses modern techniques like dynamic imports and requestIdleCallback to ensure
+        // the page loads and becomes interactive as quickly as possible.
+        // No major structural changes are needed here.
 
         async function loadFirebaseAndApp() {
-            // Dynamically import Firebase modules only when needed
             const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js");
             const { getFirestore, doc, getDoc, collection, getDocs } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
-
             const firebaseConfig = {
                 apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
                 authDomain: "nasir-9102c.firebaseapp.com",
@@ -128,18 +166,13 @@
                 appId: "1:182224792140:web:42348e8b24f94cdf07e2e9",
                 measurementId: "G-8R5J241MJM"
             };
-
             const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
-            
-            // Return the database instance for other functions to use
-            return db;
+            return getFirestore(app);
         }
 
-        // --- The rest of your JavaScript functions remain largely the same ---
-        // (showToast, updateCartCount, createMenuItems, etc.)
-        // I have copied them below without modification, except for where they are called.
-
+        // --- All your other JS functions (showToast, updateCartCount, etc.) ---
+        // These are correctly placed and called, no changes needed.
+        // For brevity, I've omitted them, but they should be in your file.
         function showToast(message, type = 'success') {
             const toastContainer = document.getElementById('toast-container');
             if (!toastContainer) return;
@@ -237,15 +270,11 @@
                     createMenuItems(menuData.items, mobileUl, collectionSlugMap); 
                     mobileNavContainer.innerHTML = ''; 
                     mobileNavContainer.appendChild(mobileUl); 
-                    addMenuEventListeners(); // Add listeners after menu is created
+                    addMenuEventListeners();
                 } 
             } 
         }
 
-        // --- All your other functions (formatPrice, addProductSchema, renderProductDetails, etc.) go here ---
-        // (No changes needed for them, so I am omitting them for brevity. In your actual file, they should be here.)
-        // ... [PASTE ALL YOUR OTHER JS FUNCTIONS HERE] ...
-        // For example: formatPrice, addProductSchema, renderProductDetails, addProductDetailsEventListeners, etc.
         let currentSelections = {};
 
         function formatPrice(priceData) {
@@ -537,13 +566,10 @@
 
         // --- FINAL EXECUTION LOGIC ---
         document.addEventListener('DOMContentLoaded', () => {
-            // These actions are safe and do not depend on Firebase
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
             setupEventListeners();
             updateCartCount();
 
-            // Use requestIdleCallback or a simple setTimeout to ensure the critical render path is clear
-            // This will load all dynamic content after the user can see and interact with the page
             const loadDynamicContent = async () => {
                 try {
                     const db = await loadFirebaseAndApp();
@@ -558,7 +584,7 @@
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(loadDynamicContent);
             } else {
-                setTimeout(loadDynamicContent, 500); // Fallback for older browsers
+                setTimeout(loadDynamicContent, 500);
             }
         });
 
