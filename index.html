@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sundorica - Where Beauty Meets Style</title>
+    <style>
+  /* --- Critical CSS for Initial View --- */
+  :root{--primary-color:#1a1a1a;--secondary-color:#666666;--background-color:#ffffff;--surface-color:#f8f9fa;--danger-color:#dc3545}
+  body{font-family:'Inter',sans-serif;margin:0;background-color:var(--background-color);color:var(--primary-color);line-height:1.6}
+  .container{width:100%;max-width:100%;margin:0 auto;padding-left:20px;padding-right:20px;box-sizing:border-box}
+  .header-wrapper{position:sticky;top:0;z-index:100;background-color:var(--background-color);box-shadow:0 2px 4px rgba(0,0,0,0.05)}
+  .announcement-bar{padding:10px;text-align:center;font-weight:500;font-size:14px}
+  .main-header{padding:15px 0}
+  .header-content{display:flex;justify-content:space-between;align-items:center}
+  .store-logo a{text-decoration:none;color:var(--primary-color)}
+  .store-logo img{max-height:45px;display:block}
+  .header-icons{display:flex;align-items:center;gap:15px;font-size:20px}
+  .header-icons a{color:var(--primary-color)}
+  .cart-icon-link{position:relative;display:inline-block}
+  .cart-item-count{position:absolute;top:-8px;right:-12px;background-color:var(--danger-color);color:white;border-radius:50%;padding:2px 6px;font-size:10px;font-weight:bold;line-height:1;display:none}
+  .mobile-menu-toggle{cursor:pointer}
+  @media (min-width:992px){.main-nav{display:block}.mobile-menu-toggle{display:none}}
+  @media (max-width:991px){.main-nav{display:none}.mobile-menu-toggle{display:block}}
+  .hero-slider{width:100%;aspect-ratio:21 / 9;position:relative;overflow:hidden;background-color:var(--surface-color);padding:0}
+</style>
     
     <meta name="description" content="Discover Sundorica, where timeless skincare meets graceful fashion. Explore our premium collection of skincare and modern clothing designed for radiant beauty and confidence.">
 
@@ -247,3 +267,4 @@
     </script>
 </body>
 </html>
+
