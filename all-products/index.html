@@ -18,6 +18,46 @@
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     
+    <style id="critical-css">
+        :root {
+            --primary-color: #1a1a1a; --secondary-color: #666666; --accent-color: #007bff;
+            --background-color: #ffffff; --surface-color: #f8f9fa; --border-color: #e9ecef;
+            --danger-color: #dc3545;
+        }
+        html { height: 100%; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--background-color); color: var(--primary-color); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex-grow: 1; }
+        .container { width: 100%; max-width: 100%; margin: 0 auto; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
+        section { padding: 40px 0; }
+        h2.section-title { text-align: center; font-size: 28px; margin-bottom: 40px; }
+        .header-wrapper { position: sticky; top: 0; z-index: 100; background-color: var(--background-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .main-header { padding: 15px 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .store-logo a { text-decoration: none; color: var(--primary-color); }
+        .store-logo img { max-height: 45px; display: block; }
+        .store-logo .store-name { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 700; }
+        .main-nav { display: none; }
+        .main-nav ul { margin: 0; padding: 0; list-style: none; display: flex; gap: 25px; }
+        .main-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; }
+        .header-icons { display: flex; align-items: center; gap: 15px; font-size: 20px; }
+        .header-icons a { color: var(--primary-color); }
+        .cart-icon-link { position: relative; display: inline-block; }
+        .cart-item-count { position: absolute; top: -8px; right: -12px; background-color: var(--danger-color); color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold; line-height: 1; display: none; }
+        .mobile-menu-toggle { display: none; font-size: 24px; cursor: pointer; }
+        .mobile-search-header, .desktop-search-header { display: none; }
+        body.search-active .header-content, body.desktop-search-active .header-content { display: none; }
+        body.search-active .mobile-search-header { display: flex; }
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .mobile-nav-panel { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background-color: white; z-index: 102; transition: right 0.4s ease-in-out; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 101; display: none; }
+        .overlay.active { display: block; }
+        .main-footer { display: none; }
+        @media (min-width: 769px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (min-width: 992px) { .main-nav { display: block; } #mobile-search-icon, #mobile-menu-toggle { display: none; } #desktop-search-trigger { display: inline-block; } body.desktop-search-active .desktop-search-header { display: flex; } }
+        @media (max-width: 991px) { .main-nav { display: none; } .mobile-menu-toggle { display: block; } #desktop-search-trigger { display: none; } }
+        @media (min-width: 1200px) { .product-grid { grid-template-columns: repeat(5, 1fr); } }
+    </style>
+
     <link rel="preload" href="styles-all-products.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="styles-all-products.css"></noscript>
 
@@ -91,8 +131,11 @@
     <script src="/meta-pixel-config.js" defer></script>
 
     <script type="module">
-        // --- IMPORTANT CHANGE: DEFERRING FIREBASE LOGIC ---
-        // This new structure ensures the page is visible instantly, while data loads in the background.
+        // --- THIS JAVASCRIPT IS ALREADY WELL-OPTIMIZED ---
+        // It uses modern techniques like dynamic imports and requestIdleCallback to ensure
+        // the page loads and becomes interactive as quickly as possible, while heavy
+        // scripts like Firebase are loaded in the background without blocking the user.
+        // No major structural changes are needed here.
         
         async function loadFirebaseAndApp() {
             // Dynamically import Firebase modules only when needed
@@ -115,7 +158,7 @@
 
         let allProducts = [];
 
-        // --- All your application logic functions remain here ---
+        // --- All application logic functions remain here, unchanged. ---
         function updateCartCount() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -153,7 +196,6 @@
             const container = document.getElementById('social-links');
             if (!links || !container) return;
             let html = '';
-            // UPDATED: Added rel="noopener noreferrer" and aria-label for accessibility
             if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`;
             if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`;
             if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`;
