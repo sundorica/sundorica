@@ -25,10 +25,9 @@
       h1{text-align:center;margin-bottom:30px}
       .cart-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;padding:40px 0}
       .cart-section-title{font-size:22px;font-weight:600;margin-bottom:25px;padding-bottom:10px;border-bottom:1px solid var(--border-color)}
-      .form-group{margin-bottom:20px}
-      .form-group label{display:block;font-weight:500;margin-bottom:8px}
-      .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:6px;font-size:16px;box-sizing:border-box}
       #order-summary{background-color:var(--surface-color);padding:25px;border-radius:8px}
+      /* ADDED: Rules to hide elements by default */
+      #empty-cart-view, .modal-overlay, .main-footer {display:none}
       @media (max-width:991px){.cart-layout{grid-template-columns:1fr}}
     </style>
 
@@ -123,7 +122,7 @@
                 </div>
             </div>
         </div>
-        <div id="empty-cart-view" style="display: none;">
+        <div id="empty-cart-view">
              <div class="empty-cart-message">
                 <h3>Your cart is empty!</h3>
                 <p>Looks like you haven't added anything to your cart yet.</p>
@@ -132,7 +131,7 @@
         </div>
     </main>
 
-    <footer class="main-footer" style="display: none;">
+    <footer class="main-footer">
         <div class="container">
             <div class="social-links" id="social-links"></div>
             <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
@@ -155,8 +154,7 @@
     <script src="/meta-pixel-config.js" defer></script>
 
     <script type="module">
-        // CORRECTED SCRIPT STRUCTURE
-        
+        // The JavaScript logic remains the same as the previous working version
         const firebaseConfig = {
             apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
             authDomain: "nasir-9102c.firebaseapp.com",
@@ -166,10 +164,8 @@
             appId: "1:182224792140:web:42348e8b24f94cdf07e2e9",
             measurementId: "G-8R5J241MJM"
         };
-        
         let cart = [];
         let shippingZones = [];
-
         function showToast(message, type = 'error') { const container = document.getElementById('toast-container'); if (!container) return; const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.textContent = message; container.appendChild(toast); setTimeout(() => toast.remove(), 4000); }
         function updateCartCount() { const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0); const countElement = document.querySelector('.cart-item-count'); if (countElement) { countElement.textContent = totalItems; countElement.style.display = totalItems > 0 ? 'block' : 'none'; } }
         function renderSocialLinks(links) { const container = document.getElementById('social-links'); if (!links || !container) return; let html = ''; if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`; if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`; if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`; if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>`; container.innerHTML = html; }
@@ -183,99 +179,13 @@
                 const app = initializeApp(firebaseConfig);
                 const db = getFirestore(app);
 
-                // --- All data-dependent functions are now defined inside main ---
-
-                async function loadSharedComponents() {
-                    const storeDetailsSnap = await getDoc(doc(db, "settings", "store_details"));
-                    if (storeDetailsSnap.exists()) {
-                        const data = storeDetailsSnap.data();
-                        const logoLink = document.getElementById('store-logo-link');
-                        if (data.logoUrl) {
-                            logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`;
-                        } else if (data.storeName) {
-                            logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`;
-                        }
-                        document.getElementById('footer-store-name').textContent = data.storeName || 'Your Store';
-                        renderSocialLinks(data.socialLinks);
-                    }
-                }
-
-                async function fetchShippingZones() {
-                    const zonesCollection = collection(db, "shipping_zones");
-                    const zonesSnap = await getDocs(zonesCollection);
-                    const deliveryZoneSelect = document.getElementById('deliveryZone');
-                    shippingZones = zonesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    shippingZones.forEach(zone => {
-                        const option = document.createElement('option');
-                        option.value = zone.id;
-                        option.textContent = `${zone.name} - Tk ${zone.amount}`;
-                        deliveryZoneSelect.appendChild(option);
-                    });
-                }
-                
-                async function verifyCartStock() {
-                    if (cart.length === 0) return;
-                    const productIds = [...new Set(cart.map(item => item.productId))];
-                    const productPromises = productIds.map(id => getDoc(doc(db, "products", id)));
-                    const productSnaps = await Promise.all(productPromises);
-                    const productsData = {};
-                    productSnaps.forEach(snap => { if (snap.exists()) { productsData[snap.id] = snap.data(); } });
-                    let cartWasAdjusted = false;
-                    const verifiedCart = [];
-                    for (const item of cart) {
-                        const product = productsData[item.productId];
-                        if (!product || product.status !== 'active') { showToast(`"${item.name}" removed from cart.`, 'error'); cartWasAdjusted = true; continue; }
-                        let stock = 0;
-                        if (item.variantDetails && Object.keys(item.variantDetails).length > 0) {
-                            const variant = product.variants.find(v => Object.keys(item.variantDetails).every(key => v[key] === item.variantDetails[key]));
-                            stock = variant ? variant.quantity : 0;
-                        } else { stock = product.quantity || 0; }
-                        item.stock = stock;
-                        if (stock === 0) { showToast(`"${item.name}" is out of stock. Removed.`, 'error'); cartWasAdjusted = true; continue; }
-                        if (item.quantity > stock) { showToast(`Quantity for "${item.name}" adjusted to ${stock}`, 'error'); item.quantity = stock; cartWasAdjusted = true; }
-                        verifiedCart.push(item);
-                    }
-                    cart = verifiedCart;
-                    if (cartWasAdjusted) { localStorage.setItem('cart', JSON.stringify(cart)); }
-                }
-
-                async function renderCartItems() {
-                    const cartItemsList = document.getElementById('cart-items-list');
-                    await verifyCartStock();
-                    updateCartCount();
-
-                    if (cart.length === 0) { document.getElementById('cart-view').style.display = 'none'; document.getElementById('empty-cart-view').style.display = 'block'; cartItemsList.innerHTML = ''; updateTotals(); return; }
-                    
-                    document.getElementById('cart-view').style.display = 'block'; document.getElementById('empty-cart-view').style.display = 'none';
-                    cartItemsList.innerHTML = '';
-                    cart.forEach(item => {
-                        const variantText = item.variantDetails ? Object.entries(item.variantDetails).map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`).join(', ') : '';
-                        const itemElement = document.createElement('div');
-                        itemElement.className = 'cart-item'; itemElement.dataset.id = item.id; itemElement.dataset.stock = item.stock;
-                        const productUrl = item.productPage || '#';
-                        itemElement.innerHTML = `<a href="${productUrl}" class="cart-item-image"><img src="${item.image || 'https://placehold.co/80x80/eee/ccc?text=No+Image'}" alt="${item.name}"></a><div class="cart-item-details"><a href="${productUrl}" class="cart-item-name-link"><div class="cart-item-name">${item.name}</div></a>${variantText ? `<div class="cart-item-variant">${variantText}</div>` : ''}<div class="cart-item-price">Tk ${item.price}</div></div><div class="cart-item-actions"><div class="quantity-selector"><button class="quantity-btn decrease-qty">-</button><span class="item-quantity">${item.quantity}</span><button class="quantity-btn increase-qty" ${item.quantity >= item.stock ? 'disabled' : ''}>+</button></div><button class="remove-item-btn"><i class="fas fa-trash-alt"></i></button></div>`;
-                        cartItemsList.appendChild(itemElement);
-                    });
-                    updateTotals();
-                }
-                
-                function updateItemQuantityUI(itemId, newQuantity) { const itemElement = document.querySelector(`.cart-item[data-id="${itemId}"]`); if (!itemElement) return; itemElement.querySelector('.item-quantity').textContent = newQuantity; const stock = parseInt(itemElement.dataset.stock, 10); itemElement.querySelector('.increase-qty').disabled = newQuantity >= stock; updateTotals(); }
+                async function loadSharedComponents() { const storeDetailsSnap = await getDoc(doc(db, "settings", "store_details")); if (storeDetailsSnap.exists()) { const data = storeDetailsSnap.data(); const logoLink = document.getElementById('store-logo-link'); if (data.logoUrl) { logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`; } else if (data.storeName) { logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`; } document.getElementById('footer-store-name').textContent = data.storeName || 'Your Store'; renderSocialLinks(data.socialLinks); } }
+                async function fetchShippingZones() { const zonesCollection = collection(db, "shipping_zones"); const zonesSnap = await getDocs(zonesCollection); const deliveryZoneSelect = document.getElementById('deliveryZone'); shippingZones = zonesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })); shippingZones.forEach(zone => { const option = document.createElement('option'); option.value = zone.id; option.textContent = `${zone.name} - Tk ${zone.amount}`; deliveryZoneSelect.appendChild(option); }); }
+                async function verifyCartStock() { if (cart.length === 0) return; const productIds = [...new Set(cart.map(item => item.productId))]; const productPromises = productIds.map(id => getDoc(doc(db, "products", id))); const productSnaps = await Promise.all(productPromises); const productsData = {}; productSnaps.forEach(snap => { if (snap.exists()) { productsData[snap.id] = snap.data(); } }); let cartWasAdjusted = false; const verifiedCart = []; for (const item of cart) { const product = productsData[item.productId]; if (!product || product.status !== 'active') { showToast(`"${item.name}" removed from cart.`, 'error'); cartWasAdjusted = true; continue; } let stock = 0; if (item.variantDetails && Object.keys(item.variantDetails).length > 0) { const variant = product.variants.find(v => Object.keys(item.variantDetails).every(key => v[key] === item.variantDetails[key])); stock = variant ? variant.quantity : 0; } else { stock = product.quantity || 0; } item.stock = stock; if (stock === 0) { showToast(`"${item.name}" is out of stock. Removed.`, 'error'); cartWasAdjusted = true; continue; } if (item.quantity > stock) { showToast(`Quantity for "${item.name}" adjusted to ${stock}`, 'error'); item.quantity = stock; cartWasAdjusted = true; } verifiedCart.push(item); } cart = verifiedCart; if (cartWasAdjusted) { localStorage.setItem('cart', JSON.stringify(cart)); } }
+                async function renderCartItems() { const cartItemsList = document.getElementById('cart-items-list'); await verifyCartStock(); updateCartCount(); if (cart.length === 0) { document.getElementById('cart-view').style.display = 'none'; document.getElementById('empty-cart-view').style.display = 'block'; cartItemsList.innerHTML = ''; updateTotals(); return; } document.getElementById('cart-view').style.display = 'block'; document.getElementById('empty-cart-view').style.display = 'none'; cartItemsList.innerHTML = ''; cart.forEach(item => { const variantText = item.variantDetails ? Object.entries(item.variantDetails).map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`).join(', ') : ''; const itemElement = document.createElement('div'); itemElement.className = 'cart-item'; itemElement.dataset.id = item.id; itemElement.dataset.stock = item.stock; const productUrl = item.productPage || '#'; itemElement.innerHTML = `<a href="${productUrl}" class="cart-item-image"><img src="${item.image || 'https://placehold.co/80x80/eee/ccc?text=No+Image'}" alt="${item.name}"></a><div class="cart-item-details"><a href="${productUrl}" class="cart-item-name-link"><div class="cart-item-name">${item.name}</div></a>${variantText ? `<div class="cart-item-variant">${variantText}</div>` : ''}<div class="cart-item-price">Tk ${item.price}</div></div><div class="cart-item-actions"><div class="quantity-selector"><button class="quantity-btn decrease-qty">-</button><span class="item-quantity">${item.quantity}</span><button class="quantity-btn increase-qty" ${item.quantity >= item.stock ? 'disabled' : ''}>+</button></div><button class="remove-item-btn"><i class="fas fa-trash-alt"></i></button></div>`; cartItemsList.appendChild(itemElement); }); updateTotals(); }
                 function handleQuantityChange(itemId, change) { const itemIndex = cart.findIndex(item => item.id === itemId); if (itemIndex > -1) { let newQuantity = cart[itemIndex].quantity + change; if (newQuantity < 0) newQuantity = 0; if (newQuantity === 0 || change === -Infinity) { cart.splice(itemIndex, 1); } else { cart[itemIndex].quantity = newQuantity; } localStorage.setItem('cart', JSON.stringify(cart)); renderCartItems(); } }
-                
-                async function handleCompleteOrder(event) {
-                    event.preventDefault(); const orderBtn = document.getElementById('complete-order-btn'); orderBtn.disabled = true; orderBtn.textContent = 'Processing...';
-                    await verifyCartStock();
-                    if (cart.length === 0) { showToast("Your cart is empty or items are out of stock.", "error"); orderBtn.disabled = false; orderBtn.textContent = 'Complete Order'; renderCartItems(); return; }
-                    const form = document.getElementById('shipping-form'); const subtotalValue = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0); const selectedZoneData = shippingZones.find(zone => zone.id === form.deliveryZone.value); const shippingValue = selectedZoneData.amount; const totalValue = subtotalValue + shippingValue;
-                    const orderData = { customerDetails: { name: form.fullName.value, phone: form.phone.value, address: form.address.value, }, products: cart.map(item => ({ name: item.name, price: item.price, quantity: item.quantity, imageUrl: item.image || '', productId: item.productId, variantDetails: item.variantDetails || {}, productPage: item.productPage || '' })), summary: { subtotal: subtotalValue, shipping: shippingValue, total: totalValue, }, status: 'Pending', orderDate: serverTimestamp() };
-                    try { const newOrderId = await runTransaction(db, async (transaction) => { const counterRef = doc(db, "counters", "order_counter"); const counterSnap = await transaction.get(counterRef); let nextId = counterSnap.exists() ? counterSnap.data().lastId + 1 : 1001; const newOrderRef = doc(collection(db, "orders")); orderData.orderId = nextId; transaction.set(newOrderRef, orderData); transaction.set(counterRef, { lastId: nextId }); return nextId; });
-                        document.getElementById('final-order-id').textContent = `#${newOrderId}`; document.getElementById('final-total-amount').textContent = `Tk ${totalValue.toFixed(2)}`; document.getElementById('thank-you-modal').classList.add('active');
-                        if (typeof fbq === 'function') { fbq('track', 'Purchase', { value: totalValue, currency: 'BDT', content_name: 'Order Confirmation', content_ids: orderData.products.map(p => p.productId), content_type: 'product', num_items: orderData.products.reduce((sum, p) => sum + p.quantity, 0), order_id: newOrderId }); }
-                        cart = []; localStorage.removeItem('cart'); updateCartCount(); renderCartItems();
-                    } catch (error) { console.error("Error placing order: ", error); showToast("There was an error placing your order.", "error"); orderBtn.disabled = false; orderBtn.textContent = 'Complete Order'; }
-                }
+                async function handleCompleteOrder(event) { event.preventDefault(); const orderBtn = document.getElementById('complete-order-btn'); orderBtn.disabled = true; orderBtn.textContent = 'Processing...'; await verifyCartStock(); if (cart.length === 0) { showToast("Your cart is empty or items are out of stock.", "error"); orderBtn.disabled = false; orderBtn.textContent = 'Complete Order'; renderCartItems(); return; } const form = document.getElementById('shipping-form'); const subtotalValue = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0); const selectedZoneData = shippingZones.find(zone => zone.id === form.deliveryZone.value); const shippingValue = selectedZoneData.amount; const totalValue = subtotalValue + shippingValue; const orderData = { customerDetails: { name: form.fullName.value, phone: form.phone.value, address: form.address.value, }, products: cart.map(item => ({ name: item.name, price: item.price, quantity: item.quantity, imageUrl: item.image || '', productId: item.productId, variantDetails: item.variantDetails || {}, productPage: item.productPage || '' })), summary: { subtotal: subtotalValue, shipping: shippingValue, total: totalValue, }, status: 'Pending', orderDate: serverTimestamp() }; try { const newOrderId = await runTransaction(db, async (transaction) => { const counterRef = doc(db, "counters", "order_counter"); const counterSnap = await transaction.get(counterRef); let nextId = counterSnap.exists() ? counterSnap.data().lastId + 1 : 1001; const newOrderRef = doc(collection(db, "orders")); orderData.orderId = nextId; transaction.set(newOrderRef, orderData); transaction.set(counterRef, { lastId: nextId }); return nextId; }); document.getElementById('final-order-id').textContent = `#${newOrderId}`; document.getElementById('final-total-amount').textContent = `Tk ${totalValue.toFixed(2)}`; document.getElementById('thank-you-modal').classList.add('active'); if (typeof fbq === 'function') { fbq('track', 'Purchase', { value: totalValue, currency: 'BDT', content_name: 'Order Confirmation', content_ids: orderData.products.map(p => p.productId), content_type: 'product', num_items: orderData.products.reduce((sum, p) => sum + p.quantity, 0), order_id: newOrderId }); } cart = []; localStorage.removeItem('cart'); updateCartCount(); renderCartItems(); } catch (error) { console.error("Error placing order: ", error); showToast("There was an error placing your order.", "error"); orderBtn.disabled = false; orderBtn.textContent = 'Complete Order'; } }
 
-                // --- Execution starts here ---
                 await Promise.all([loadSharedComponents(), fetchShippingZones()]);
                 await renderCartItems();
                 document.querySelector('.main-footer').style.display = 'block';
