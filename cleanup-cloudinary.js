@@ -18,13 +18,12 @@ cloudinary.config({
   secure: true,
 });
 
-function getPublicIdFromUrl(url) {
+function getFileNameFromUrl(url) {
   try {
     const parts = url.split("/");
-    const publicIdWithExtension = parts.slice(parts.indexOf("upload") + 2).join("/");
-    return publicIdWithExtension.substring(0, publicIdWithExtension.lastIndexOf("."));
+    return parts.pop().split('.')[0];
   } catch (e) {
-    console.error(`Could not parse public_id from URL: ${url}`);
+    console.error(`Could not parse file name from URL: ${url}`);
     return null;
   }
 }
@@ -35,7 +34,7 @@ async function cleanupOrphanedImages() {
   const firebaseApp = initializeApp(firebaseConfig);
   const db = getFirestore(firebaseApp);
   const productsRef = collection(db, "products");
-  const firebasePublicIds = new Set();
+  const firebaseFileNames = new Set();
 
   try {
     const snapshot = await getDocs(productsRef);
@@ -43,20 +42,20 @@ async function cleanupOrphanedImages() {
       const product = doc.data();
       if (product.imageUrls && Array.isArray(product.imageUrls)) {
         product.imageUrls.forEach(url => {
-          const publicId = getPublicIdFromUrl(url);
-          if (publicId) {
-            firebasePublicIds.add(publicId);
+          const fileName = getFileNameFromUrl(url);
+          if (fileName) {
+            firebaseFileNames.add(fileName);
           }
         });
       }
     });
-    console.log(`Found ${firebasePublicIds.size} unique image public_ids in Firebase.`);
+    console.log(`Found ${firebaseFileNames.size} unique image file names in Firebase.`);
   } catch (error) {
     console.error("Error fetching data from Firebase:", error);
     return;
   }
 
-  const cloudinaryPublicIds = [];
+  const cloudinaryPublicIdsToDelete = [];
   try {
     let next_cursor = null;
     do {
@@ -65,30 +64,29 @@ async function cleanupOrphanedImages() {
         .max_results(500)
         .next_cursor(next_cursor)
         .execute();
-      
+
       result.resources.forEach(resource => {
-        cloudinaryPublicIds.push(resource.public_id);
+        const publicIdWithoutFolder = resource.public_id.split('/').pop();
+        if (!firebaseFileNames.has(publicIdWithoutFolder)) {
+          cloudinaryPublicIdsToDelete.push(resource.public_id);
+        }
       });
 
       next_cursor = result.next_cursor;
     } while (next_cursor);
-    console.log(`Found ${cloudinaryPublicIds.length} total images in Cloudinary folder 'sundorica'.`);
+    console.log(`Found ${cloudinaryPublicIdsToDelete.length} orphan images to delete in Cloudinary folder 'sundorica'.`);
   } catch (error) {
     console.error("Error fetching data from Cloudinary:", error);
     return;
   }
 
-  const idsToDelete = cloudinaryPublicIds.filter(publicId => !firebasePublicIds.has(publicId));
-
-  console.log(`Found ${idsToDelete.length} orphan images to delete.`);
-
-  if (idsToDelete.length > 0) {
-    console.log("Deleting the following public IDs:", idsToDelete);
+  if (cloudinaryPublicIdsToDelete.length > 0) {
+    console.log("Deleting the following public IDs:", cloudinaryPublicIdsToDelete);
     try {
-      for (let i = 0; i < idsToDelete.length; i += 100) {
-          const batch = idsToDelete.slice(i, i + 100);
-          await cloudinary.api.delete_resources(batch);
-          console.log(`Deleted a batch of ${batch.length} images.`);
+      for (let i = 0; i < cloudinaryPublicIdsToDelete.length; i += 100) {
+        const batch = cloudinaryPublicIdsToDelete.slice(i, i + 100);
+        await cloudinary.api.delete_resources(batch);
+        console.log(`Deleted a batch of ${batch.length} images.`);
       }
       console.log("Cleanup complete. All orphan images have been deleted.");
     } catch (error) {
