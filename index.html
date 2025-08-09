@@ -73,7 +73,10 @@
 
     <main>
         <section class="hero-slider" id="hero-slider">
-            </section>
+            <div class="slider-progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </section>
 
         <section class="container">
             <h2 class="section-title">NEW ARRIVALS</h2>
@@ -84,7 +87,7 @@
         </section>
     </main>
 
-    <footer class="main-footer">
+    <footer class="main-footer" style="display: none;">
         <div class="container">
             <div class="footer-left-links">
                 <a data-modal="about">About</a>
@@ -109,11 +112,9 @@
             <div id="info-modal-body"></div>
         </div>
     </div>
-    <div id="toast-container"></div>
 
     <script src="/meta-pixel-config.js" defer></script>
-    
-    <script src="script.js" type="module" defer></script>
 
+    <script src="homepage.js" type="module" defer></script>
 </body>
 </html>
