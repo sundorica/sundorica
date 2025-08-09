@@ -1,5 +1,5 @@
 /* =================================================================
-   MAIN.CSS - Common styles for the entire website
+   MAIN.CSS - Common styles for the entire website (Corrected Version)
    ================================================================= */
 
 /* -- Root Variables and Core Body Styles -- */
@@ -203,7 +203,9 @@ h2.section-title {
     display: none; 
     align-items: center; 
     padding: 15px 0; 
-    width: 100%; 
+    width: 100%;
+    border-top: 1px solid var(--border-color); /* Added a separator line */
+    margin-top: 15px; /* Added some space */
 }
 
 .mobile-search-header .search-icon, .desktop-search-header .search-icon { 
@@ -216,7 +218,8 @@ h2.section-title {
     flex-grow: 1; 
     border: none; 
     outline: none; 
-    font-size: 16px; 
+    font-size: 16px;
+    background-color: transparent;
 }
 
 .mobile-search-header .close-search-btn, .desktop-search-header .close-desktop-search-btn { 
@@ -227,16 +230,14 @@ h2.section-title {
     padding: 0 10px; 
 }
 
-body.search-active .header-content, body.desktop-search-active .header-content { 
-    display: none; 
-}
+/* THIS IS THE FIX: The rule that hid the .header-content is REMOVED */
 
 body.search-active .mobile-search-header { 
     display: flex; 
 }
 
 @media (min-width: 992px) { 
-    #mobile-search-icon { display: none; } 
+    #mobile-search-icon, #mobile-menu-toggle { display: none; } 
     #desktop-search-trigger { display: inline-block; } 
     body.desktop-search-active .desktop-search-header { display: flex; } 
 }
