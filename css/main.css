@@ -1,5 +1,5 @@
 /* =================================================================
-   MAIN.CSS - Common styles for the entire website (Final Corrected Version)
+   MAIN.CSS - Final & Robust Solution using Overlay Method
    ================================================================= */
 
 /* -- Root Variables and Core Body Styles -- */
@@ -64,6 +64,7 @@ h2.section-title {
     padding: 15px 0; 
     min-height: 75px;
     box-sizing: border-box;
+    position: relative; /* This is crucial for the overlay */
 }
 
 .header-content { 
@@ -198,12 +199,23 @@ h2.section-title {
     cursor: pointer; 
 }
 
-/* -- Search Bar Styles -- */
+/* --- NEW OVERLAY SEARCH STYLE --- */
 .mobile-search-header, .desktop-search-header { 
-    display: none; 
-    align-items: center; 
-    padding: 15px 0; 
-    width: 100%; 
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--background-color);
+    z-index: 5; /* Above header content */
+
+    /* Animation properties */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .mobile-search-header .search-icon, .desktop-search-header .search-icon { 
@@ -228,24 +240,20 @@ h2.section-title {
     padding: 0 10px; 
 }
 
-/* --- THIS IS THE CORRECTED LOGIC --- */
-/* When search is active, HIDE the main header content */
-body.search-active .header-content, 
-body.desktop-search-active .header-content { 
-    display: none; 
-}
 
-/* When search is active, SHOW the mobile search bar */
-body.search-active .mobile-search-header { 
-    display: flex; 
+/* --- NEW ACTIVE STATE FOR OVERLAY --- */
+/* When search is active, make the overlay visible */
+body.search-active .mobile-search-header,
+body.desktop-search-active .desktop-search-header {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 
 @media (min-width: 992px) { 
     #mobile-search-icon, #mobile-menu-toggle { display: none; } 
     #desktop-search-trigger { display: inline-block; } 
-    /* When desktop search is active, SHOW the desktop search bar */
-    body.desktop-search-active .desktop-search-header { display: flex; } 
 }
 
 @media (max-width: 991px) { 
@@ -365,8 +373,8 @@ body.search-active .mobile-search-header {
     background-color: var(--surface-color); 
     padding: 5px 0; 
     border-top: .5px solid var(--border-color); 
-    display: none; /* Initially hidden, made visible by JS */
-    margin-top: auto; /* Pushes footer to the bottom */
+    display: none; 
+    margin-top: auto; 
 }
 
 .main-footer .container { 
