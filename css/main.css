@@ -1,5 +1,5 @@
 /* =================================================================
-   MAIN.CSS - Common styles for the entire website (Corrected Version)
+   MAIN.CSS - Common styles for the entire website (Final Corrected Version)
    ================================================================= */
 
 /* -- Root Variables and Core Body Styles -- */
@@ -203,9 +203,7 @@ h2.section-title {
     display: none; 
     align-items: center; 
     padding: 15px 0; 
-    width: 100%;
-    border-top: 1px solid var(--border-color); /* Added a separator line */
-    margin-top: 15px; /* Added some space */
+    width: 100%; 
 }
 
 .mobile-search-header .search-icon, .desktop-search-header .search-icon { 
@@ -230,15 +228,23 @@ h2.section-title {
     padding: 0 10px; 
 }
 
-/* THIS IS THE FIX: The rule that hid the .header-content is REMOVED */
+/* --- THIS IS THE CORRECTED LOGIC --- */
+/* When search is active, HIDE the main header content */
+body.search-active .header-content, 
+body.desktop-search-active .header-content { 
+    display: none; 
+}
 
+/* When search is active, SHOW the mobile search bar */
 body.search-active .mobile-search-header { 
     display: flex; 
 }
 
+
 @media (min-width: 992px) { 
     #mobile-search-icon, #mobile-menu-toggle { display: none; } 
     #desktop-search-trigger { display: inline-block; } 
+    /* When desktop search is active, SHOW the desktop search bar */
     body.desktop-search-active .desktop-search-header { display: flex; } 
 }
 
