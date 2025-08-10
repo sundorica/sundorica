@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Details - Sundorica</title>
+    <title> Product Details - Sundorica </title>
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -163,18 +163,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- Core Functions ---
         function showToast(message, type = "success") { const container = document.getElementById("toast-container"); if (!container) return; const toast = document.createElement("div"); toast.className = `toast ${type}`; const iconClass = type === "success" ? "fa-check-circle" : "fa-exclamation-circle"; toast.innerHTML = `<i class="fas ${iconClass}"></i><span>${message}</span>`; container.appendChild(toast); setTimeout(() => toast.remove(), 4000); }
         function updateCartCount() { const cart = JSON.parse(localStorage.getItem('cart')) || []; const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0); const countElement = document.querySelector('.cart-item-count'); if (countElement) { countElement.textContent = totalItems; countElement.style.display = totalItems > 0 ? 'block' : 'none'; } }
         function formatPrice(productData) { if (!productData || typeof productData.price === 'undefined') return ''; let priceHTML = `<span class="current-price">Tk ${productData.price}</span>`; if (productData.comparePrice && productData.comparePrice > productData.price) { priceHTML += `<span class="compare-at-price">Tk ${productData.comparePrice}</span>`; } return priceHTML; }
         
-        // --- Shared Component Loading ---
         async function loadSharedComponents() { const [storeDetailsSnap, navigationSnap, collectionsSnap] = await Promise.all([getDoc(doc(db, "settings", "store_details")), getDoc(doc(db, "navigation", "main-menu")), getDocs(collection(db, "collections"))]); if (storeDetailsSnap.exists()) { const data = storeDetailsSnap.data(); const logoLink = document.getElementById('store-logo-link'); if (data.logoUrl) { logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`; } else if (data.storeName) { logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`; } document.getElementById('footer-store-name').textContent = data.storeName || 'Sundorica'; renderSocialLinks(data.socialLinks); } const collectionSlugMap = new Map(); if (!collectionsSnap.empty) { collectionsSnap.forEach(doc => { const data = doc.data(); if (data.name && data.slug) collectionSlugMap.set(data.name, data.slug); }); } if (navigationSnap.exists()) { const menuData = navigationSnap.data(); if (menuData.items) { const navContainer = document.getElementById('main-nav'); const mobileNavContainer = document.getElementById('mobile-nav-links'); const ul = document.createElement('ul'); const mobileUl = document.createElement('ul'); createMenuItems(menuData.items, ul, collectionSlugMap); createMenuItems(menuData.items, mobileUl, collectionSlugMap); navContainer.innerHTML = ''; navContainer.appendChild(ul); mobileNavContainer.innerHTML = ''; mobileNavContainer.appendChild(mobileUl); addMenuEventListeners(); } } }
         function createMenuItems(items, parentUl, slugMap) { items.forEach(item => { const li = document.createElement('li'); let finalLink = item.link || '#'; if (item.type === 'collection' && slugMap.has(item.name)) { finalLink = `/collections/${slugMap.get(item.name)}`; } let linkHTML = `<a href="${finalLink}">${item.name}`; if (item.children && item.children.length > 0) { li.classList.add('has-submenu'); linkHTML += ` <i class="fas fa-chevron-down"></i>`; } linkHTML += `</a>`; li.innerHTML = linkHTML; if (item.children && item.children.length > 0) { const subUl = document.createElement('ul'); subUl.className = 'submenu'; createMenuItems(item.children, subUl, slugMap); li.appendChild(subUl); } parentUl.appendChild(li); }); }
         function renderSocialLinks(links) { const container = document.getElementById('social-links'); if (!links || !container) return; let html = ''; if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>`; if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>`; container.innerHTML = html; }
 
-        // --- Product Details Logic ---
         let currentSelections = {};
+        
         function addProductSchema(product, pagePath) { const existingSchema = document.querySelector('script[type="application/ld+json"]'); if (existingSchema) existingSchema.remove(); if (!product) return; const schema = { "@context": "https://schema.org/", "@type": "Product", name: product.name, image: product.imageUrls || [], description: product.description, sku: product.id, offers: { "@type": "Offer", url: `https://www.sundorica.com${pagePath}`, priceCurrency: "BDT", price: product.price, availability: (product.quantity > 0 || (product.variants && product.variants.some(v => v.quantity > 0))) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", seller: { "@type": "Organization", name: "Sundorica" } } }; const script = document.createElement('script'); script.type = "application/ld+json"; script.textContent = JSON.stringify(schema); document.head.appendChild(script); }
         
         function renderProductDetails(product, pagePath) {
@@ -186,7 +184,7 @@
             }
 
             // =================================================================
-            // >> SEO IMPROVEMENT: DYNAMIC META DESCRIPTION ADDED <<
+            // >> SEO IMPROVEMENT: Dynamic Meta Description Added Here <<
             // =================================================================
             let metaDescriptionTag = document.querySelector('meta[name="description"]');
             if (!metaDescriptionTag) {
@@ -296,11 +294,8 @@
         async function loadProductDetails() {
             try {
                 let pagePath = sessionStorage.getItem("originalPath");
-                if (pagePath) {
-                    sessionStorage.removeItem("originalPath");
-                } else {
-                    pagePath = window.location.pathname;
-                }
+                if (pagePath) { sessionStorage.removeItem("originalPath"); } 
+                else { pagePath = window.location.pathname; }
                 const pathParts = pagePath.split('/');
                 const productId = pathParts[pathParts.length - 1];
                 if (!productId) throw new Error("Product ID not found in URL.");
@@ -327,13 +322,11 @@
         function setupEventListeners() { const handleSearch = () => { const desktopValue = document.getElementById('desktopSearchInput').value; const mobileValue = document.getElementById('mobileSearchInput').value; const searchTerm = (desktopValue || mobileValue).trim(); if (searchTerm) { window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`; } }; document.getElementById('desktopSearchInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); document.getElementById('mobileSearchInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); const desktopSearchTrigger = document.getElementById('desktop-search-trigger'); const closeDesktopSearchBtn = document.querySelector('.close-desktop-search-btn'); if(desktopSearchTrigger) desktopSearchTrigger.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('desktop-search-active'); document.getElementById('desktopSearchInput').focus(); }); if(closeDesktopSearchBtn) closeDesktopSearchBtn.addEventListener('click', () => document.body.classList.remove('desktop-search-active')); const mobileSearchIcon = document.getElementById('mobile-search-icon'); const closeSearchBtn = document.querySelector('.close-search-btn'); if(mobileSearchIcon) mobileSearchIcon.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('search-active'); document.getElementById('mobileSearchInput').focus(); }); if(closeSearchBtn) closeSearchBtn.addEventListener('click', () => document.body.classList.remove('search-active')); const mobileMenuToggle = document.querySelector('.mobile-menu-toggle'); const mobileNavPanel = document.getElementById('mobile-nav-panel'); const closeMobileNav = document.querySelector('.close-mobile-nav'); const overlay = document.getElementById('overlay'); const closeMenu = () => { mobileNavPanel.classList.remove('active'); overlay.classList.remove('active'); }; if(mobileMenuToggle) mobileMenuToggle.addEventListener('click', () => { mobileNavPanel.classList.add('active'); overlay.classList.add('active'); }); if(closeMobileNav) closeMobileNav.addEventListener('click', closeMenu); if(overlay) overlay.addEventListener('click', closeMenu); }
         function addMenuEventListeners(){ document.querySelectorAll('.main-nav .has-submenu > a, .mobile-nav-panel .has-submenu > a').forEach(menu => { menu.addEventListener('click', function(event) { event.preventDefault(); this.parentElement.classList.toggle('active'); }); }); }
         
-        // --- Page Initialization ---
         document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById('copyright-year').textContent = new Date().getFullYear();
             setupEventListeners();
             updateCartCount();
 
-            // Load shared components and product details in parallel
             await Promise.all([
                 loadSharedComponents(),
                 loadProductDetails()
