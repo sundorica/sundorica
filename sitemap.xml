@@ -2,17 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.sundorica.com/</loc>
+    <lastmod>2025-08-10T19:18:00.530Z</lastmod>
   </url>
   <url>
     <loc>https://www.sundorica.com/collections</loc>
-  </url>
-  <url>
-    <loc>https://www.sundorica.com/cart</loc>
+    <lastmod>2025-08-10T19:18:00.530Z</lastmod>
   </url>
   <url>
     <loc>https://www.sundorica.com/about</loc>
+    <lastmod>2025-08-10T19:18:00.530Z</lastmod>
   </url>
   <url>
     <loc>https://www.sundorica.com/contact</loc>
+    <lastmod>2025-08-10T19:18:00.530Z</lastmod>
   </url>
 </urlset>
