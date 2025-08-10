@@ -430,10 +430,3 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(loadDynamicContent, 500);
     }
 });
-
-    </script>
-</body>
-</html>
-
-}
-eita amar product details er file eita kore dao akhon
