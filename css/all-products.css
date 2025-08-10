@@ -2,8 +2,8 @@
    ALL-PRODUCTS.CSS - Styles specific to the All Products page
    ================================================================= */
 
-.section-title {
+h2.section-title {
+    text-align: center;
     font-size: 28px;
-    font-weight: 600;
     margin-bottom: 40px;
 }
