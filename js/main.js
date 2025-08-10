@@ -1,5 +1,5 @@
 /* =================================================================
-   MAIN.JS - Unified JavaScript for the entire website
+   MAIN.JS - Final Unified JavaScript for the entire website
    ================================================================= */
 
 // --- Firebase Configuration (Global) ---
@@ -46,8 +46,6 @@ function renderSocialLinks(links) {
     let html = '';
     if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`;
     if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`;
-    if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`;
-    if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>`;
     container.innerHTML = html;
 }
 
@@ -56,7 +54,7 @@ function createMenuItems(items, parentUl, slugMap) {
         const li = document.createElement('li');
         let finalLink = item.link || '#';
         if (item.type === 'collection' && slugMap.has(item.name)) {
-            finalLink = `/collection/${slugMap.get(item.name)}`;
+            finalLink = `/all-products/?collection=${slugMap.get(item.name)}`;
         }
         let linkHTML = `<a href="${finalLink}">${item.name}`;
         if (item.children && item.children.length > 0) {
@@ -84,12 +82,12 @@ function addMenuEventListeners() {
     });
      document.addEventListener('click', (e) => {
         if (!e.target.closest('.main-nav')) {
-            document.querySelectorAll('.main-nav .has-submenu').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.main-nav .has-submenu.active').forEach(item => item.classList.remove('active'));
         }
     });
 }
 
-function renderProducts(productsToRender, containerId = 'product-grid') {
+function renderProducts(productsToRender, containerId) {
     const grid = document.getElementById(containerId);
     if (!grid) return;
     grid.innerHTML = '';
@@ -109,7 +107,7 @@ function renderProducts(productsToRender, containerId = 'product-grid') {
         }
         const cardLink = document.createElement('a');
         const productSlug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-        cardLink.href = `/product-details/?id=${product.id}`; // Corrected link
+        cardLink.href = `/product-details/?id=${product.id}`;
         cardLink.className = 'product-card';
         cardLink.innerHTML = `<div class="product-image-container">${badgeHTML}<img src="${imageUrl1}" alt="${product.name}" class="img-primary" loading="lazy"><img src="${imageUrl2}" alt="${product.name}" class="img-secondary" loading="lazy"></div><div class="product-info"><div class="product-name">${product.name}</div><div class="product-price">${priceHTML}</div></div>`;
         grid.appendChild(cardLink);
@@ -126,17 +124,16 @@ function setupEventListeners() {
     const desktopSearchInput = document.getElementById('desktopSearchInput');
     const mobileSearchInput = document.getElementById('mobileSearchInput');
     
-    // This search is for the All Products page (live filtering)
+    // Live search for All Products page
     if (document.body.classList.contains('all-products-page')) {
         const handleLiveSearch = (e) => {
             const searchTerm = e.target.value.toLowerCase().trim();
             if (typeof fbq === 'function' && searchTerm) fbq('track', 'Search', { search_string: searchTerm });
-            // 'allProducts' variable must be available in the scope
-            renderProducts(window.allProducts.filter(p => p.name.toLowerCase().includes(searchTerm)));
+            renderProducts(window.allProducts.filter(p => p.name.toLowerCase().includes(searchTerm)), 'product-grid');
         };
         if(desktopSearchInput) desktopSearchInput.addEventListener('input', handleLiveSearch);
         if(mobileSearchInput) mobileSearchInput.addEventListener('input', handleLiveSearch);
-    } else { // This search is for all other pages (redirect)
+    } else { // Redirect search for all other pages
          const handleRedirectSearch = () => {
             const desktopValue = desktopSearchInput ? desktopSearchInput.value : '';
             const mobileValue = mobileSearchInput ? mobileSearchInput.value : '';
@@ -189,11 +186,8 @@ async function loadSharedComponents() {
         const data = storeDetailsSnap.data();
         const logoLink = document.getElementById('store-logo-link');
         if (logoLink) {
-            if (data.logoUrl) {
-                logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`;
-            } else if (data.storeName) {
-                logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`;
-            }
+            if (data.logoUrl) { logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`; }
+            else if (data.storeName) { logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`; }
         }
         const footerStoreName = document.getElementById('footer-store-name');
         if(footerStoreName) footerStoreName.textContent = data.storeName || 'Sundorica';
@@ -217,47 +211,55 @@ async function loadSharedComponents() {
                 const ul = document.createElement('ul');
                 const mobileUl = document.createElement('ul');
                 createMenuItems(menuData.items, ul, collectionSlugMap);
-                navContainer.innerHTML = '';
-                navContainer.appendChild(ul);
+                navContainer.innerHTML = ''; navContainer.appendChild(ul);
                 createMenuItems(menuData.items, mobileUl, collectionSlugMap);
-                mobileNavContainer.innerHTML = '';
-                mobileNavContainer.appendChild(mobileUl);
+                mobileNavContainer.innerHTML = ''; mobileNavContainer.appendChild(mobileUl);
                 addMenuEventListeners();
             }
         }
     }
     const footer = document.querySelector('.main-footer');
-    if(footer) footer.style.display = 'block';
+    if(footer) footer.style.display = 'flex';
 }
-
 
 // --- PAGE-SPECIFIC LOGIC ---
 
-// FOR HOMEPAGE
 async function loadHomepageContent() {
     const db = await initializeFirebase();
     const { doc, getDoc, collection, getDocs, query, where, limit, orderBy } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
     
-    const [ announcementSnap, sliderSnap, productsSnap ] = await Promise.all([ 
+    const [ announcementSnap, productsSnap ] = await Promise.all([ 
         getDoc(doc(db, "settings", "announcementBar")),
-        getDoc(doc(db, "settings", "hero_slider")), 
         getDocs(query(collection(db, "products"), where("status", "==", "active"), orderBy("createdAt", "desc"), limit(10))),
     ]);
-     // ... Rest of homepage logic from previous version
+
+    if (announcementSnap.exists()) {
+        const data = announcementSnap.data();
+        const bar = document.getElementById('announcement-bar');
+        const textEl = document.getElementById('announcement-text');
+        if (bar && textEl && data.texts && data.texts.length > 0) {
+            bar.style.backgroundColor = data.isTransparent ? 'transparent' : data.backgroundColor;
+            bar.style.color = data.textColor; bar.style.fontSize = `${data.fontSize}px`;
+            bar.style.display = 'block';
+            let currentIndex = 0; textEl.textContent = data.texts[currentIndex];
+            if (data.texts.length > 1) { setInterval(() => { currentIndex = (currentIndex + 1) % data.texts.length; textEl.textContent = data.texts[currentIndex]; }, 3000); }
+        }
+    }
+    if (!productsSnap.empty) {
+        const featuredProducts = productsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderProducts(featuredProducts, 'product-grid-homepage');
+    }
 }
 
-
-// FOR ALL PRODUCTS PAGE
 async function loadAllProductsPage() {
     const db = await initializeFirebase();
-    const { collection, getDocs, query, where } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+    const { collection, getDocs, query, where, orderBy } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
     
     const productsRef = collection(db, "products");
-    const q = query(productsRef, where("status", "==", "active"));
+    const q = query(productsRef, where("status", "==", "active"), orderBy("createdAt", "desc"));
     const productsSnap = await getDocs(q);
     
     window.allProducts = productsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    window.allProducts.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 
     const urlParams = new URLSearchParams(window.location.search);
     const searchTerm = urlParams.get('search');
@@ -267,27 +269,21 @@ async function loadAllProductsPage() {
         const mobileSearch = document.getElementById('mobileSearchInput');
         if(desktopSearch) desktopSearch.value = searchTerm;
         if(mobileSearch) mobileSearch.value = searchTerm;
-        
-        renderProducts(window.allProducts.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())));
+        renderProducts(window.allProducts.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())), 'product-grid');
     } else {
-        renderProducts(window.allProducts);
+        renderProducts(window.allProducts, 'product-grid');
     }
 }
 
-
 // --- MAIN EXECUTION LOGIC ---
 document.addEventListener('DOMContentLoaded', () => {
-    // These actions are safe and run on every page
     setCopyrightYear();
     setupEventListeners();
     updateCartCount();
-
-    // Load shared components like header/footer immediately
     loadSharedComponents();
 
-    // Check which page we are on and load its specific content
     if (document.body.classList.contains('homepage')) {
-        // loadHomepageContent(); // You can add homepage specific logic here
+        loadHomepageContent();
     } else if (document.body.classList.contains('all-products-page')) {
         loadAllProductsPage();
     }
