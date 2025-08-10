@@ -15,7 +15,11 @@
     .main-image { order: 2; }
     .action-buttons { grid-template-columns: 1fr 1fr; }
 }
-@media (max-width: 767px) { .product-info-details .product-name { font-size: 20px; } .main-image { order: 1; } .thumbnail-images { order: 2; } }
+@media (max-width: 767px) { 
+    .product-info-details .product-name { font-size: 20px; } 
+    .main-image { order: 1; } 
+    .thumbnail-images { order: 2; } 
+}
 .product-info-details .product-name { font-size: 24px; font-weight: 600; margin-bottom: 15px; }
 .product-info-details .product-price { font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
 .product-info-details .compare-at-price { font-size: 18px; text-decoration: line-through; color: var(--danger-color); }
@@ -42,5 +46,6 @@
 #size-chart-content table { width: 100%; border-collapse: collapse; text-align: center; }
 #size-chart-content th, #size-chart-content td { border: 1px solid var(--border-color); padding: 8px; }
 #size-chart-content th { background-color: var(--surface-color); }
+/* LightGallery Custom Styles */
 @media (max-width: 767px) { .lg-toolbar { padding-right: 50px !important; } }
 .lg-toolbar .lg-close { background-color: rgba(0,0,0,0.5); color: #fff; border-radius: 50%; display: block !important; opacity: 1 !important; position: fixed; top: 15px; right: 15px; width: 35px; height: 35px; font-size: 22px; padding: 0; line-height: 35px; text-align: center; cursor: pointer; }
