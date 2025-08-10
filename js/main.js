@@ -1,5 +1,5 @@
 /* =================================================================
-   MAIN.JS - Final Unified JavaScript for the entire website
+   MAIN.JS - Final Unified JavaScript with Slider and Products
    ================================================================= */
 
 // --- Firebase Configuration (Global) ---
@@ -114,17 +114,86 @@ function renderProducts(productsToRender, containerId) {
     });
 }
 
+// --- SLIDER FUNCTION - ADDED BACK ---
+function setupSlider(sliderData, collectionSlugMap) {
+    const sliderContainer = document.getElementById('hero-slider');
+    if (!sliderContainer) return;
+    
+    let sliderTrack = document.createElement('div');
+    sliderTrack.className = 'slider-track';
+    
+    sliderData.slides.forEach((slide) => {
+        const slideEl = document.createElement('div');
+        slideEl.className = 'slide';
+        slideEl.style.backgroundImage = `url(${slide.imageUrl})`;
+        
+        let finalLink = '#';
+        if (slide.linkType === 'collection' && slide.linkTarget) {
+            const collectionName = slide.linkTarget;
+            if (collectionSlugMap.has(collectionName)) finalLink = `/all-products/?collection=${collectionSlugMap.get(collectionName)}`;
+        } else if (slide.linkType === 'product' && slide.linkTarget) {
+            finalLink = slide.linkTarget;
+        } else if (slide.linkType === 'custom' && slide.linkTarget) {
+            finalLink = slide.linkTarget;
+        }
+        
+        slideEl.innerHTML = `<div class="slide-content align-${slide.alignment || 'center'}"><h2 style="font-size: ${slide.headingSize}px;">${slide.heading}</h2><a href="${finalLink}" class="btn">${slide.buttonText}</a></div>`;
+        sliderTrack.appendChild(slideEl);
+    });
+    
+    sliderContainer.innerHTML = ''; // Clear previous content
+    sliderContainer.prepend(sliderTrack);
+    
+    let slides = sliderContainer.querySelectorAll('.slide');
+    if (slides.length <= 1) return;
+
+    let currentSlide = 0;
+    let autoChangeInterval;
+    let autoChangeEnabled = sliderData.autoChange;
+    let autoChangeTime = (sliderData.interval || 8) * 1000;
+
+    function goToSlide(slideIndex) {
+        currentTranslate = -slideIndex * sliderContainer.offsetWidth;
+        sliderTrack.style.transition = 'transform 0.4s ease-in-out';
+        sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
+        
+        slides.forEach(s => s.classList.remove('active'));
+        slides[slideIndex].classList.add('active');
+        currentSlide = slideIndex;
+        startAutoChange();
+    }
+
+    function nextSlide() {
+        const newIndex = (currentSlide + 1) % slides.length;
+        goToSlide(newIndex);
+    }
+    
+    function startAutoChange() {
+        if (!autoChangeEnabled) return;
+        stopAutoChange();
+        autoChangeInterval = setTimeout(nextSlide, autoChangeTime);
+    }
+
+    function stopAutoChange() {
+        clearTimeout(autoChangeInterval);
+    }
+
+    sliderContainer.addEventListener('mouseenter', stopAutoChange);
+    sliderContainer.addEventListener('mouseleave', startAutoChange);
+
+    goToSlide(0);
+}
+
+
 function setCopyrightYear() {
     const yearEl = document.getElementById('copyright-year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
 }
 
 function setupEventListeners() {
-    // Search functionality
     const desktopSearchInput = document.getElementById('desktopSearchInput');
     const mobileSearchInput = document.getElementById('mobileSearchInput');
     
-    // Live search for All Products page
     if (document.body.classList.contains('all-products-page')) {
         const handleLiveSearch = (e) => {
             const searchTerm = e.target.value.toLowerCase().trim();
@@ -133,7 +202,7 @@ function setupEventListeners() {
         };
         if(desktopSearchInput) desktopSearchInput.addEventListener('input', handleLiveSearch);
         if(mobileSearchInput) mobileSearchInput.addEventListener('input', handleLiveSearch);
-    } else { // Redirect search for all other pages
+    } else { 
          const handleRedirectSearch = () => {
             const desktopValue = desktopSearchInput ? desktopSearchInput.value : '';
             const mobileValue = mobileSearchInput ? mobileSearchInput.value : '';
@@ -147,7 +216,6 @@ function setupEventListeners() {
         if(mobileSearchInput) mobileSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRedirectSearch(); });
     }
 
-    // Search overlay triggers
     const desktopSearchTrigger = document.getElementById('desktop-search-trigger');
     const closeDesktopSearchBtn = document.querySelector('.close-desktop-search-btn');
     if (desktopSearchTrigger) desktopSearchTrigger.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('desktop-search-active'); if(desktopSearchInput) desktopSearchInput.focus(); });
@@ -158,7 +226,6 @@ function setupEventListeners() {
     if(mobileSearchIcon) mobileSearchIcon.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('search-active'); if(mobileSearchInput) mobileSearchInput.focus(); });
     if(closeSearchBtn) closeSearchBtn.addEventListener('click', () => { document.body.classList.remove('search-active'); });
 
-    // Mobile menu
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const mobileNavPanel = document.getElementById('mobile-nav-panel');
     const closeMobileNav = document.querySelector('.close-mobile-nav');
@@ -172,14 +239,13 @@ function setupEventListeners() {
 
 // --- DATA LOADING FUNCTIONS ---
 
-async function loadSharedComponents() {
+async function loadSharedComponents(collectionSlugMap) {
     const db = await initializeFirebase();
-    const { doc, getDoc, getDocs, collection } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
     
-    const [storeDetailsSnap, navigationSnap, allCollectionsSnap] = await Promise.all([
+    const [storeDetailsSnap, navigationSnap] = await Promise.all([
         getDoc(doc(db, "settings", "store_details")),
         getDoc(doc(db, "navigation", "main-menu")),
-        getDocs(collection(db, "collections"))
     ]);
 
     if (storeDetailsSnap.exists()) {
@@ -192,14 +258,6 @@ async function loadSharedComponents() {
         const footerStoreName = document.getElementById('footer-store-name');
         if(footerStoreName) footerStoreName.textContent = data.storeName || 'Sundorica';
         renderSocialLinks(data.socialLinks);
-    }
-
-    const collectionSlugMap = new Map();
-    if (!allCollectionsSnap.empty) {
-        allCollectionsSnap.forEach(doc => {
-            const data = doc.data();
-            if (data.name && data.slug) collectionSlugMap.set(data.name, data.slug);
-        });
     }
 
     if (navigationSnap.exists()) {
@@ -224,12 +282,13 @@ async function loadSharedComponents() {
 
 // --- PAGE-SPECIFIC LOGIC ---
 
-async function loadHomepageContent() {
+async function loadHomepageContent(collectionSlugMap) {
     const db = await initializeFirebase();
     const { doc, getDoc, collection, getDocs, query, where, limit, orderBy } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
     
-    const [ announcementSnap, productsSnap ] = await Promise.all([ 
+    const [ announcementSnap, sliderSnap, productsSnap ] = await Promise.all([ 
         getDoc(doc(db, "settings", "announcementBar")),
+        getDoc(doc(db, "settings", "hero_slider")),
         getDocs(query(collection(db, "products"), where("status", "==", "active"), orderBy("createdAt", "desc"), limit(10))),
     ]);
 
@@ -245,6 +304,15 @@ async function loadHomepageContent() {
             if (data.texts.length > 1) { setInterval(() => { currentIndex = (currentIndex + 1) % data.texts.length; textEl.textContent = data.texts[currentIndex]; }, 3000); }
         }
     }
+    
+    // Slider logic added back
+    if (sliderSnap.exists()) {
+        const sliderData = sliderSnap.data();
+        if (sliderData.slides && sliderData.slides.length > 0) {
+            setupSlider(sliderData, collectionSlugMap);
+        }
+    }
+
     if (!productsSnap.empty) {
         const featuredProducts = productsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderProducts(featuredProducts, 'product-grid-homepage');
@@ -275,16 +343,32 @@ async function loadAllProductsPage() {
     }
 }
 
+
 // --- MAIN EXECUTION LOGIC ---
-document.addEventListener('DOMContentLoaded', () => {
-    setCopyrightYear();
+async function main() {
     setupEventListeners();
     updateCartCount();
-    loadSharedComponents();
+    setCopyrightYear();
+    
+    const db = await initializeFirebase();
+    const { getDocs, collection } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+
+    const allCollectionsSnap = await getDocs(collection(db, "collections"));
+    const collectionSlugMap = new Map();
+    if (!allCollectionsSnap.empty) {
+        allCollectionsSnap.forEach(doc => {
+            const data = doc.data();
+            if (data.name && data.slug) collectionSlugMap.set(data.name, data.slug);
+        });
+    }
+
+    await loadSharedComponents(collectionSlugMap);
 
     if (document.body.classList.contains('homepage')) {
-        loadHomepageContent();
+        await loadHomepageContent(collectionSlugMap);
     } else if (document.body.classList.contains('all-products-page')) {
-        loadAllProductsPage();
+        await loadAllProductsPage();
     }
-});
+}
+
+document.addEventListener('DOMContentLoaded', main);
