@@ -39,17 +39,13 @@ async function generateSitemap() {
     xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
   });
 
-  // Get current date in W3C Datetime format for <lastmod>
-  // This will be used as a fallback if a document doesn't have a specific update date.
   const currentDate = new Date().toISOString();
 
-  // 1. Add static pages
-  // MODIFICATION: Removed '/cart' from the array
+  // 1. Add static pages (cart is removed)
   const staticPages = ["/", "/collections", "/about", "/contact"]; 
   staticPages.forEach((page) => {
     const urlElement = urlset.ele("url");
     urlElement.ele("loc").txt(`${BASE_URL}${page}`);
-    // MODIFICATION: Added <lastmod> tag
     urlElement.ele("lastmod").txt(currentDate);
   });
 
@@ -62,7 +58,6 @@ async function generateSitemap() {
       if (slug) {
         const urlElement = urlset.ele("url");
         urlElement.ele("loc").txt(`${BASE_URL}/collections/${slug}`);
-        // MODIFICATION: Added <lastmod> tag, using updatedAt from Firestore or fallback to current date
         const lastMod = collectionData.updatedAt?.toDate().toISOString() || currentDate;
         urlElement.ele("lastmod").txt(lastMod);
       }
@@ -72,26 +67,26 @@ async function generateSitemap() {
     console.error("Error fetching collections:", error);
   }
 
-  // 3. Fetch and add product pages
+  // 3. Fetch and add ONLY ACTIVE product pages
   try {
-    // Note: The original script had a potential issue where it created incorrect product URLs.
-    // This logic has been corrected to use product name slug and ID for the URL.
     const productsSnapshot = await getDocs(collection(db, "products"));
     productsSnapshot.forEach((doc) => {
       const productData = doc.data();
-      const productId = doc.id;
-      const productNameSlug = slugify(productData.name);
       
-      if (productId && productNameSlug) {
-        const urlElement = urlset.ele("url");
-        // Corrected URL structure to match your website
-        urlElement.ele("loc").txt(`${BASE_URL}/product-details/${productNameSlug}/${productId}`);
-        // MODIFICATION: Added <lastmod> tag, using updatedAt/createdAt from Firestore or fallback
-        const lastMod = productData.updatedAt?.toDate().toISOString() || productData.createdAt?.toDate().toISOString() || currentDate;
-        urlElement.ele("lastmod").txt(lastMod);
+      // THIS IS THE KEY CHANGE: Only add product if status is 'active'
+      if (productData.status === 'active') {
+        const productId = doc.id;
+        const productNameSlug = slugify(productData.name);
+        
+        if (productId && productNameSlug) {
+          const urlElement = urlset.ele("url");
+          urlElement.ele("loc").txt(`${BASE_URL}/product-details/${productNameSlug}/${productId}`);
+          const lastMod = productData.updatedAt?.toDate().toISOString() || productData.createdAt?.toDate().toISOString() || currentDate;
+          urlElement.ele("lastmod").txt(lastMod);
+        }
       }
     });
-    console.log("Successfully fetched and added product pages.");
+    console.log("Successfully fetched and added ACTIVE product pages.");
   } catch (error) {
     console.error("Error fetching products:", error);
   }
@@ -101,7 +96,7 @@ async function generateSitemap() {
 
   // Write the sitemap to a file in the root directory
   fs.writeFileSync("sitemap.xml", xml);
-  console.log("sitemap.xml successfully generated!");
+  console.log("sitemap.xml successfully generated with only active products!");
 }
 
 generateSitemap();
