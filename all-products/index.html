@@ -4,58 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Products - Sundorica</title>
+
     <link rel="canonical" href="https://www.sundorica.com/all-products/">
     <meta name="description" content="Explore all products from Sundorica. Find the latest collections of skincare and fashion items.">
+
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://www.gstatic.com">
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
     
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/all-products.css">
     
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1"/></noscript>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+             src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1"
+        />
+    </noscript>
 </head>
 <body>
+    
     <div class="header-wrapper">
         <header class="main-header">
             <div class="container header-content">
-                <div class="store-logo"><a href="/" id="store-logo-link" aria-label="Go to homepage"></a></div>
+                <div class="store-logo">
+                    <a href="/" id="store-logo-link" aria-label="Go to homepage"></a>
+                </div>
                 <nav class="main-nav" id="main-nav"></nav>
                 <div class="header-icons">
                      <a href="#" id="desktop-search-trigger" aria-label="Open desktop search"><i class="fas fa-search"></i></a>
                     <a href="#" id="mobile-search-icon" aria-label="Open mobile search"><i class="fas fa-search"></i></a>
-                    <a href="/cart/" class="cart-icon-link" aria-label="View shopping cart"><i class="fas fa-shopping-cart"></i><span class="cart-item-count">0</span></a>
-                    <div class="mobile-menu-toggle" aria-label="Open mobile menu"><i class="fas fa-bars"></i></div>
+                    <a href="/cart/" class="cart-icon-link" aria-label="View shopping cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-item-count">0</span>
+                    </a>
+                    <div class="mobile-menu-toggle" aria-label="Open mobile menu">
+                        <i class="fas fa-bars"></i>
+                    </div>
                 </div>
             </div>
-            <div class="container desktop-search-header"><i class="fas fa-search search-icon"></i><input type="text" id="desktopSearchInput" placeholder="Search products..."><button class="close-desktop-search-btn" aria-label="Close desktop search">&times;</button></div>
-            <div class="container mobile-search-header"><i class="fas fa-search search-icon"></i><input type="text" id="mobileSearchInput" placeholder="Search products..."><button class="close-search-btn" aria-label="Close mobile search">&times;</button></div>
+            <div class="container desktop-search-header">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="desktopSearchInput" placeholder="Search products...">
+                <button class="close-desktop-search-btn" aria-label="Close desktop search">&times;</button>
+            </div>
+            <div class="container mobile-search-header">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="mobileSearchInput" placeholder="Search products...">
+                <button class="close-search-btn" aria-label="Close mobile search">&times;</button>
+            </div>
         </header>
     </div>
+
     <div id="mobile-nav-panel" class="mobile-nav-panel">
-        <div class="mobile-nav-header"><h3>Menu</h3><span class="close-mobile-nav" aria-label="Close mobile menu">&times;</span></div>
+        <div class="mobile-nav-header">
+            <h3>Menu</h3>
+            <span class="close-mobile-nav" aria-label="Close mobile menu">&times;</span>
+        </div>
         <div id="mobile-nav-links"></div>
     </div>
     <div id="overlay" class="overlay"></div>
+
     <main>
         <section class="container">
             <h2 class="section-title">All Products</h2>
-            <div class="product-grid" id="product-grid"></div>
+            <div class="product-grid" id="product-grid">
+                </div>
         </section>
     </main>
+
     <footer class="main-footer">
         <div class="container">
             <div class="social-links" id="social-links"></div>
             <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
         </div>
     </footer>
-    
+
     <script src="/meta-pixel-config.js" defer></script>
     <script src="../js/all-products.js" type="module"></script>
 </body>
