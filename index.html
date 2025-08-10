@@ -6,30 +6,18 @@
     <title>Sundorica</title>
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
     
-    <!-- =================================================================== -->
-    <!-- PERFORMANCE & ACCESSIBILITY FIXES APPLIED                         -->
-    <!-- =================================================================== -->
-
-    <!-- Connect to required origins to speed up loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com">
+    <link rel="preconnect" href="https://firestore.googleapis.com">
 
-    <!-- FIX 1: Asynchronously load Google Fonts to prevent render-blocking -->
+
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
 
-    <!-- FIX 2: Asynchronously load Font Awesome to prevent render-blocking -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
     
-    <!-- FIX 3: Defer Meta Pixel script to prevent render-blocking -->
-    <script src="/meta-pixel-config.js" defer></script>
-
-    <noscript>
-        <img height="1" width="1" style="display:none"
-             src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1"
-        />
-    </noscript>
     <style>
         /* Your existing CSS styles remain unchanged */
         :root {
@@ -160,9 +148,58 @@
         #info-modal-body ul { padding-left: 20px; margin-bottom: 1em; }
         #info-modal-body ul li { margin-bottom: 0.5em; }
         #info-modal-body .contact-info p { font-size: 16px; line-height: 1.8; margin-bottom: 0.5em; }
+
+        /* OPTIMIZATION: Skeleton loader styles */
+        .skeleton {
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0% { background-color: #e0e0e0; }
+            50% { background-color: #f0f0f0; }
+            100% { background-color: #e0e0e0; }
+        }
+        .product-card-skeleton .skeleton-img {
+            width: 100%;
+            aspect-ratio: 4 / 5;
+            margin-bottom: 10px;
+        }
+        .product-card-skeleton .skeleton-text {
+            height: 20px;
+            width: 80%;
+            margin: 0 auto 10px;
+        }
+        .product-card-skeleton .skeleton-price {
+            height: 20px;
+            width: 50%;
+            margin: 0 auto;
+        }
+
     </style>
 </head>
 <body>
+    <script>
+        const loadMetaPixel = () => {
+            const script = document.createElement('script');
+            script.src = "/meta-pixel-config.js";
+            script.defer = true;
+            document.head.appendChild(script);
+            
+            const noscript = document.createElement('noscript');
+            noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1" />`;
+            document.body.appendChild(noscript);
+
+            // Remove listeners after first execution
+            window.removeEventListener('scroll', loadMetaPixel, { passive: true });
+            window.removeEventListener('mousedown', loadMetaPixel, { passive: true });
+            window.removeEventListener('touchstart', loadMetaPixel, { passive: true });
+        };
+        // Load on first user interaction
+        window.addEventListener('scroll', loadMetaPixel, { once: true, passive: true });
+        window.addEventListener('mousedown', loadMetaPixel, { once: true, passive: true });
+        window.addEventListener('touchstart', loadMetaPixel, { once: true, passive: true });
+    </script>
     
     <div class="header-wrapper">
         <div id="announcement-bar" class="announcement-bar" style="display: none;">
@@ -171,15 +208,12 @@
         <header class="main-header">
             <div class="container header-content">
                 <div class="store-logo">
-                    <!-- FIX 4: Added aria-label for accessibility -->
                     <a href="/" id="store-logo-link" aria-label="Go to homepage"></a>
                 </div>
                 <nav class="main-nav" id="main-nav"></nav>
                 <div class="header-icons">
-                    <!-- FIX 4: Added aria-label for accessibility -->
                     <a href="#" id="desktop-search-trigger" aria-label="Open search bar"><i class="fas fa-search"></i></a>
                     <a href="#" id="mobile-search-icon" aria-label="Open search bar"><i class="fas fa-search"></i></a>
-                    <!-- FIX 4: Added aria-label for accessibility -->
                     <a href="/cart/" class="cart-icon-link" aria-label="View your shopping cart">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-item-count">0</span>
@@ -219,7 +253,26 @@
 
     <section class="container">
         <h2 class="section-title">NEW ARRIVALS</h2>
-        <div class="product-grid" id="product-grid"></div>
+        <div class="product-grid" id="product-grid">
+            <script>
+                // This script injects the skeleton loaders immediately without waiting for external JS
+                (function() {
+                    const grid = document.getElementById('product-grid');
+                    let skeletonHTML = '';
+                    const skeletonCount = 8; // Number of skeletons to show
+                    for (let i = 0; i < skeletonCount; i++) {
+                        skeletonHTML += `
+                            <div class="product-card-skeleton">
+                                <div class="skeleton skeleton-img"></div>
+                                <div class="skeleton skeleton-text"></div>
+                                <div class="skeleton skeleton-price"></div>
+                            </div>
+                        `;
+                    }
+                    grid.innerHTML = skeletonHTML;
+                })();
+            </script>
+        </div>
         <div class="view-all-container">
             <a href="/all-products/" class="btn">View All Products</a>
         </div>
@@ -251,12 +304,12 @@
         </div>
     </div>
 
-    <!-- NOTE: Your Firebase script is already a module and at the end of the body, which is good practice (it defers by default). No changes needed here. -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getFirestore, doc, getDoc, collection, getDocs, query, limit, orderBy, where } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        // --- Start of Main Application Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
             const firebaseConfig = {
                 apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
                 authDomain: "nasir-9102c.firebaseapp.com",
@@ -269,8 +322,9 @@
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
 
-            // The rest of your JavaScript remains unchanged...
-            let featuredProducts = [];
+            // --- OPTIMIZATION: Split data loading into critical and deferred parts ---
+            
+            // Global variables for slider and products
             const sliderContainer = document.getElementById('hero-slider');
             let sliderTrack;
             let slides = [];
@@ -282,13 +336,13 @@
 
             function updateCartCount() { const cart = JSON.parse(localStorage.getItem('cart')) || []; const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0); const countElement = document.querySelector('.cart-item-count'); if (countElement) { countElement.textContent = totalItems; countElement.style.display = totalItems > 0 ? 'block' : 'none'; } }
             
-            async function loadFrontendData() {
-                const [ announcementSnap, storeDetailsSnap, navigationSnap, sliderSnap, productsSnap, allCollectionsSnap ] = await Promise.all([ 
+            // Function to load critical data (above the fold)
+            async function loadCriticalData() {
+                const [ announcementSnap, storeDetailsSnap, navigationSnap, sliderSnap, allCollectionsSnap ] = await Promise.all([ 
                     getDoc(doc(db, "settings", "announcementBar")), 
                     getDoc(doc(db, "settings", "store_details")), 
                     getDoc(doc(db, "navigation", "main-menu")), 
-                    getDoc(doc(db, "settings", "hero_slider")), 
-                    getDocs(query(collection(db, "products"), where("status", "==", "active"))),
+                    getDoc(doc(db, "settings", "hero_slider")),
                     getDocs(collection(db, "collections"))
                 ]); 
 
@@ -355,26 +409,28 @@
                         goToSlide(0, true);
                     }
                 }
+            }
+            
+            // Function to load deferred data (products)
+            async function loadDeferredData() {
+                const productsSnap = await getDocs(query(
+                    collection(db, "products"), 
+                    where("status", "==", "active"),
+                    orderBy("createdAt", "desc"),
+                    limit(10)
+                ));
 
-                if (!productsSnap.empty) { let allActiveProducts = productsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })); allActiveProducts.sort((a, b) => { const timeA = a.createdAt?.toMillis() || 0; const timeB = b.createdAt?.toMillis() || 0; return timeB - timeA; }); featuredProducts = allActiveProducts.slice(0, 10); renderProducts(featuredProducts); }
+                if (!productsSnap.empty) { 
+                    let featuredProducts = productsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderProducts(featuredProducts); 
+                } else {
+                    const grid = document.getElementById('product-grid');
+                    grid.innerHTML = '<p style="text-align: center;">No products found.</p>';
+                }
                 document.querySelector('.main-footer').style.display = 'block';
             }
 
-            function createMenuItems(items, parentUl, slugMap, isMobile = false) { 
-                items.forEach(item => { 
-                    const li = document.createElement('li'); 
-                    let finalLink = item.link || '#';
-                    if (item.type === 'collection' && slugMap.has(item.name)) {
-                        finalLink = `/collections/${slugMap.get(item.name)}`;
-                    }
-                    let linkHTML = `<a href="${finalLink}">${item.name}`; 
-                    if (item.children && item.children.length > 0) { li.classList.add('has-submenu'); linkHTML += ` <i class="fas fa-chevron-down"></i>`; } 
-                    linkHTML += `</a>`; li.innerHTML = linkHTML; 
-                    if (item.children && item.children.length > 0) { const subUl = document.createElement('ul'); subUl.className = 'submenu'; createMenuItems(item.children, subUl, slugMap, isMobile); li.appendChild(subUl); } 
-                    parentUl.appendChild(li); 
-                }); 
-            }
-
+            function createMenuItems(items, parentUl, slugMap, isMobile = false) { items.forEach(item => { const li = document.createElement('li'); let finalLink = item.link || '#'; if (item.type === 'collection' && slugMap.has(item.name)) { finalLink = `/collections/${slugMap.get(item.name)}`; } let linkHTML = `<a href="${finalLink}">${item.name}`; if (item.children && item.children.length > 0) { li.classList.add('has-submenu'); linkHTML += ` <i class="fas fa-chevron-down"></i>`; } linkHTML += `</a>`; li.innerHTML = linkHTML; if (item.children && item.children.length > 0) { const subUl = document.createElement('ul'); subUl.className = 'submenu'; createMenuItems(item.children, subUl, slugMap, isMobile); li.appendChild(subUl); } parentUl.appendChild(li); }); }
             function addMenuEventListeners() { document.querySelectorAll('.main-nav .has-submenu > a').forEach(menu => { menu.addEventListener('click', function(event) { event.preventDefault(); this.parentElement.classList.toggle('active'); }); }); document.addEventListener('click', (e) => { if (!e.target.closest('.main-nav')) { document.querySelectorAll('.main-nav .has-submenu').forEach(item => item.classList.remove('active')); } }); document.querySelectorAll('.mobile-nav-panel .has-submenu > a').forEach(menu => { menu.addEventListener('click', function(event) { event.preventDefault(); this.parentElement.classList.toggle('active'); }); }); }
             function startAutoChange() { if (!autoChangeEnabled || slides.length <= 1) return; stopAutoChange(); autoChangeInterval = setTimeout(nextSlide, autoChangeTime); }
             function stopAutoChange() { clearTimeout(autoChangeInterval); }
@@ -396,12 +452,9 @@
                     const imageUrl2 = (product.imageUrls && product.imageUrls.length > 1) ? product.imageUrls[1] : imageUrl1; 
                     let priceHTML = `<span class="current-price">Tk ${product.price}</span>`; let badgeHTML = ''; 
                     if (product.comparePrice && product.comparePrice > product.price) { priceHTML += `<span class="compare-at-price">Tk ${product.comparePrice}</span>`; const discount = Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100); badgeHTML = `<div class="off-badge">${discount}% OFF</div>`; } 
-                    
                     const cardLink = document.createElement('a'); 
                     const productSlug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, ''); 
-                    
                     cardLink.href = `/product-details/${productSlug}/${product.id}`; 
-                    
                     cardLink.className = 'product-card'; 
                     cardLink.innerHTML = ` <div class="product-image-container"> ${badgeHTML} <img src="${imageUrl1}" alt="${product.name}" class="img-primary" loading="lazy"> <img src="${imageUrl2}" alt="${product.name}" class="img-secondary" loading="lazy"> </div> <div class="product-info"> <div class="product-name">${product.name}</div> <div class="product-price">${priceHTML}</div> </div>`; 
                     grid.appendChild(cardLink); 
@@ -412,102 +465,31 @@
             function setCopyrightYear() { document.getElementById('copyright-year').textContent = new Date().getFullYear(); }
             function setupEventListeners() { 
                 const handleSearch = () => { const desktopValue = document.getElementById('desktopSearchInput').value; const mobileValue = document.getElementById('mobileSearchInput').value; const searchTerm = (desktopValue || mobileValue).trim(); if (searchTerm) { if (typeof fbq === 'function') { fbq('track', 'Search', { search_string: searchTerm }); } window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`; } }; const desktopSearchInput = document.getElementById('desktopSearchInput'); const mobileSearchInput = document.getElementById('mobileSearchInput'); if (desktopSearchInput) { desktopSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } if (mobileSearchInput) { mobileSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } const desktopSearchTrigger = document.getElementById('desktop-search-trigger'); const closeDesktopSearchBtn = document.querySelector('.close-desktop-search-btn'); if (desktopSearchTrigger) { desktopSearchTrigger.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('desktop-search-active'); desktopSearchInput.focus(); }); } if (closeDesktopSearchBtn) { closeDesktopSearchBtn.addEventListener('click', () => { document.body.classList.remove('desktop-search-active'); }); } const mobileSearchIcon = document.getElementById('mobile-search-icon'); const closeSearchBtn = document.querySelector('.close-search-btn'); if(mobileSearchIcon) { mobileSearchIcon.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('search-active'); mobileSearchInput.focus(); }); } if(closeSearchBtn) { closeSearchBtn.addEventListener('click', () => { document.body.classList.remove('search-active'); }); } const mobileMenuToggle = document.querySelector('.mobile-menu-toggle'); const mobileNavPanel = document.getElementById('mobile-nav-panel'); const closeMobileNav = document.querySelector('.close-mobile-nav'); const overlay = document.getElementById('overlay'); const closeMenu = () => { mobileNavPanel.classList.remove('active'); overlay.classList.remove('active'); }; if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', () => { mobileNavPanel.classList.add('active'); overlay.classList.add('active'); }); if (closeMobileNav) closeMobileNav.addEventListener('click', closeMenu); if (overlay) overlay.addEventListener('click', closeMenu); 
-
-                // --- Modal Logic ---
                 const modalContent = {
-                    about: {
-                        title: 'About',
-                        body: `
-                            <p>Sundorica is a celebration of feminine elegance — where timeless skincare meets graceful fashion. Our brand blends the essence of natural beauty with style, offering premium skincare products designed for radiant, healthy skin, alongside modern clothing crafted for confidence and comfort.</p>
-                            <p>From nourishing serums to breathable fabrics, Sundorica empowers every woman to feel beautiful — inside and out. Rooted in purity, luxury, and purpose, we believe beauty is not just what you wear, but how you care for yourself.</p>
-                            <p><strong>Sundorica – Where Beauty Meets Style.</strong></p>
-                        `
-                    },
-                    contact: {
-                        title: 'Contact',
-                        body: `
-                            <div class="contact-info">
-                                <p>+8801617970053</p>
-                                <p>Email: sundorica@gmail.com</p>
-                                <p>Address:House-15,Road-2,Block-Ka,Section-6 West Senpara Porbota Mirpur Dhaka-1216</p>
-                            </div>
-                        `
-                    },
-                    privacy: {
-                        title: 'Privacy Policy',
-                        body: `
-                            <p>At Sundorica, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your information when you interact with our brand through our Facebook page, online platforms, and during the purchase of skincare or clothing products.</p>
-                            <h4>1. Information We Collect</h4>
-                            <ul>
-                                <li>Name</li>
-                                <li>Phone number</li>
-                                <li>Email address</li>
-                                <li>Delivery/shipping address</li>
-                                <li>Product preferences</li>
-                                <li>Your messages via Messenger, comments, or email</li>
-                            </ul>
-                            <h4>2. How We Use Your Information</h4>
-                            <ul>
-                                <li>Process and deliver your orders</li>
-                                <li>Communicate with you about your purchases</li>
-                                <li>Provide customer service</li>
-                                <li>Send you order updates or promotional offers (if you agree)</li>
-                                <li>Improve our products and services</li>
-                            </ul>
-                            <h4>3. Data Sharing</h4>
-                            <ul>
-                                <li>We do not share or sell your personal information to any third parties. Your data is only used by our internal team for order fulfillment and communication.</li>
-                            </ul>
-                            <h4>4. Data Security</h4>
-                            <ul>
-                                <li>We take reasonable precautions to protect your data from unauthorized access, misuse, or disclosure. All information is kept confidential and used only for business purposes.</li>
-                            </ul>
-                            <h4>5. Your Rights</h4>
-                            <p>You may request:</p>
-                            <ul>
-                                <li>To view the data we hold about you</li>
-                                <li>To correct or delete your personal information</li>
-                                <li>To opt out of promotional messages at any time</li>
-                            </ul>
-                            <p>We value your trust and are committed to handling your personal information responsibly.</p>
-                        `
-                    }
+                    about: { title: 'About', body: `<p>Sundorica is a celebration of feminine elegance — where timeless skincare meets graceful fashion. Our brand blends the essence of natural beauty with style, offering premium skincare products designed for radiant, healthy skin, alongside modern clothing crafted for confidence and comfort.</p><p>From nourishing serums to breathable fabrics, Sundorica empowers every woman to feel beautiful — inside and out. Rooted in purity, luxury, and purpose, we believe beauty is not just what you wear, but how you care for yourself.</p><p><strong>Sundorica – Where Beauty Meets Style.</strong></p>` },
+                    contact: { title: 'Contact', body: `<div class="contact-info"><p>+8801617970053</p><p>Email: sundorica@gmail.com</p><p>Address:House-15,Road-2,Block-Ka,Section-6 West Senpara Porbota Mirpur Dhaka-1216</p></div>` },
+                    privacy: { title: 'Privacy Policy', body: `<p>At Sundorica, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your information when you interact with our brand through our Facebook page, online platforms, and during the purchase of skincare or clothing products.</p><h4>1. Information We Collect</h4><ul><li>Name</li><li>Phone number</li><li>Email address</li><li>Delivery/shipping address</li><li>Product preferences</li><li>Your messages via Messenger, comments, or email</li></ul><h4>2. How We Use Your Information</h4><ul><li>Process and deliver your orders</li><li>Communicate with you about your purchases</li><li>Provide customer service</li><li>Send you order updates or promotional offers (if you agree)</li><li>Improve our products and services</li></ul><h4>3. Data Sharing</h4><ul><li>We do not share or sell your personal information to any third parties. Your data is only used by our internal team for order fulfillment and communication.</li></ul><h4>4. Data Security</h4><ul><li>We take reasonable precautions to protect your data from unauthorized access, misuse, or disclosure. All information is kept confidential and used only for business purposes.</li></ul><h4>5. Your Rights</h4><p>You may request:</p><ul><li>To view the data we hold about you</li><li>To correct or delete your personal information</li><li>To opt out of promotional messages at any time</li></ul><p>We value your trust and are committed to handling your personal information responsibly.</p>` }
                 };
-                const modalOverlay = document.getElementById('info-modal');
-                const modalTitle = document.getElementById('info-modal-title');
-                const modalBody = document.getElementById('info-modal-body');
-                const closeModalBtn = document.querySelector('.info-modal-close');
-                const footerLinks = document.querySelectorAll('.footer-left-links a');
-                
-                footerLinks.forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const modalType = link.getAttribute('data-modal');
-                        if (modalContent[modalType]) {
-                            modalTitle.textContent = modalContent[modalType].title;
-                            modalBody.innerHTML = modalContent[modalType].body;
-                            modalOverlay.classList.add('active');
-                        }
-                    });
-                });
-                const closeModal = () => {
-                    modalOverlay.classList.remove('active');
-                };
-                closeModalBtn.addEventListener('click', closeModal);
-                modalOverlay.addEventListener('click', (e) => {
-                    if (e.target === modalOverlay) {
-                        closeModal();
-                    }
-                });
+                const modalOverlay = document.getElementById('info-modal'); const modalTitle = document.getElementById('info-modal-title'); const modalBody = document.getElementById('info-modal-body'); const closeModalBtn = document.querySelector('.info-modal-close'); const footerLinks = document.querySelectorAll('.footer-left-links a');
+                footerLinks.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const modalType = link.getAttribute('data-modal'); if (modalContent[modalType]) { modalTitle.textContent = modalContent[modalType].title; modalBody.innerHTML = modalContent[modalType].body; modalOverlay.classList.add('active'); } }); });
+                const closeModal = () => { modalOverlay.classList.remove('active'); }; closeModalBtn.addEventListener('click', closeModal); modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) { closeModal(); } });
             }
 
-            // Initializing the page
-            setCopyrightYear();
-            await loadFrontendData();
-            setupEventListeners();
-            updateCartCount();
+            // --- Initializing the page ---
+            async function initializePage() {
+                setCopyrightYear();
+                setupEventListeners();
+                updateCartCount();
+                
+                // Load critical data immediately
+                await loadCriticalData();
+                
+                // Defer loading of non-critical data
+                setTimeout(loadDeferredData, 500); // Small delay to let the main thread breathe
+            }
+
+            initializePage();
         });
     </script>
 </body>
 </html>
-
