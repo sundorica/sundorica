@@ -1,0 +1,439 @@
+// This script is for the PRODUCT DETAILS PAGE ONLY
+
+async function loadFirebaseAndApp() {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js");
+    const { getFirestore, doc, getDoc, collection, getDocs } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+    const firebaseConfig = {
+        apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
+        authDomain: "nasir-9102c.firebaseapp.com",
+        projectId: "nasir-9102c",
+        storageBucket: "nasir-9102c.firebasestorage.app",
+        messagingSenderId: "182224792140",
+        appId: "1:182224792140:web:42348e8b24f94cdf07e2e9",
+        measurementId: "G-8R5J241MJM"
+    };
+    const app = initializeApp(firebaseConfig);
+    return getFirestore(app);
+}
+
+function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    toast.innerHTML = `<i class="fas ${iconClass}"></i><span>${message}</span>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 4000);
+}
+
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const countElement = document.querySelector('.cart-item-count');
+    if (countElement) {
+        countElement.textContent = totalItems;
+        countElement.style.display = totalItems > 0 ? 'block' : 'none';
+    }
+}
+
+function createMenuItems(items, parentUl, slugMap) {
+     items.forEach(item => { 
+        const li = document.createElement('li'); 
+        let finalLink = item.link || '#';
+        if (item.type === 'collection' && slugMap.has(item.name)) {
+            finalLink = `/collections/${slugMap.get(item.name)}`;
+        }
+        let linkHTML = `<a href="${finalLink}">${item.name}</a>`; 
+        if (item.children && item.children.length > 0) { 
+            li.classList.add('has-submenu'); 
+            linkHTML += ` <i class="fas fa-chevron-down" aria-hidden="true"></i>`; 
+        } 
+        li.innerHTML = linkHTML; 
+        if (item.children && item.children.length > 0) { 
+            const subUl = document.createElement('ul'); 
+            subUl.className = 'submenu'; 
+            createMenuItems(item.children, subUl, slugMap); 
+            li.appendChild(subUl); 
+        } 
+        parentUl.appendChild(li); 
+    }); 
+}
+
+function renderSocialLinks(links) {
+    const container = document.getElementById('social-links');
+    if (!links || !container) return;
+    let html = '';
+    if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`;
+    if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`;
+    if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`;
+    if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>`;
+    container.innerHTML = html;
+}
+
+async function loadSharedComponents(db) { 
+    const { doc, getDoc, getDocs, collection } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+    const [storeDetailsSnap, navigationSnap, allCollectionsSnap] = await Promise.all([ 
+        getDoc(doc(db, "settings", "store_details")), 
+        getDoc(doc(db, "navigation", "main-menu")),
+        getDocs(collection(db, "collections"))
+    ]); 
+    if (storeDetailsSnap.exists()) { 
+        const data = storeDetailsSnap.data(); 
+        const logoLink = document.getElementById('store-logo-link'); 
+        if (data.logoUrl) { 
+            logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`; 
+        } else if (data.storeName) { 
+            logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`; 
+        } 
+        document.getElementById('footer-store-name').textContent = data.storeName || 'Your Store'; 
+        renderSocialLinks(data.socialLinks); 
+    } 
+    
+    const collectionSlugMap = new Map();
+    if (!allCollectionsSnap.empty) {
+        allCollectionsSnap.forEach(doc => {
+            const data = doc.data();
+            if (data.name && data.slug) {
+                collectionSlugMap.set(data.name, data.slug);
+            }
+        });
+    }
+
+    if (navigationSnap.exists()) { 
+        const menuData = navigationSnap.data(); 
+        if (menuData.items) { 
+            const navContainer = document.getElementById('main-nav'); 
+            const mobileNavContainer = document.getElementById('mobile-nav-links'); 
+            const ul = document.createElement('ul'); 
+            const mobileUl = document.createElement('ul'); 
+            createMenuItems(menuData.items, ul, collectionSlugMap); 
+            navContainer.innerHTML = ''; 
+            navContainer.appendChild(ul); 
+            createMenuItems(menuData.items, mobileUl, collectionSlugMap); 
+            mobileNavContainer.innerHTML = ''; 
+            mobileNavContainer.appendChild(mobileUl); 
+            addMenuEventListeners();
+        } 
+    } 
+}
+
+let currentSelections = {};
+
+function formatPrice(priceData) {
+    if (!priceData || typeof priceData.price === 'undefined') return '';
+    let priceHTML = `<span class="current-price">Tk ${priceData.price}</span>`;
+    if (priceData.comparePrice && priceData.comparePrice > priceData.price) {
+        priceHTML += `<span class="compare-at-price">Tk ${priceData.comparePrice}</span>`;
+    }
+    return priceHTML;
+}
+
+function addProductSchema(product, path) {
+    const existingSchema = document.querySelector('script[type="application/ld+json"]');
+    if (existingSchema) existingSchema.remove();
+    if (!product) return;
+    const schema = {
+        "@context": "https://schema.org/", "@type": "Product", "name": product.name, "image": product.imageUrls || [],
+        "description": product.description, "sku": product.id,
+        "offers": {
+            "@type": "Offer", "url": `https://www.sundorica.com${path}`, "priceCurrency": "BDT", "price": product.price,
+            "availability": (product.quantity > 0 || (product.variants && product.variants.some(v => v.quantity > 0))) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "seller": { "@type": "Organization", "name": "Sundorica" }
+        }
+    };
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+}
+
+function renderProductDetails(product, path) {
+    const container = document.getElementById('product-details-container');
+    if (!product || product.status !== 'active') {
+        container.innerHTML = '<h2>Product Not Found</h2><p>This product might be out of stock or no longer available.</p>';
+        document.title = 'Product Not Found - Sundorica';
+        return;
+    }
+    const existingCanonical = document.querySelector("link[rel='canonical']");
+    if (existingCanonical) existingCanonical.remove();
+    const canonicalLink = document.createElement('link');
+    canonicalLink.rel = 'canonical';
+    canonicalLink.href = `https://www.sundorica.com${path}`; 
+    document.head.appendChild(canonicalLink);
+    addProductSchema(product, path);
+    if (typeof fbq === 'function') {
+        fbq('track', 'ViewContent', { content_name: product.name, content_ids: [product.id], content_type: 'product', content_category: product.collections ? product.collections.join(', ') : '', value: product.price, currency: 'BDT' });
+    }
+    const availableVariants = (product.variants || []).filter(v => v.quantity > 0);
+    const hasVariants = product.variants && product.variants.length > 0;
+    if (hasVariants && availableVariants.length === 0) {
+         container.innerHTML = '<h2>Product Out of Stock</h2><p>This product is currently unavailable.</p>';
+        return;
+    }
+    document.title = `${product.name || 'Product'} - Sundorica`;
+    let mainImageHTML = '';
+    let thumbnailsHTML = '';
+    const mainImageUrl = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : 'https://placehold.co/800x1000/eee/ccc?text=No+Image';
+    if (product.imageUrls && product.imageUrls.length > 0) {
+        mainImageHTML = `<a id="main-image-link" href="${product.imageUrls[0]}"><img src="${product.imageUrls[0]}" alt="${product.name || 'Product Image'}" id="main-product-image"></a>`;
+        if (product.imageUrls.length > 1) {
+            thumbnailsHTML = product.imageUrls.map((url, index) => `<a href="${url}" class="thumbnail-link ${index === 0 ? 'active' : ''}"><img src="${url}" alt="Product thumbnail ${index + 1}"></a>`).join('');
+        }
+    } else {
+         mainImageHTML = `<img src="${mainImageUrl}" alt="No Image">`;
+    }
+    let variantsHTML = '';
+    if (hasVariants) {
+        const excludedKeys = ['price', 'comparePrice', 'id', 'quantity', 'sku'];
+        const optionNames = Object.keys(product.variants[0]).filter(k => !excludedKeys.includes(k));
+        variantsHTML = optionNames.map((optionName) => {
+            const uniqueValues = [...new Set(product.variants.map(v => v[optionName]))];
+            const variantButtons = uniqueValues.map(value => `<button class="variant-btn" data-option-name="${optionName}" data-option-value="${value}">${value}</button>`).join('');
+            const label = optionName.charAt(0).toUpperCase() + optionName.slice(1);
+            return `<div class="variant-selector" data-variant-group="${optionName}"><span class="variant-label">${label}:</span><div class="variant-options">${variantButtons}</div></div>`;
+        }).join('');
+    }
+    let sizeChartLinkHTML = product.sizeChartContent ? `<span class="size-chart-link" id="open-size-chart"><i class="fas fa-ruler-horizontal"></i> Size Chart</span>` : '';
+    container.innerHTML = `<div class="product-details-layout"><div class="product-gallery"><div class="main-image">${mainImageHTML}</div><div class="thumbnail-images">${thumbnailsHTML}</div></div><div class="product-info-details"><h1 class="product-name">${product.name || 'No Name'}</h1><div class="product-price">${formatPrice(product)}</div><div id="variant-container">${variantsHTML}</div>${sizeChartLinkHTML}<div class="action-buttons"><button class="add-to-cart-btn">Add to Cart</button><button class="buy-now-btn">Buy It Now</button></div><div class="product-description"><h3>Description</h3><p>${product.description || 'No description available.'}</p></div></div></div>`;
+    addProductDetailsEventListeners(product);
+}
+
+function addProductDetailsEventListeners(product) {
+    const hasVariants = product.variants && product.variants.length > 0;
+    const availableVariants = hasVariants ? product.variants.filter(v => v.quantity > 0) : [];
+    const optionNames = hasVariants && availableVariants.length > 0 ? Object.keys(product.variants[0]).filter(k => !['price', 'comparePrice', 'id', 'quantity', 'sku'].includes(k)) : [];
+    currentSelections = {};
+    optionNames.forEach(name => currentSelections[name] = null);
+    const addToCartBtn = document.querySelector('.add-to-cart-btn');
+    const buyNowBtn = document.querySelector('.buy-now-btn');
+    function updateButtonState() {
+        if (!addToCartBtn || !buyNowBtn) return;
+        let isAvailable = false;
+        if (hasVariants) {
+            const allOptionsSelected = optionNames.every(name => currentSelections[name]);
+            if (allOptionsSelected) {
+                const matchedVariant = availableVariants.find(variant => optionNames.every(name => variant[name] === currentSelections[name]));
+                if (matchedVariant) isAvailable = true;
+            }
+        } else {
+            if (product.quantity > 0) isAvailable = true;
+        }
+        addToCartBtn.disabled = !isAvailable;
+        buyNowBtn.disabled = !isAvailable;
+    }
+    function updateVariantUI() {
+        let filteredVariants = [...availableVariants];
+        for (let i = 0; i < optionNames.length; i++) {
+            const optionName = optionNames[i];
+            const selectorDiv = document.querySelector(`.variant-selector[data-variant-group="${optionName}"]`);
+            if (!selectorDiv) continue;
+            const availableValues = [...new Set(filteredVariants.map(v => v[optionName]))];
+            if (i > 0 && !currentSelections[optionNames[i-1]]) {
+                selectorDiv.classList.add('hidden');
+                continue;
+            }
+            selectorDiv.classList.remove('hidden');
+            const allButtons = selectorDiv.querySelectorAll('.variant-btn');
+            allButtons.forEach(btn => btn.classList.toggle('hidden', !availableValues.includes(btn.dataset.optionValue)));
+            if (currentSelections[optionName]) {
+                filteredVariants = filteredVariants.filter(v => v[optionName] === currentSelections[optionName]);
+            }
+        }
+    }
+    document.querySelectorAll('.variant-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const button = e.target;
+            const optionName = button.dataset.optionName;
+            const optionValue = button.dataset.optionValue;
+            const optionIndex = optionNames.indexOf(optionName);
+            if (button.classList.contains('active')) {
+                button.classList.remove('active');
+                currentSelections[optionName] = null;
+            } else {
+                const group = button.closest('.variant-options');
+                group.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+                currentSelections[optionName] = optionValue;
+            }
+            for (let i = optionIndex + 1; i < optionNames.length; i++) {
+                const subsequentOptionName = optionNames[i];
+                currentSelections[subsequentOptionName] = null;
+                document.querySelector(`.variant-selector[data-variant-group="${subsequentOptionName}"]`)?.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+            }
+            updateVariantUI();
+            updateButtonState();
+            const allSelected = optionNames.every(name => currentSelections[name]);
+            if (allSelected) {
+                const matchedVariant = availableVariants.find(variant => optionNames.every(name => variant[name] === currentSelections[name]));
+                if (matchedVariant) document.querySelector('.product-price').innerHTML = formatPrice(matchedVariant);
+            } else {
+                document.querySelector('.product-price').innerHTML = formatPrice(product);
+            }
+        });
+    });
+    document.querySelectorAll('.thumbnail-link').forEach(thumbLink => {
+        thumbLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const imageUrl = thumbLink.href;
+            document.getElementById('main-product-image').src = imageUrl;
+            document.getElementById('main-image-link').href = imageUrl;
+            document.querySelectorAll('.thumbnail-link').forEach(t => t.classList.remove('active'));
+            thumbLink.classList.add('active');
+        });
+    });
+    const mainImageLink = document.getElementById('main-image-link');
+    if (mainImageLink && product.imageUrls && product.imageUrls.length > 0) {
+        const lightGalleryModule = window.lightGallery;
+        if(lightGalleryModule) {
+            mainImageLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const dynamicEl = product.imageUrls.map(url => ({ src: url, thumb: url }));
+                const currentIndex = product.imageUrls.indexOf(mainImageLink.href);
+                lightGallery(e.currentTarget, {
+                    dynamic: true, dynamicEl, index: currentIndex > -1 ? currentIndex : 0,
+                    plugins: [lgZoom, lgThumbnail], licenseKey: '0000-0000-000-0000',
+                    download: false, mobileSettings: { controls: true, showCloseIcon: true }
+                }).openGallery();
+            });
+        }
+    }
+    const openChartBtn = document.getElementById('open-size-chart');
+    if (openChartBtn) {
+        const sizeChartModal = document.getElementById('size-chart-modal');
+        const closeChartBtn = document.getElementById('modal-close-btn');
+        openChartBtn.addEventListener('click', () => {
+            document.getElementById('size-chart-content').innerHTML = product.sizeChartContent;
+            sizeChartModal.classList.add('active');
+        });
+        closeChartBtn.addEventListener('click', () => sizeChartModal.classList.remove('active'));
+        sizeChartModal.addEventListener('click', (e) => { if (e.target === sizeChartModal) sizeChartModal.classList.remove('active'); });
+    }
+    function getSelectedItem() {
+        let selectedItem = null;
+        const productSlug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+        const cleanProductPageUrl = `/product-details/${productSlug}/${product.id}`;
+        if (hasVariants) {
+            const allOptionsSelected = optionNames.every(name => currentSelections[name]);
+            if (!allOptionsSelected) { showToast('Please select all options', 'error'); return null; }
+            const matchedVariant = availableVariants.find(variant => optionNames.every(name => variant[name] === currentSelections[name]));
+            if (matchedVariant) {
+                const variantIdentifier = optionNames.map(name => currentSelections[name]).join('-');
+                selectedItem = { id: `${product.id}-${variantIdentifier}`, productId: product.id, name: product.name, price: matchedVariant.price, image: (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : '', variantDetails: { ...currentSelections }, quantity: 1, productPage: cleanProductPageUrl };
+            } else { showToast('This product combination is out of stock.', 'error'); return null; }
+        } else {
+            if (product.quantity > 0) {
+                selectedItem = { id: product.id, productId: product.id, name: product.name, price: product.price, image: (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : '', quantity: 1, productPage: cleanProductPageUrl };
+            } else { showToast('This product is out of stock.', 'error'); return null; }
+        }
+        return selectedItem;
+    }
+    if(addToCartBtn) {
+        addToCartBtn.addEventListener('click', () => {
+            const item = getSelectedItem();
+            if (!item) return;
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingItemIndex = cart.findIndex(cartItem => cartItem.id === item.id);
+            if (existingItemIndex > -1) { cart[existingItemIndex].quantity++; } else { cart.push(item); }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            showToast(`'${item.name}' has been added to cart`);
+            if (typeof fbq === 'function') { fbq('track', 'AddToCart', { content_name: item.name, content_ids: [item.productId], content_type: 'product', value: item.price, currency: 'BDT' }); }
+            updateCartCount();
+        });
+    }
+    if(buyNowBtn) {
+        buyNowBtn.addEventListener('click', () => {
+            const item = getSelectedItem();
+            if (!item) return;
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingItemIndex = cart.findIndex(cartItem => cartItem.id === item.id);
+            if (existingItemIndex === -1) { cart.push(item); } else { cart[existingItemIndex].quantity++; }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            if (typeof fbq === 'function') { fbq('track', 'AddToCart', { content_name: item.name, content_ids: [item.productId], content_type: 'product', value: item.price, currency: 'BDT' }); }
+            window.location.href = '/cart/';
+        });
+    }
+    updateVariantUI();
+    updateButtonState();
+}
+
+async function loadProductDetails(db) {
+    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+    try {
+        let path = sessionStorage.getItem('originalPath');
+        if (path) { sessionStorage.removeItem('originalPath'); } else { path = window.location.pathname; }
+        const pathParts = path.split('/');
+        const productId = new URLSearchParams(window.location.search).get('id');
+        if (!productId) { throw new Error("Product ID not found in URL."); }
+        const productSnap = await getDoc(doc(db, "products", productId));
+        let productData = null;
+        if (productSnap.exists()) {
+            productData = { id: productSnap.id, ...productSnap.data() };
+            if (productData.sizeChartId) {
+                const pageSnap = await getDoc(doc(db, "pages", productData.sizeChartId));
+                if (pageSnap.exists()) { productData.sizeChartContent = pageSnap.data().content; }
+            }
+        }
+        renderProductDetails(productData, path);
+        window.history.replaceState(null, '', path);
+    } catch (error) {
+        console.error("Error loading product details:", error);
+        renderProductDetails(null); 
+    }
+}
+
+function addMenuEventListeners() { document.querySelectorAll('.main-nav .has-submenu > a, .mobile-nav-panel .has-submenu > a').forEach(menu => { menu.addEventListener('click', function(event) { event.preventDefault(); this.parentElement.classList.toggle('active'); }); }); }
+
+function setupEventListeners() { 
+    const handleSearch = () => { 
+        const desktopValue = document.getElementById('desktopSearchInput').value; 
+        const mobileValue = document.getElementById('mobileSearchInput').value; 
+        const searchTerm = desktopValue || mobileValue; 
+        if (searchTerm) { window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`; } 
+    }; 
+    document.getElementById('desktopSearchInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); 
+    document.getElementById('mobileSearchInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); 
+    document.getElementById('desktop-search-trigger').addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('desktop-search-active'); }); 
+    document.querySelector('.close-desktop-search-btn').addEventListener('click', () => { document.body.classList.remove('desktop-search-active'); }); 
+    document.getElementById('mobile-search-icon').addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('search-active'); }); 
+    document.querySelector('.close-search-btn').addEventListener('click', () => { document.body.classList.remove('search-active'); }); 
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle'); 
+    const mobileNavPanel = document.getElementById('mobile-nav-panel'); 
+    const closeMobileNav = document.querySelector('.close-mobile-nav'); 
+    const overlay = document.getElementById('overlay'); 
+    const closeMenu = () => { mobileNavPanel.classList.remove('active'); overlay.classList.remove('active'); }; 
+    mobileMenuToggle.addEventListener('click', () => { mobileNavPanel.classList.add('active'); overlay.classList.add('active'); }); 
+    closeMobileNav.addEventListener('click', closeMenu); 
+    overlay.addEventListener('click', closeMenu); 
+}
+
+// --- FINAL EXECUTION LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('copyright-year').textContent = new Date().getFullYear();
+    setupEventListeners();
+    updateCartCount();
+
+    const loadDynamicContent = async () => {
+        try {
+            const db = await loadFirebaseAndApp();
+            await loadSharedComponents(db);
+            await loadProductDetails(db);
+            document.querySelector('.main-footer').style.display = 'block';
+        } catch (error) {
+            console.error("Failed to load dynamic content:", error);
+        }
+    };
+    
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadDynamicContent);
+    } else {
+        setTimeout(loadDynamicContent, 500);
+    }
+});
+
+    </script>
+</body>
+</html>
+
+}
+eita amar product details er file eita kore dao akhon
