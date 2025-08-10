@@ -35,7 +35,7 @@ function createMenuItems(items, parentUl, slugMap) {
         const li = document.createElement('li'); 
         let finalLink = item.link || '#';
         if (item.type === 'collection' && slugMap.has(item.name)) {
-            finalLink = `/all-products/?collection=${slugMap.get(item.name)}`;
+            finalLink = `/collections/${slugMap.get(item.name)}`;
         }
         let linkHTML = `<a href="${finalLink}">${item.name}</a>`; 
         if (item.children && item.children.length > 0) { 
@@ -133,7 +133,7 @@ function renderProducts(productsToRender) {
 
         const cardLink = document.createElement('a');
         const productSlug = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-        cardLink.href = `/product-details/?id=${product.id}`;
+        cardLink.href = `/product-details/${productSlug}/${product.id}`;
         
         cardLink.className = 'product-card';
         cardLink.innerHTML = `
