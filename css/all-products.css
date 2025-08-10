@@ -1,0 +1,17 @@
+/* =================================================================
+   ALL-PRODUCTS.CSS - Styles specific to the All Products page
+   ================================================================= */
+
+/* Styles for the main title of the All Products page */
+.all-products-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    color: var(--primary-color);
+}
+
+/* Specific adjustments for the product grid on this page, if any */
+#product-grid-container {
+    padding-bottom: 60px;
+}
