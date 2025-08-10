@@ -1,35 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Redirecting...</title>
-  <script type="text/javascript">
-    const originalPath = window.location.pathname;
-
-    sessionStorage.setItem('originalPath', originalPath);
-
-    let destination = null;
-
-    if (originalPath.startsWith('/collections/')) {
-      // MODIFIED: Redirect to the folder, not the file
-      destination = '/collection/'; 
-    } else if (originalPath.startsWith('/product-details/')) {
-      // MODIFIED: Redirect to the folder, not the file
-      destination = '/product-details/';
-    } else if (originalPath.startsWith('/cart')) {
-      // MODIFIED: Redirect to the folder, not the file
-      destination = '/cart/';
-    } else if (originalPath.startsWith('/all-products')) {
-      // MODIFIED: Redirect to the folder, not the file
-      destination = '/all-products/';
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - Sundorica</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
     
-    if (destination) {
-      window.location.replace(destination);
-    }
-  </script>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
+    
+    <style>
+        :root{--primary-color:#1a1a1a;--secondary-color:#666666;--background-color:#ffffff;--surface-color:#f8f9fa;--border-color:#e9ecef;}
+        body{font-family:'Inter',sans-serif;margin:0;background-color:var(--background-color);color:var(--primary-color);line-height:1.6;display:flex;flex-direction:column;min-height:100vh;}
+        .container{width:100%;max-width:100%;margin:0 auto;padding-left:20px;padding-right:20px;box-sizing:border-box;}
+        .header-wrapper{position:sticky;top:0;z-index:100;background-color:var(--background-color);box-shadow:0 2px 4px rgba(0,0,0,.05);}
+        .main-header{padding:15px 0;}
+        .header-content{display:flex;justify-content:space-between;align-items:center;}
+        .store-logo a{text-decoration:none;color:var(--primary-color);}
+        .store-logo img{max-height:45px;display:block;}
+        .store-logo .store-name{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;}
+        .main-footer{background-color:var(--surface-color);padding:20px 0;text-align:center;margin-top:auto;}
+        .copyright{font-size:14px;color:var(--secondary-color);}
+        #redirecting-view { display: none; text-align: center; padding: 50px; }
+        #not-found-view { text-align: center; padding: 50px 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .status-code { font-size: 80px; font-weight: 700; color: var(--border-color); }
+        .status-message { font-size: 24px; font-weight: 600; margin-top: 0; margin-bottom: 15px; }
+        .status-description { color: var(--secondary-color); max-width: 450px; margin-bottom: 30px; }
+        .btn-home { display: inline-block; background-color: var(--primary-color); color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: 500; }
+        .search-box { margin-top: 30px; max-width: 400px; width: 100%; position: relative; }
+        .search-box input { width: 100%; padding: 12px 40px 12px 15px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+        .search-box .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); }
+    </style>
 </head>
 <body>
-  <p>Loading...</p>
+    <div id="redirecting-view">
+        <p>Loading...</p>
+    </div>
+
+    <div id="not-found-view" style="display:none;">
+        <div class="header-wrapper">
+            <header class="main-header">
+                <div class="container header-content">
+                    <div class="store-logo">
+                        <a href="/" id="store-logo-link">
+                            <span class="store-name">Sundorica</span>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <main class="container">
+            <div class="status-code">404</div>
+            <h1 class="status-message">Oops! Page Not Found.</h1>
+            <p class="status-description">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+            <a href="/" class="btn-home">Go to Homepage</a>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search for products...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </main>
+        <footer class="main-footer">
+            <p class="copyright">&copy; <span id="copyright-year"></span> Sundorica. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <script type="text/javascript">
+        (function() {
+            // --- SPA Redirection Logic ---
+            const originalPath = window.location.pathname;
+            sessionStorage.setItem('originalPath', originalPath);
+
+            let destination = null;
+            if (originalPath.startsWith('/collections/')) {
+                destination = '/collection/';
+            } else if (originalPath.startsWith('/product-details/')) {
+                destination = '/product-details/';
+            } else if (originalPath.startsWith('/cart')) {
+                destination = '/cart/';
+            } else if (originalPath.startsWith('/all-products')) {
+                destination = '/all-products/';
+            }
+            
+            if (destination) {
+                // If it's a valid SPA route, show "Loading" and redirect
+                document.getElementById('redirecting-view').style.display = 'block';
+                window.location.replace(destination);
+            } else {
+                // If it's a real 404 error, show the user-friendly "Not Found" page
+                document.getElementById('not-found-view').style.display = 'flex';
+                document.getElementById('not-found-view').style.flexDirection = 'column';
+                
+                // --- Simple logic for the 404 page functionality ---
+                document.getElementById('copyright-year').textContent = new Date().getFullYear();
+                
+                // Make search work
+                const searchInput = document.getElementById('search-input');
+                const handleSearch = () => {
+                    if (searchInput.value.trim()) {
+                        window.location.href = `/all-products/?search=${encodeURIComponent(searchInput.value.trim())}`;
+                    }
+                };
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleSearch();
+                });
+                document.querySelector('.search-box .search-icon').addEventListener('click', handleSearch);
+
+                // Try to fetch store name for the logo for consistency
+                fetch('/index.html')
+                    .then(() => {
+                        // This assumes store details might be accessible via other means or cached
+                        // A more robust solution would be to have a static config file, but this is a simple approach
+                        const storeNameFromStorage = localStorage.getItem('storeName');
+                        if (storeNameFromStorage) {
+                             document.querySelector('#store-logo-link .store-name').textContent = storeNameFromStorage;
+                        }
+                    });
+            }
+        })();
+    </script>
 </body>
 </html>
