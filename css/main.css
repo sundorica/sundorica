@@ -1,5 +1,5 @@
 /* =================================================================
-   MAIN.CSS - Common styles for the entire website (Updated)
+   MAIN.CSS - Common styles for the entire website (Updated with Toast)
    ================================================================= */
 
 /* -- Root Variables and Core Body Styles -- */
@@ -65,6 +65,15 @@ body.search-active .mobile-search-header, body.desktop-search-active .desktop-se
 .product-price { font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 14px; }
 .compare-at-price { text-decoration: line-through; color: var(--danger-color); font-size: 0.9em; }
 .off-badge { position: absolute; top: 10px; right: 10px; background-color: var(--danger-color); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; z-index: 2; }
+
+/* -- Common Toast Notification Styles -- */
+#toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+.toast { padding: 15px 20px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(100%); animation: slideInUp 0.5s forwards, fadeOutDown 0.5s 3.5s forwards; }
+.toast.success { background-color: var(--success-color); }
+.toast.error { background-color: var(--danger-color); }
+.toast i { font-size: 20px; }
+@keyframes slideInUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOutDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(100%); } }
 
 /* -- Footer, Mobile Nav, Overlay -- */
 .main-footer { background-color: var(--surface-color); padding: 5px 0; border-top: .5px solid var(--border-color); text-align: center; display: none; }
