@@ -153,7 +153,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
@@ -283,8 +283,7 @@
                 grid.appendChild(cardLink);
             }));
         }
-
-        // SEO FIX: Enhanced function to add BreadcrumbList schema
+        
         function addAllProductsSeoTags(products) {
             let schemaTag = document.querySelector('script[type="application/ld+json"]');
             if (!schemaTag) {
@@ -335,18 +334,23 @@
 
         async function loadAllProducts() {
             const productsCollection = collection(db, "products");
-            const productsQuery = query(productsCollection, where("status", "==", "active"));
-            const productsSnapshot = await getDocs(productsQuery);
-            allProducts = productsSnapshot.docs.map((doc => ({ id: doc.id, ...doc.data() })));
+            // **FIX**: Fetch all products first, then filter. This is more robust.
+            const productsSnapshot = await getDocs(productsCollection);
+            
+            allProducts = productsSnapshot.docs
+                .map(doc => ({ id: doc.id, ...doc.data() }))
+                .filter(product => product.status === "active");
+
             allProducts.sort(((a, b) => {
-                const timeA = a.createdAt ? .toMillis() || 0;
-                return (b.createdAt ? .toMillis() || 0) - timeA
+                const timeA = a.createdAt?.toMillis() || 0;
+                return (b.createdAt?.toMillis() || 0) - timeA
             }));
+            
             const searchTerm = new URLSearchParams(window.location.search).get("search");
             if (searchTerm) {
                 document.getElementById("desktopSearchInput").value = searchTerm;
                 document.getElementById("mobileSearchInput").value = searchTerm;
-                renderProducts(allProducts.filter((product => product.name.toLowerCase().includes(searchTerm.toLowerCase()))));
+                renderProducts(allProducts.filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase())));
             } else {
                 renderProducts(allProducts);
             }
@@ -368,7 +372,7 @@
                 if (typeof fbq === "function" && searchTerm) {
                     fbq("track", "Search", { search_string: searchTerm });
                 }
-                renderProducts(allProducts.filter((product => product.name.toLowerCase().includes(searchTerm))));
+                renderProducts(allProducts.filter(product => product.name.toLowerCase().includes(searchTerm)));
             };
             const desktopSearchInput = document.getElementById("desktopSearchInput");
             const mobileSearchInput = document.getElementById("mobileSearchInput");
