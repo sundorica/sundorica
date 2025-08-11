@@ -6,7 +6,7 @@
     <title>Product Details - Sundorica</title>
 
     <meta name="description" content="Discover product details from Sundorica. Explore our collection of high-quality skincare and fashion items.">
-    <link rel="canonical" href="https://your-domain.com/products">
+    <link rel="canonical" href="https://www.sundorica.com/products">
 
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -330,7 +330,7 @@
             if (oldSchema) oldSchema.remove();
             
             if (!product) return;
-            const fullUrl = `https://your-domain.com${productPath}`;
+            const fullUrl = `https://www.sundorica.com${productPath}`;
 
             const schema = {
                 "@context": "https://schema.org/",
@@ -364,7 +364,7 @@
                                 "@type": "ListItem",
                                 "position": 1,
                                 "name": "Home",
-                                "item": "https://your-domain.com/"
+                                "item": "https://www.sundorica.com/"
                             },
                             {
                                 "@type": "ListItem",
@@ -393,7 +393,7 @@
 
             // SEO FIX: Update canonical URL and meta description
             const canonicalTag = document.querySelector("link[rel='canonical']");
-            if(canonicalTag) canonicalTag.href = `https://your-domain.com${productPath}`;
+            if(canonicalTag) canonicalTag.href = `https://www.sundorica.com${productPath}`;
             
             let metaDescTag = document.querySelector('meta[name="description"]');
             if (!metaDescTag) {
@@ -775,3 +775,4 @@
     </script>
 </body>
 </html>
+
