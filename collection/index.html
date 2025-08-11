@@ -187,7 +187,7 @@
                 if (item.type === "collection" && slugMap.has(item.name)) {
                     finalLink = `/collections/${slugMap.get(item.name)}`;
                 }
-                let linkHTML = `<a href="${finalLink}">${item.name}`;
+                let linkHTML = `<a href="${finalLink}">${item.name}</a>`;
                 if (item.children && item.children.length > 0) {
                     li.classList.add("has-submenu");
                     linkHTML += ' <i class="fas fa-chevron-down"></i>';
@@ -286,11 +286,9 @@
             }));
         }
 
-        // SEO FIX: Enhanced function to handle all SEO tags
         function addCollectionSeoTags(collectionData, collectionPath, products) {
             const fullUrl = `https://www.sundorica.com${collectionPath}`;
 
-            // 1. Set canonical URL
             let canonicalTag = document.querySelector("link[rel='canonical']");
             if (!canonicalTag) {
                 canonicalTag = document.createElement("link");
@@ -299,7 +297,6 @@
             }
             canonicalTag.href = fullUrl;
 
-            // 2. Set meta description
             let metaDescTag = document.querySelector('meta[name="description"]');
             if (!metaDescTag) {
                 metaDescTag = document.createElement('meta');
@@ -308,7 +305,6 @@
             }
             metaDescTag.content = collectionData.description ? collectionData.description.substring(0, 160) : `Explore the ${collectionData.name} collection at Sundorica. Find high-quality products and great styles.`;
 
-            // 3. Set JSON-LD Schema
             let schemaTag = document.getElementById('collection-schema-script');
             if (!schemaTag) {
                 schemaTag = document.createElement("script");
@@ -364,8 +360,10 @@
             try {
                 let path = sessionStorage.getItem("originalPath") || window.location.pathname;
                 if (sessionStorage.getItem("originalPath")) sessionStorage.removeItem("originalPath");
-                const pathSegments = path.split("/");
-                const slug = pathSegments[pathSegments.length - 1] || pathSegments[pathSegments.length - 2];
+                
+                const pathSegments = path.split("/").filter(segment => segment); // Filter out empty segments
+                const slug = pathSegments[pathSegments.length - 1];
+                
                 if (!slug) throw new Error("Collection slug not found in URL.");
                 
                 const collectionsQuery = query(collection(db, "collections"), where("slug", "==", slug), limit(1));
@@ -377,7 +375,9 @@
                 
                 document.getElementById("collection-title").textContent = collectionName;
                 document.title = `${collectionName} - Sundorica`;
-                window.history.replaceState(null, "", path);
+                
+                // **FIX**: Removed the line below which may have caused the redirect loop.
+                // window.history.replaceState(null, "", path);
 
                 if (typeof fbq === 'function') {
                     fbq("track", "ViewCategory", { content_name: collectionName, content_category: collectionName });
@@ -464,4 +464,3 @@
     </script>
 </body>
 </html>
-
