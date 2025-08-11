@@ -46,9 +46,6 @@ jobs:
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         run: node generate-facebook-feed.js
 
-      - name: Pull latest changes to resolve conflicts
-        run: git pull origin main
-      
       - name: Commit and push feed files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
