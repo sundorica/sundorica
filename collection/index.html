@@ -6,7 +6,7 @@
     <title>Collection - Sundorica</title>
     
     <meta name="description" content="Explore the collections at Sundorica. Find your perfect style from our curated selection of products.">
-    <link rel="canonical" href="https://your-domain.com/collections/">
+    <link rel="canonical" href="https://www.sundorica.com/collections/">
 
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -288,7 +288,7 @@
 
         // SEO FIX: Enhanced function to handle all SEO tags
         function addCollectionSeoTags(collectionData, collectionPath, products) {
-            const fullUrl = `https://your-domain.com${collectionPath}`;
+            const fullUrl = `https://www.sundorica.com${collectionPath}`;
 
             // 1. Set canonical URL
             let canonicalTag = document.querySelector("link[rel='canonical']");
@@ -332,7 +332,7 @@
                             "position": index + 1,
                             "item": {
                                 "@type": "Product",
-                                "url": `https://your-domain.com/product-details/${product.name.toLowerCase().replace(/\s+/g,"-").replace(/[^\w-]+/g,"")}/${product.id}`,
+                                "url": `https://www.sundorica.com/product-details/${product.name.toLowerCase().replace(/\s+/g,"-").replace(/[^\w-]+/g,"")}/${product.id}`,
                                 "name": product.name,
                                 "image": product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : "",
                                 "offers": {
@@ -349,7 +349,7 @@
                         "@type": "ListItem",
                         "position": 1,
                         "name": "Home",
-                        "item": "https://your-domain.com/"
+                        "item": "https://www.sundorica.com/"
                     }, {
                         "@type": "ListItem",
                         "position": 2,
@@ -464,3 +464,4 @@
     </script>
 </body>
 </html>
+
