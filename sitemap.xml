@@ -2,18 +2,29 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.sundorica.com/</loc>
-    <lastmod>2025-08-10T19:25:26.473Z</lastmod>
   </url>
   <url>
     <loc>https://www.sundorica.com/collections</loc>
-    <lastmod>2025-08-10T19:25:26.473Z</lastmod>
   </url>
   <url>
     <loc>https://www.sundorica.com/about</loc>
-    <lastmod>2025-08-10T19:25:26.473Z</lastmod>
   </url>
   <url>
     <loc>https://www.sundorica.com/contact</loc>
-    <lastmod>2025-08-10T19:25:26.473Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.sundorica.com/collections/stitched</loc>
+  </url>
+  <url>
+    <loc>https://www.sundorica.com/collections/unstitched</loc>
+  </url>
+  <url>
+    <loc>https://www.sundorica.com/product-details/lawn-stitched-collection/6bujOMtccJvLMiox328F</loc>
+  </url>
+  <url>
+    <loc>https://www.sundorica.com/product-details/unstitched-lawn/mpI5GyCSHqEGq4TPH7p6</loc>
+  </url>
+  <url>
+    <loc>https://www.sundorica.com/product-details/unstitched-lawn-3-pce/vkb7T8Oj47spfT5Otvau</loc>
   </url>
 </urlset>
