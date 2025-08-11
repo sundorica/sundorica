@@ -4,27 +4,30 @@
     <meta charset="UTF-8">
     <title>Redirecting...</title>
     <script>
-        // This script handles client-side routing for static sites like GitHub Pages.
+        // This script handles client-side routing for static sites.
         // It captures the path that caused a 404 error and redirects to the correct
         // HTML handler page, passing the intended path via sessionStorage.
 
         (function() {
             const path = window.location.pathname;
             
-            // Define the base paths for your client-side routes.
+            // FIX: The routes now point to the actual .html handler files.
             const routes = {
-                '/product-details/': '/product-details/',
-                '/collections/': '/collections/',
-                '/cart/': '/cart/',
-                // Add other client-side routes here if you have them
+                '/product-details/': '/product-details/index.html',
+                '/collections/': '/collections/index.html',
+                '/cart/': '/cart/index.html',
+                '/all-products/': '/all-products/index.html'
+                // Add other client-side base routes and their handler files here.
             };
 
             // Find which base route the path belongs to.
             const handlerRoute = Object.keys(routes).find(key => path.startsWith(key));
 
             if (handlerRoute) {
-                // If it matches a known route (like a product page), save the original path.
+                // If it matches a known route (like a product or collection page),
+                // save the original path so the handler page knows what content to load.
                 sessionStorage.setItem('originalPath', path);
+                
                 // Redirect to the actual HTML file that handles this route.
                 window.location.href = routes[handlerRoute];
             } else {
