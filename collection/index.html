@@ -359,16 +359,23 @@
         async function loadCollectionProducts() {
             try {
                 let path = sessionStorage.getItem("originalPath") || window.location.pathname;
-                if (sessionStorage.getItem("originalPath")) sessionStorage.removeItem("originalPath");
+                if (sessionStorage.getItem("originalPath")) {
+                    sessionStorage.removeItem("originalPath");
+                }
                 
-                const pathSegments = path.split("/").filter(segment => segment); // Filter out empty segments
-                const slug = pathSegments[pathSegments.length - 1];
+                const pathSegments = path.split("/");
+                const slug = pathSegments[pathSegments.length - 1] || pathSegments[pathSegments.length - 2];
                 
-                if (!slug) throw new Error("Collection slug not found in URL.");
+                if (!slug) {
+                    throw new Error("Collection slug not found in URL.");
+                }
                 
                 const collectionsQuery = query(collection(db, "collections"), where("slug", "==", slug), limit(1));
                 const collectionSnapshot = await getDocs(collectionsQuery);
-                if (collectionSnapshot.empty) throw new Error(`Collection with slug '${slug}' not found.`);
+                
+                if (collectionSnapshot.empty) {
+                    throw new Error(`Collection with slug '${slug}' not found.`);
+                }
                 
                 const collectionData = collectionSnapshot.docs[0].data();
                 const collectionName = collectionData.name;
@@ -376,7 +383,7 @@
                 document.getElementById("collection-title").textContent = collectionName;
                 document.title = `${collectionName} - Sundorica`;
                 
-                // **FIX**: Removed the line below which may have caused the redirect loop.
+                // BUG FIX: The line below was removed as it was the likely cause of the redirect loop.
                 // window.history.replaceState(null, "", path);
 
                 if (typeof fbq === 'function') {
@@ -386,9 +393,10 @@
                 const productsQuery = query(collection(db, "products"), where("collections", "array-contains", collectionName));
                 const productsSnapshot = await getDocs(productsQuery);
                 
-                allCollectionProducts = productsSnapshot.docs.map((doc => ({ id: doc.id, ...doc.data() })))
-                    .filter((product => product.status === "active"))
-                    .sort(((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0)));
+                allCollectionProducts = productsSnapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(product => product.status === "active")
+                    .sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
                 
                 renderProducts(allCollectionProducts);
                 addCollectionSeoTags(collectionData, path, allCollectionProducts);
@@ -401,12 +409,12 @@
         }
 
         function addMenuEventListeners() {
-            document.querySelectorAll(".main-nav .has-submenu > a, .mobile-nav-panel .has-submenu > a").forEach((link => {
-                link.addEventListener("click", (function(e) {
+            document.querySelectorAll(".main-nav .has-submenu > a, .mobile-nav-panel .has-submenu > a").forEach(link => {
+                link.addEventListener("click", function(e) {
                     e.preventDefault();
                     this.parentElement.classList.toggle("active");
-                }))
-            }));
+                });
+            });
         }
 
         function setupEventListeners() {
@@ -415,24 +423,29 @@
                 if (typeof fbq === 'function' && searchTerm) {
                     fbq("track", "Search", { search_string: searchTerm, content_category: document.getElementById("collection-title").textContent });
                 }
-                renderProducts(allCollectionProducts.filter((product => product.name.toLowerCase().includes(searchTerm))));
+                renderProducts(allCollectionProducts.filter(product => product.name.toLowerCase().includes(searchTerm)));
             };
+            
             document.getElementById("desktopSearchInput").addEventListener("input", handleSearch);
             document.getElementById("mobileSearchInput").addEventListener("input", handleSearch);
 
-            document.getElementById("desktop-search-trigger").addEventListener("click", (e => {
+            document.getElementById("desktop-search-trigger").addEventListener("click", e => {
                 e.preventDefault();
                 document.body.classList.add("desktop-search-active");
                 document.getElementById("desktopSearchInput").focus();
-            }));
-            document.querySelector(".close-desktop-search-btn").addEventListener("click", (() => document.body.classList.remove("desktop-search-active")));
+            });
+            document.querySelector(".close-desktop-search-btn").addEventListener("click", () => {
+                document.body.classList.remove("desktop-search-active");
+            });
             
-            document.getElementById("mobile-search-icon").addEventListener("click", (e => {
+            document.getElementById("mobile-search-icon").addEventListener("click", e => {
                 e.preventDefault();
                 document.body.classList.add("search-active");
                 document.getElementById("mobileSearchInput").focus();
-            }));
-            document.querySelector(".close-search-btn").addEventListener("click", (() => document.body.classList.remove("search-active")));
+            });
+            document.querySelector(".close-search-btn").addEventListener("click", () => {
+                document.body.classList.remove("search-active");
+            });
             
             const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
             const mobileNavPanel = document.getElementById("mobile-nav-panel");
@@ -444,23 +457,23 @@
                 overlay.classList.remove("active");
             };
             
-            mobileMenuToggle.addEventListener("click", (() => {
+            mobileMenuToggle.addEventListener("click", () => {
                 mobileNavPanel.classList.add("active");
                 overlay.classList.add("active");
-            }));
+            });
             closeMobileNav.addEventListener("click", closeMenu);
             overlay.addEventListener("click", closeMenu);
         }
 
-        document.addEventListener("DOMContentLoaded", (async () => {
-            document.getElementById("copyright-year").textContent = (new Date).getFullYear();
+        document.addEventListener("DOMContentLoaded", async () => {
+            document.getElementById("copyright-year").textContent = new Date().getFullYear();
             await loadSharedComponents();
             await loadCollectionProducts();
             document.querySelector(".main-footer").style.display = "block";
             addMenuEventListeners();
             setupEventListeners();
             updateCartCount();
-        }));
+        });
     </script>
 </body>
 </html>
