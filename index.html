@@ -6,23 +6,62 @@
     <title>Sundorica</title>
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
     
-    <!-- =================================================================== -->
-    <!-- PERFORMANCE & ACCESSIBILITY FIXES APPLIED                         -->
-    <!-- =================================================================== -->
-
-    <!-- Connect to required origins to speed up loading -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "Sundorica",
+          // TODO: আপনার আসল ডোমেইন দিয়ে এটি পরিবর্তন করুন
+          "url": "https://www.sundorica.com",
+          // TODO: আপনার আসল লোগোর URL দিয়ে এটি পরিবর্তন করুন
+          "logo": "https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+8801617970053",
+            "contactType": "customer service",
+            "email": "sundorica@gmail.com"
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "House-15, Road-2, Block-Ka, Section-6 West Senpara Porbota",
+            "addressLocality": "Mirpur",
+            "addressRegion": "Dhaka",
+            "postalCode": "1216",
+            "addressCountry": "BD"
+          }
+          // TODO: আপনার আসল সোশ্যাল মিডিয়া লিংকগুলো এখানে যুক্ত করুন
+          // "sameAs": [
+          //   "https://www.facebook.com/Sundorica",
+          //   "https://www.instagram.com/sundorica.store"
+          // ]
+        },
+        {
+          "@type": "WebSite",
+          // TODO: আপনার আসল ডোমেইন দিয়ে এটি পরিবর্তন করুন
+          "url": "https://www.your-domain.com/",
+          "name": "Sundorica",
+          "potentialAction": {
+            "@type": "SearchAction",
+            // TODO: আপনার আসল ডোমেইন দিয়ে এটি পরিবর্তন করুন
+            "target": "https://www.your-domain.com/all-products/?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- FIX 1: Asynchronously load Google Fonts to prevent render-blocking -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
 
-    <!-- FIX 2: Asynchronously load Font Awesome to prevent render-blocking -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
     
-    <!-- FIX 3: Defer Meta Pixel script to prevent render-blocking -->
     <script src="/meta-pixel-config.js" defer></script>
 
     <noscript>
@@ -171,15 +210,12 @@
         <header class="main-header">
             <div class="container header-content">
                 <div class="store-logo">
-                    <!-- FIX 4: Added aria-label for accessibility -->
                     <a href="/" id="store-logo-link" aria-label="Go to homepage"></a>
                 </div>
                 <nav class="main-nav" id="main-nav"></nav>
                 <div class="header-icons">
-                    <!-- FIX 4: Added aria-label for accessibility -->
                     <a href="#" id="desktop-search-trigger" aria-label="Open search bar"><i class="fas fa-search"></i></a>
                     <a href="#" id="mobile-search-icon" aria-label="Open search bar"><i class="fas fa-search"></i></a>
-                    <!-- FIX 4: Added aria-label for accessibility -->
                     <a href="/cart/" class="cart-icon-link" aria-label="View your shopping cart">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-item-count">0</span>
@@ -251,7 +287,6 @@
         </div>
     </div>
 
-    <!-- NOTE: Your Firebase script is already a module and at the end of the body, which is good practice (it defers by default). No changes needed here. -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getFirestore, doc, getDoc, collection, getDocs, query, limit, orderBy, where } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
@@ -510,4 +545,3 @@
     </script>
 </body>
 </html>
-
