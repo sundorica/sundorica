@@ -8,14 +8,7 @@ const fs = require("fs");
 // Helper function to convert text to a URL-friendly slug
 function slugify(text) {
   if (typeof text !== 'string') return '';
-  return text
-    .toString()
-    .toLowerCase()
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
-    .replace(/\-\-+/g, "-") // Replace multiple - with single -
-    .replace(/^-+/, "") // Trim - from start of text
-    .replace(/-+$/, ""); // Trim - from end of text
+  return text.toString().toLowerCase().replace(/\s+/g, "-").replace(/[^\w\-]+/g, "").replace(/\-\-+/g, "-").replace(/^-+/, "").replace(/-+$/, "");
 }
 
 // Your Firebase configuration is read from environment variables (GitHub Secrets)
@@ -39,27 +32,19 @@ async function generateSitemap() {
     xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
   });
 
-  const currentDate = new Date().toISOString();
-
-  // 1. Add static pages (cart is removed)
-  const staticPages = ["/", "/collections", "/about", "/contact"]; 
+  // 1. Add static pages
+  const staticPages = ["/", "/collections", "/cart", "/about", "/contact"]; 
   staticPages.forEach((page) => {
-    const urlElement = urlset.ele("url");
-    urlElement.ele("loc").txt(`${BASE_URL}${page}`);
-    urlElement.ele("lastmod").txt(currentDate);
+    urlset.ele("url").ele("loc").txt(`${BASE_URL}${page}`).up();
   });
 
   // 2. Fetch and add collection pages
   try {
     const collectionsSnapshot = await getDocs(collection(db, "collections"));
     collectionsSnapshot.forEach((doc) => {
-      const collectionData = doc.data();
-      const slug = collectionData.slug;
+      const slug = doc.data().slug;
       if (slug) {
-        const urlElement = urlset.ele("url");
-        urlElement.ele("loc").txt(`${BASE_URL}/collections/${slug}`);
-        const lastMod = collectionData.updatedAt?.toDate().toISOString() || currentDate;
-        urlElement.ele("lastmod").txt(lastMod);
+        urlset.ele("url").ele("loc").txt(`${BASE_URL}/collections/${slug}`).up();
       }
     });
     console.log("Successfully fetched and added collection pages.");
@@ -67,36 +52,28 @@ async function generateSitemap() {
     console.error("Error fetching collections:", error);
   }
 
-  // 3. Fetch and add ONLY ACTIVE product pages
+  // 3. Fetch and add product pages
   try {
     const productsSnapshot = await getDocs(collection(db, "products"));
     productsSnapshot.forEach((doc) => {
       const productData = doc.data();
+      const productId = doc.id;
+      // === এই অংশটি পরিবর্তন করা হয়েছে ===
+      const productName = productData.name;
+      const productNameSlug = slugify(productName);
       
-      // THIS IS THE KEY CHANGE: Only add product if status is 'active'
-      if (productData.status === 'active') {
-        const productId = doc.id;
-        const productNameSlug = slugify(productData.name);
-        
-        if (productId && productNameSlug) {
-          const urlElement = urlset.ele("url");
-          urlElement.ele("loc").txt(`${BASE_URL}/product-details/${productNameSlug}/${productId}`);
-          const lastMod = productData.updatedAt?.toDate().toISOString() || productData.createdAt?.toDate().toISOString() || currentDate;
-          urlElement.ele("lastmod").txt(lastMod);
-        }
+      if (productId && productNameSlug) {
+        urlset.ele("url").ele("loc").txt(`${BASE_URL}/product-details/${productNameSlug}/${productId}`).up();
       }
     });
-    console.log("Successfully fetched and added ACTIVE product pages.");
+    console.log("Successfully fetched and added product pages.");
   } catch (error) {
     console.error("Error fetching products:", error);
   }
 
-  // Convert the XML object to a string
   const xml = urlset.end({ prettyPrint: true });
-
-  // Write the sitemap to a file in the root directory
   fs.writeFileSync("sitemap.xml", xml);
-  console.log("sitemap.xml successfully generated with only active products!");
+  console.log("sitemap.xml successfully generated!");
 }
 
 generateSitemap();
