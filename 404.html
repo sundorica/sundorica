@@ -1,43 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Redirecting...</title>
-    <script>
-        // This script handles client-side routing for static sites.
-        // It captures the path that caused a 404 error and redirects to the correct
-        // HTML handler page, passing the intended path via sessionStorage.
+  <meta charset="utf-8">
+  <title>Redirecting...</title>
+  <script type="text/javascript">
+    const originalPath = window.location.pathname;
 
-        (function() {
-            const path = window.location.pathname;
-            
-            // FIX: The routes now point to the actual .html handler files.
-            const routes = {
-                '/product-details/': '/product-details/index.html',
-                '/collections/': '/collections/index.html',
-                '/cart/': '/cart/index.html',
-                '/all-products/': '/all-products/index.html'
-                // Add other client-side base routes and their handler files here.
-            };
+    sessionStorage.setItem('originalPath', originalPath);
 
-            // Find which base route the path belongs to.
-            const handlerRoute = Object.keys(routes).find(key => path.startsWith(key));
+    let destination = null;
 
-            if (handlerRoute) {
-                // If it matches a known route (like a product or collection page),
-                // save the original path so the handler page knows what content to load.
-                sessionStorage.setItem('originalPath', path);
-                
-                // Redirect to the actual HTML file that handles this route.
-                window.location.href = routes[handlerRoute];
-            } else {
-                // If it's an unknown path, redirect to the homepage.
-                window.location.href = '/';
-            }
-        })();
-    </script>
+    if (originalPath.startsWith('/collections/')) {
+      // MODIFIED: Redirect to the folder, not the file
+      destination = '/collection/'; 
+    } else if (originalPath.startsWith('/product-details/')) {
+      // MODIFIED: Redirect to the folder, not the file
+      destination = '/product-details/';
+    } else if (originalPath.startsWith('/cart')) {
+      // MODIFIED: Redirect to the folder, not the file
+      destination = '/cart/';
+    } else if (originalPath.startsWith('/all-products')) {
+      // MODIFIED: Redirect to the folder, not the file
+      destination = '/all-products/';
+    }
+    
+    if (destination) {
+      window.location.replace(destination);
+    }
+  </script>
 </head>
 <body>
-    <p>If you are not redirected automatically, <a href="/">click here</a>.</p>
+  <p>Loading...</p>
 </body>
 </html>
