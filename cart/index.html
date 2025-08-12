@@ -4,21 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Shopping Cart - Sundorica</title>
+    
     <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="https://www.sundorica.com/cart/">
+    
     <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload='this.onload=null,this.rel="stylesheet"'>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
     
     <style>
         :root { --primary-color: #1a1a1a; --secondary-color: #666666; --accent-color: #007bff; --background-color: #ffffff; --surface-color: #f8f9fa; --border-color: #e9ecef; --danger-color: #dc3545; --success-color: #28a745; }
-        html { height: 100%; }
+        html { height: 100%; scroll-behavior: smooth; }
         body { font-family: Inter, sans-serif; margin: 0; background-color: var(--background-color); color: var(--primary-color); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
         main.container { flex-grow: 1; }
-        .container { width: 100%; max-width: 100%; margin: 0 auto; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
         .header-wrapper { position: sticky; top: 0; z-index: 100; background-color: var(--background-color); box-shadow: 0 2px 4px rgba(0, 0, 0, .05); }
         .main-header { padding: 15px 0; }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
@@ -29,13 +32,15 @@
         .header-icons a { color: var(--primary-color); }
         .cart-icon-link { position: relative; display: inline-block; }
         .cart-item-count { position: absolute; top: -8px; right: -12px; background-color: var(--danger-color); color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: 700; line-height: 1; display: none; }
-        .main-footer { background-color: var(--surface-color); padding: 5px 0; border-top: .5px solid var(--border-color); text-align: center; display: none; }
+        .main-footer { background-color: var(--surface-color); padding: 15px 0; border-top: .5px solid var(--border-color); text-align: center; }
         .social-links { margin-bottom: 10px; }
-        .social-links a { font-size: 12px; color: var(--secondary-color); margin: 0 6px; }
-        .copyright { font-size: 8px; color: var(--secondary-color); }
+        .social-links a { font-size: 14px; color: var(--secondary-color); margin: 0 8px; transition: color 0.2s ease; }
+        .social-links a:hover { color: var(--primary-color); }
+        .copyright { font-size: 12px; color: var(--secondary-color); }
         #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 10px; align-items: center; }
         .toast { padding: 12px 20px; border-radius: 8px; color: #fff; font-weight: 500; box-shadow: 0 4px 12px rgba(0, 0, 0, .15); display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(100%); animation: slideInUp .5s forwards, fadeOutDown .5s 3.5s forwards; }
         .toast.error { background-color: var(--danger-color); }
+        .toast.success { background-color: var(--success-color); }
         @keyframes slideInUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOutDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(100%); } }
         .cart-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; padding: 40px 0; }
@@ -44,7 +49,7 @@
         .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 16px; box-sizing: border-box; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: 0; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(26, 26, 26, .1); }
-        #order-summary { background-color: var(--surface-color); padding: 25px; border-radius: 8px; height: fit-content; }
+        #order-summary { background-color: var(--surface-color); padding: 25px; border-radius: 8px; height: fit-content; position: sticky; top: 120px; }
         .cart-items-list { max-height: 400px; overflow-y: auto; margin-bottom: 20px; }
         .cart-item { display: flex; gap: 15px; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); }
         .cart-item:last-child { border-bottom: none; margin-bottom: 0; }
@@ -61,14 +66,15 @@
         .quantity-btn:disabled { cursor: not-allowed; color: #ccc; }
         .item-quantity { padding: 0 10px; font-weight: 500; }
         .remove-item-btn { color: var(--danger-color); background: 0 0; border: none; cursor: pointer; font-size: 18px; margin-top: 10px; }
-        .empty-cart-message { text-align: center; padding: 40px; background-color: var(--surface-color); border-radius: 8px; }
-        .empty-cart-message h3 { margin-top: 0; }
-        .btn-shop-now { display: inline-block; background-color: var(--primary-color); color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: 500; }
+        .empty-cart-message { text-align: center; padding: 60px 20px; background-color: var(--surface-color); border-radius: 8px; }
+        .empty-cart-message h3 { margin-top: 0; font-size: 24px; }
+        .btn-shop-now { display: inline-block; background-color: var(--primary-color); color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: 500; transition: background-color 0.3s ease; }
+        .btn-shop-now:hover { background-color: #333; }
         .order-totals { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
         .total-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px; }
         .total-row.grand-total { font-size: 18px; font-weight: 700; margin-top: 15px; }
         .complete-order-btn { width: 100%; padding: 15px; background-color: var(--primary-color); color: #fff; border: none; border-radius: 6px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: background-color .3s ease; }
-        .complete-order-btn:hover { background-color: #333; }
+        .complete-order-btn:hover:not(:disabled) { background-color: #333; }
         .complete-order-btn:disabled { background-color: var(--secondary-color); cursor: not-allowed; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, .6); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -77,30 +83,54 @@
         .modal-content i.fa-check-circle { font-size: 50px; color: var(--success-color); margin-bottom: 20px; }
         .modal-content h2 { margin-top: 0; }
         .modal-content p { color: var(--secondary-color); font-size: 16px; }
-        .order-details-summary { margin: 20px 0; padding: 15px; background-color: var(--surface-color); border-radius: 6px; }
-        @media (max-width: 991px) { .cart-layout { grid-template-columns: 1fr; } #order-summary { margin-top: 40px; } }
+        .order-details-summary { margin: 20px 0; padding: 15px; background-color: var(--surface-color); border-radius: 6px; text-align: left;}
+        @media (max-width: 991px) { .cart-layout { grid-template-columns: 1fr; } #order-summary { margin-top: 40px; position: static; } }
     </style>
     
-    <script src=/meta-pixel-config.js defer></script>
+    <script src="/meta-pixel-config.js" defer></script>
     <noscript>
         <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1">
     </noscript>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Shopping Cart",
+      "url": "https://www.sundorica.com/cart/",
+      "description": "Review your items and complete your order on Sundorica.",
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [{
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.sundorica.com/"  
+        },{
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Cart"
+        }]
+      }
+    }
+    </script>
 </head>
 
 <body>
-    <div id="toast-container"></div>
+    <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+    
     <div class="header-wrapper">
-        <header class="main-header">
+        <header class="main-header" role="banner">
             <div class="container header-content">
                 <div class="store-logo">
                     <a href="/" id="store-logo-link" aria-label="Return to Homepage"></a>
                 </div>
-                <div class="header-icons">
+                <nav class="header-icons" aria-label="User actions">
                     <a href="/cart/" class="cart-icon-link" aria-label="Shopping Cart">
-                        <i class="fas fa-shopping-cart"></i>
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
                         <span class="cart-item-count">0</span>
                     </a>
-                </div>
+                </nav>
             </div>
         </header>
     </div>
@@ -109,20 +139,20 @@
         <div id="cart-view">
             <h1 style="text-align:center;margin-bottom:30px">Shopping Cart</h1>
             <div class="cart-layout">
-                <div id="shipping-info">
-                    <h2 class="cart-section-title">Shipping Information</h2>
+                <section id="shipping-info" aria-labelledby="shipping-info-title">
+                    <h2 id="shipping-info-title" class="cart-section-title">Shipping Information</h2>
                     <form id="shipping-form" novalidate>
                         <div class="form-group">
                             <label for="fullName">Full Name</label>
-                            <input id="fullName" name="fullName" required>
+                            <input id="fullName" name="fullName" type="text" autocomplete="name" required>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone Number (11 Digits)</label>
-                            <input type="tel" id="phone" name="phone" required pattern="[0-9]{11}" maxlength="11" title="Please enter exactly 11 digits.">
+                            <input type="tel" id="phone" name="phone" required pattern="[0-9]{11}" maxlength="11" title="Please enter exactly 11 digits." autocomplete="tel">
                         </div>
                         <div class="form-group">
                             <label for="address">Full Address</label>
-                            <textarea id="address" name="address" rows="3" required></textarea>
+                            <textarea id="address" name="address" rows="3" required autocomplete="street-address"></textarea>
                         </div>
                         <div class="form-group">
                             <label for="deliveryZone">Delivery Zone</label>
@@ -131,27 +161,27 @@
                             </select>
                         </div>
                     </form>
-                </div>
-                <div id="order-summary">
-                    <h2 class="cart-section-title">Order Summary</h2>
+                </section>
+                <aside id="order-summary" aria-labelledby="order-summary-title">
+                    <h2 id="order-summary-title" class="cart-section-title">Order Summary</h2>
                     <div class="cart-items-list" id="cart-items-list">
                         </div>
                     <div class="order-totals">
                         <div class="total-row">
                             <span>Subtotal</span>
-                            <span id="subtotal">Tk 0</span>
+                            <span id="subtotal">Tk 0.00</span>
                         </div>
                         <div class="total-row">
                             <span>Shipping</span>
-                            <span id="shipping-charges">Tk 0</span>
+                            <span id="shipping-charges">Tk 0.00</span>
                         </div>
                         <div class="total-row grand-total">
                             <span>Total</span>
-                            <span id="total-amount">Tk 0</span>
+                            <span id="total-amount">Tk 0.00</span>
                         </div>
                         <button class="complete-order-btn" id="complete-order-btn" disabled>Complete Order</button>
                     </div>
-                </div>
+                </aside>
             </div>
         </div>
         <div id="empty-cart-view" style="display:none">
@@ -163,16 +193,16 @@
         </div>
     </main>
 
-    <footer class="main-footer">
+    <footer class="main-footer" role="contentinfo">
         <div class="container">
             <div class="social-links" id="social-links"></div>
             <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
         </div>
     </footer>
 
-    <div class="modal-overlay" id="thank-you-modal" role="dialog" aria-modal="true" aria-labelledby="thank-you-modal-title">
+    <div class="modal-overlay" id="thank-you-modal" role="dialog" aria-modal="true" aria-labelledby="thank-you-modal-title" style="display:none;">
         <div class="modal-content">
-            <i class="fas fa-check-circle"></i>
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
             <h2 id="thank-you-modal-title">Thank You!</h2>
             <p>Your order has been placed successfully.</p>
             <div class="order-details-summary">
@@ -187,6 +217,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, getDoc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
         
+        // --- Firebase Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
             authDomain: "nasir-9102c.firebaseapp.com",
@@ -204,16 +235,17 @@
 
         function showToast(message, type = "error") {
             const container = document.getElementById("toast-container");
-            if (!container) return;
             const toast = document.createElement("div");
             toast.className = `toast ${type}`;
             toast.textContent = message;
+            // Accessibility: Announce the toast message to screen readers
+            toast.setAttribute("role", "alert");
             container.appendChild(toast);
-            setTimeout((() => toast.remove()), 4000);
+            setTimeout(() => toast.remove(), 4000);
         }
 
         function updateCartCount() {
-            const totalItems = cart.reduce(((sum, item) => sum + item.quantity), 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             const countElement = document.querySelector(".cart-item-count");
             if (countElement) {
                 countElement.textContent = totalItems;
@@ -221,62 +253,69 @@
             }
         }
 
-        function renderSocialLinks(links) {
-            const container = document.getElementById("social-links");
-            if (!links || !container) return;
-            let html = "";
-            if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`;
-            if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`;
-            if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`;
-            if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>`;
-            container.innerHTML = html;
-        }
-
         async function loadSharedComponents() {
-            const storeDetailsSnap = await getDoc(doc(db, "settings", "store_details"));
-            if (storeDetailsSnap.exists()) {
-                const data = storeDetailsSnap.data();
-                const logoLink = document.getElementById("store-logo-link");
-                if (data.logoUrl) {
-                    logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName||"Store Logo"}">`;
-                } else if (data.storeName) {
-                    logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`;
+            try {
+                const storeDetailsSnap = await getDoc(doc(db, "settings", "store_details"));
+                if (storeDetailsSnap.exists()) {
+                    const data = storeDetailsSnap.data();
+                    const logoLink = document.getElementById("store-logo-link");
+                    if (data.logoUrl) {
+                        logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`;
+                    } else if (data.storeName) {
+                        logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`;
+                    }
+                    document.title = `Shopping Cart - ${data.storeName || 'Sundorica'}`;
+                    document.getElementById("footer-store-name").textContent = data.storeName || "Sundorica";
+                    
+                    const container = document.getElementById("social-links");
+                    if (data.socialLinks && container) {
+                       let html = "";
+                       if (data.socialLinks.facebook) html += `<a href="${data.socialLinks.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`;
+                       if (data.socialLinks.instagram) html += `<a href="${data.socialLinks.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`;
+                       if (data.socialLinks.twitter) html += `<a href="${data.socialLinks.twitter}" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`;
+                       if (data.socialLinks.youtube) html += `<a href="${data.socialLinks.youtube}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>`;
+                       container.innerHTML = html;
+                    }
                 }
-                document.getElementById("footer-store-name").textContent = data.storeName || "Sundorica";
-                renderSocialLinks(data.socialLinks);
+            } catch (error) {
+                console.error("Error loading store details:", error);
             }
         }
-
+        
         async function verifyCartStock() {
-            if (cart.length === 0) return;
-            const productIds = [...new Set(cart.map((item => item.productId)))];
-            const productPromises = productIds.map((id => getDoc(doc(db, "products", id))));
+            if (cart.length === 0) return true;
+            const productIds = [...new Set(cart.map(item => item.productId))];
+            const productPromises = productIds.map(id => getDoc(doc(db, "products", id)));
             const productDocs = await Promise.all(productPromises);
-            const productStock = {};
-            productDocs.forEach((doc => {
-                if (doc.exists()) {
-                    productStock[doc.id] = doc.data();
-                }
-            }));
+            
+            const productStockMap = new Map();
+            productDocs.forEach(doc => {
+                if (doc.exists()) productStockMap.set(doc.id, doc.data());
+            });
+
             let cartWasModified = false;
             const verifiedCart = [];
+            
             for (const item of cart) {
-                const productData = productStock[item.productId];
+                const productData = productStockMap.get(item.productId);
                 if (!productData || productData.status !== "active") {
-                    showToast(`"${item.name}" is no longer available and has been removed.`, "error");
+                    showToast(`"${item.name}" is no longer available and removed.`, "error");
                     cartWasModified = true;
                     continue;
                 }
+
                 let availableStock = 0;
                 if (item.variantDetails && Object.keys(item.variantDetails).length > 0) {
-                    const variant = productData.variants.find((v => Object.keys(item.variantDetails).every((key => v[key] === item.variantDetails[key]))));
+                    const variant = productData.variants?.find(v => Object.keys(item.variantDetails).every(key => v[key] === item.variantDetails[key]));
                     availableStock = variant ? variant.quantity : 0;
                 } else {
-                    availableStock = productData.quantity || 0;
+                    availableStock = productData.quantity ?? 0;
                 }
+                
                 item.stock = availableStock;
+
                 if (availableStock === 0) {
-                    showToast(`"${item.name}" is out of stock and has been removed.`, "error");
+                    showToast(`"${item.name}" is out of stock and removed.`, "error");
                     cartWasModified = true;
                 } else {
                     if (item.quantity > availableStock) {
@@ -287,117 +326,91 @@
                     verifiedCart.push(item);
                 }
             }
+            
             cart = verifiedCart;
             if (cartWasModified) {
                 localStorage.setItem("cart", JSON.stringify(cart));
             }
+            return cart.length > 0;
         }
 
         async function renderCartItems() {
             const listEl = document.getElementById("cart-items-list");
             await verifyCartStock();
             updateCartCount();
+
             if (cart.length === 0) {
                 document.getElementById("cart-view").style.display = "none";
                 document.getElementById("empty-cart-view").style.display = "block";
-                listEl.innerHTML = "";
-                updateTotals();
-                return;
+            } else {
+                document.getElementById("cart-view").style.display = "block";
+                document.getElementById("empty-cart-view").style.display = "none";
             }
-            document.getElementById("cart-view").style.display = "block";
-            document.getElementById("empty-cart-view").style.display = "none";
-            listEl.innerHTML = "";
-            cart.forEach((item => {
-                const variantText = item.variantDetails ? Object.entries(item.variantDetails).map((([key, value]) => `${key.charAt(0).toUpperCase()+key.slice(1)}: ${value}`)).join(", ") : "";
+
+            listEl.innerHTML = ""; // Clear previous items
+            cart.forEach(item => {
+                const variantText = item.variantDetails ? Object.entries(item.variantDetails).map(([key, value]) => `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`).join(", ") : "";
                 const itemEl = document.createElement("div");
                 itemEl.className = "cart-item";
                 itemEl.dataset.id = item.id;
                 itemEl.dataset.stock = item.stock;
                 const productPageUrl = item.productPage || "#";
 
-                // ACCESSIBILITY FIX: Added descriptive aria-labels to buttons
                 itemEl.innerHTML = `
                     <a href="${productPageUrl}" class="cart-item-image">
-                        <img src="${item.image||"https://placehold.co/80x80/eee/ccc?text=No+Image"}" alt="${item.name}">
+                        <img src="${item.image || 'https://placehold.co/80x80/eee/ccc?text=No+Image'}" alt="${item.name}">
                     </a>
                     <div class="cart-item-details">
                         <a href="${productPageUrl}" class="cart-item-name-link">
                             <div class="cart-item-name">${item.name}</div>
                         </a>
-                        ${variantText?`<div class="cart-item-variant">${variantText}</div>`:""}
+                        ${variantText ? `<div class="cart-item-variant">${variantText}</div>` : ""}
                         <div class="cart-item-price">Tk ${item.price}</div>
                     </div>
                     <div class="cart-item-actions">
                          <div class="quantity-selector">
                             <button class="quantity-btn decrease-qty" aria-label="Decrease quantity for ${item.name}">-</button>
                             <span class="item-quantity">${item.quantity}</span>
-                            <button class="quantity-btn increase-qty" ${item.quantity>=item.stock?"disabled":""} aria-label="Increase quantity for ${item.name}">+</button>
+                            <button class="quantity-btn increase-qty" ${item.quantity >= item.stock ? "disabled" : ""} aria-label="Increase quantity for ${item.name}">+</button>
                         </div>
                         <button class="remove-item-btn" aria-label="Remove ${item.name} from cart"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 `;
                 listEl.appendChild(itemEl);
-            }));
-            updateTotals();
-        }
-
-        function updateItemQuantityUI(itemId, newQuantity) {
-            const itemEl = document.querySelector(`.cart-item[data-id="${itemId}"]`);
-            if (!itemEl) return;
-            itemEl.querySelector(".item-quantity").textContent = newQuantity;
-            const stock = parseInt(itemEl.dataset.stock, 10);
-            itemEl.querySelector(".increase-qty").disabled = newQuantity >= stock;
+            });
             updateTotals();
         }
 
         function updateTotals() {
-            const subtotal = cart.reduce(((total, item) => total + item.price * item.quantity), 0);
-            const selectedZone = shippingZones.find((zone => zone.id === document.getElementById("deliveryZone").value));
+            const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+            const selectedZone = shippingZones.find(zone => zone.id === document.getElementById("deliveryZone").value);
             const shippingCost = selectedZone ? selectedZone.amount : 0;
             const total = subtotal + shippingCost;
+            
             document.getElementById("subtotal").textContent = `Tk ${subtotal.toFixed(2)}`;
             document.getElementById("shipping-charges").textContent = `Tk ${shippingCost.toFixed(2)}`;
             document.getElementById("total-amount").textContent = `Tk ${total.toFixed(2)}`;
-            const orderBtn = document.getElementById("complete-order-btn");
+            
             const form = document.getElementById("shipping-form");
-            orderBtn.disabled = !(cart.length > 0 && form.checkValidity());
+            document.getElementById("complete-order-btn").disabled = !(cart.length > 0 && form.checkValidity());
         }
 
         async function fetchShippingZones() {
-            const zonesCollection = collection(db, "shipping_zones");
-            const zonesSnapshot = await getDocs(zonesCollection);
-            const zoneSelect = document.getElementById("deliveryZone");
-            shippingZones = zonesSnapshot.docs.map((doc => ({ id: doc.id, ...doc.data() })));
-            shippingZones.forEach((zone => {
-                const option = document.createElement("option");
-                option.value = zone.id;
-                option.textContent = `${zone.name} - Tk ${zone.amount}`;
-                zoneSelect.appendChild(option);
-            }));
-        }
-
-        function handleQuantityChange(itemId, change) {
-            const itemIndex = cart.findIndex((item => item.id === itemId));
-            if (itemIndex > -1) {
-                const newQuantity = cart[itemIndex].quantity + change;
-                if (newQuantity <= 0) {
-                    cart.splice(itemIndex, 1);
-                    localStorage.setItem("cart", JSON.stringify(cart));
-                    updateCartCount();
-                    renderCartItems();
-                } else {
-                    cart[itemIndex].quantity = newQuantity;
-                    localStorage.setItem("cart", JSON.stringify(cart));
-                    updateCartCount();
-                    updateItemQuantityUI(itemId, newQuantity);
-                }
+            try {
+                const zonesCollection = collection(db, "shipping_zones");
+                const zonesSnapshot = await getDocs(zonesCollection);
+                const zoneSelect = document.getElementById("deliveryZone");
+                shippingZones = zonesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                shippingZones.forEach(zone => {
+                    const option = document.createElement("option");
+                    option.value = zone.id;
+                    option.textContent = `${zone.name} - Tk ${zone.amount}`;
+                    zoneSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Error fetching shipping zones:", error);
+                showToast("Could not load delivery options.", "error");
             }
-        }
-
-        function handleFormValidation() {
-            document.getElementById("shipping-form").querySelectorAll("input, select, textarea").forEach((el => {
-                el.addEventListener("input", updateTotals);
-            }));
         }
 
         async function handleCompleteOrder(event) {
@@ -405,154 +418,164 @@
             const orderBtn = document.getElementById("complete-order-btn");
             orderBtn.disabled = true;
             orderBtn.textContent = "Processing...";
-            await verifyCartStock();
-            if (cart.length === 0) {
-                showToast("Your cart is empty or items are out of stock.", "error");
+
+            const form = document.getElementById("shipping-form");
+            if (!form.checkValidity()) {
+                showToast("Please fill out all shipping details correctly.", "error");
                 orderBtn.disabled = false;
                 orderBtn.textContent = "Complete Order";
-                renderCartItems();
                 return;
             }
-            const form = document.getElementById("shipping-form");
-            const subtotal = cart.reduce(((total, item) => total + item.price * item.quantity), 0);
-            const shippingCost = shippingZones.find((zone => zone.id === form.deliveryZone.value)).amount;
+
+            // Final stock verification before committing to order
+            const isStockAvailable = await verifyCartStock();
+            if (!isStockAvailable) {
+                showToast("Some items in your cart are out of stock. Please review.", "error");
+                orderBtn.disabled = false;
+                orderBtn.textContent = "Complete Order";
+                await renderCartItems(); // Re-render to show updated stock/removals
+                return;
+            }
+
+            const selectedZone = shippingZones.find(zone => zone.id === form.deliveryZone.value);
+            const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+            const shippingCost = selectedZone ? selectedZone.amount : 0;
             const total = subtotal + shippingCost;
+            
             const orderData = {
-                customerDetails: {
-                    name: form.fullName.value,
-                    phone: form.phone.value,
-                    address: form.address.value
-                },
-                products: cart.map((item => ({
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    imageUrl: item.image || "",
-                    productId: item.productId,
-                    variantDetails: item.variantDetails || {},
-                    productPage: item.productPage || ""
-                }))),
-                summary: { subtotal: subtotal, shipping: shippingCost, total: total },
+                customerDetails: { name: form.fullName.value, phone: form.phone.value, address: form.address.value, deliveryZone: selectedZone?.name || "N/A" },
+                products: cart.map(item => ({ name: item.name, price: item.price, quantity: item.quantity, imageUrl: item.image || "", productId: item.productId, variantDetails: item.variantDetails || {}, productPage: item.productPage || "" })),
+                summary: { subtotal, shipping: shippingCost, total },
                 status: "Pending",
                 orderDate: serverTimestamp()
             };
+
             try {
                 const orderId = await runTransaction(db, async (transaction) => {
-    const counterDocRef = doc(db, "counters", "order_counter");
-    const counterDoc = await transaction.get(counterDocRef);
-    let newOrderId = counterDoc.exists() ? counterDoc.data().lastId + 1 : 1001;
+                    // Get all product documents involved in the transaction
+                    const productRefs = cart.map(item => doc(db, "products", item.productId));
+                    const productDocs = await Promise.all(productRefs.map(ref => transaction.get(ref)));
 
-    // 🟢 প্রতিটি product এর stock কমানো
-    for (const item of orderData.products) {
-        const productRef = doc(db, "products", item.productId);
-        const productSnap = await transaction.get(productRef);
-        if (!productSnap.exists()) {
-            throw `Product ${item.name} not found`;
-        }
-        let currentData = productSnap.data();
+                    for (let i = 0; i < cart.length; i++) {
+                        const productDoc = productDocs[i];
+                        const cartItem = cart[i];
 
-        if (item.variantDetails && Object.keys(item.variantDetails).length > 0) {
-            // Variant stock update
-            const variants = currentData.variants.map((v) => {
-                if (Object.keys(item.variantDetails).every(
-                    (key) => v[key] === item.variantDetails[key]
-                )) {
-                    if (v.quantity < item.quantity) {
-                        throw `Not enough stock for ${item.name}`;
+                        if (!productDoc.exists()) throw `Product ${cartItem.name} not found.`;
+                        
+                        const productData = productDoc.data();
+                        
+                        // Handle variant stock
+                        if (cartItem.variantDetails && Object.keys(cartItem.variantDetails).length > 0) {
+                            const variantIndex = productData.variants.findIndex(v => Object.keys(cartItem.variantDetails).every(key => v[key] === cartItem.variantDetails[key]));
+                            if (variantIndex === -1) throw `Variant for ${cartItem.name} not found.`;
+                            
+                            const variant = productData.variants[variantIndex];
+                            if (variant.quantity < cartItem.quantity) throw `Not enough stock for ${cartItem.name}.`;
+                            
+                            productData.variants[variantIndex].quantity -= cartItem.quantity;
+                            transaction.update(productRefs[i], { variants: productData.variants });
+                        } else { // Handle simple product stock
+                            if (productData.quantity < cartItem.quantity) throw `Not enough stock for ${cartItem.name}.`;
+                            
+                            const newQuantity = productData.quantity - cartItem.quantity;
+                            transaction.update(productRefs[i], { quantity: newQuantity });
+                        }
                     }
-                    return { ...v, quantity: v.quantity - item.quantity };
-                }
-                return v;
-            });
-            transaction.update(productRef, { variants });
-        } else {
-            // Simple stock update
-            if (currentData.quantity < item.quantity) {
-                throw `Not enough stock for ${item.name}`;
-            }
-            transaction.update(productRef, {
-                quantity: currentData.quantity - item.quantity
-            });
-        }
-    }
 
-    // Order save
-    const newOrderRef = doc(collection(db, "orders"));
-    orderData.orderId = newOrderId;
-    transaction.set(newOrderRef, orderData);
-    transaction.set(counterDocRef, { lastId: newOrderId });
-    return newOrderId;
-});
+                    // Create and save the order
+                    const counterDocRef = doc(db, "counters", "order_counter");
+                    const counterDoc = await transaction.get(counterDocRef);
+                    let newOrderId = (counterDoc.exists() ? counterDoc.data().lastId : 1000) + 1;
+                    
+                    const newOrderRef = doc(collection(db, "orders"));
+                    orderData.orderId = newOrderId;
+                    transaction.set(newOrderRef, orderData);
+                    transaction.set(counterDocRef, { lastId: newOrderId });
+                    
+                    return newOrderId;
+                });
 
+                // --- On Successful Transaction ---
+                const modal = document.getElementById("thank-you-modal");
                 document.getElementById("final-order-id").textContent = `#${orderId}`;
                 document.getElementById("final-total-amount").textContent = `Tk ${total.toFixed(2)}`;
-                document.getElementById("thank-you-modal").classList.add("active");
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add("active"), 10);
+                
                 if (typeof fbq === "function") {
-                    fbq("track", "Purchase", {
-                        value: total,
-                        currency: "BDT",
-                        content_name: "Order Confirmation",
-                        content_ids: orderData.products.map((p => p.productId)),
-                        content_type: "product",
-                        num_items: orderData.products.reduce(((sum, p) => sum + p.quantity), 0),
-                        order_id: orderId
-                    });
+                    fbq("track", "Purchase", { value: total, currency: "BDT", content_ids: orderData.products.map(p => p.productId), content_type: "product", num_items: orderData.products.reduce((s, p) => s + p.quantity, 0), order_id: orderId });
                 }
+                
                 cart = [];
                 localStorage.removeItem("cart");
                 updateCartCount();
-                renderCartItems();
+                await renderCartItems();
+
             } catch (error) {
-                console.error("Error placing order: ", error);
-                showToast("There was an error placing your order.", "error");
+                console.error("Order failed:", error);
+                showToast(`Order could not be placed: ${error.message || error}`, "error");
                 orderBtn.disabled = false;
                 orderBtn.textContent = "Complete Order";
+                await renderCartItems(); // Re-render to show latest stock info
             }
         }
-        document.addEventListener("DOMContentLoaded", (async () => {
-            document.getElementById("copyright-year").textContent = (new Date).getFullYear();
+        
+        // --- Event Listeners and Initializer ---
+        document.addEventListener("DOMContentLoaded", async () => {
+            document.getElementById("copyright-year").textContent = new Date().getFullYear();
+            
             await loadSharedComponents();
             await fetchShippingZones();
-            document.querySelector(".main-footer").style.display = "block";
+            
             cart = JSON.parse(localStorage.getItem("cart")) || [];
             await renderCartItems();
+
             if (typeof fbq === "function" && cart.length > 0) {
-                const value = cart.reduce(((total, item) => total + item.price * item.quantity), 0);
-                fbq("track", "InitiateCheckout", {
-                    content_ids: cart.map((item => item.productId)),
-                    content_type: "product",
-                    num_items: cart.reduce(((sum, item) => sum + item.quantity), 0),
-                    value: value,
-                    currency: "BDT"
-                });
+                const value = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+                fbq("track", "InitiateCheckout", { content_ids: cart.map(item => item.productId), content_type: "product", num_items: cart.reduce((s, i) => s + i.quantity, 0), value: value, currency: "BDT" });
             }
-            handleFormValidation();
-            document.body.addEventListener("click", (event => {
+
+            // Form validation and quantity change listeners
+            const shippingForm = document.getElementById("shipping-form");
+            shippingForm.addEventListener("input", updateTotals);
+
+            document.getElementById("cart-items-list").addEventListener("click", event => {
                 const target = event.target;
                 const cartItemEl = target.closest(".cart-item");
                 if (!cartItemEl) return;
+                
                 const itemId = cartItemEl.dataset.id;
+                const item = cart.find(i => i.id === itemId);
+                if (!item) return;
+
                 if (target.closest(".increase-qty")) {
-                    const stock = parseInt(cartItemEl.dataset.stock, 10);
-                    const item = cart.find((i => i.id === itemId));
-                    if (item && item.quantity < stock) {
-                        handleQuantityChange(itemId, 1);
+                    if (item.quantity < item.stock) {
+                        item.quantity++;
+                        localStorage.setItem("cart", JSON.stringify(cart));
+                        renderCartItems();
                     } else {
                         showToast("Maximum stock limit reached", "error");
                     }
                 } else if (target.closest(".decrease-qty")) {
-                    handleQuantityChange(itemId, -1);
+                    item.quantity--;
+                    if(item.quantity <= 0) {
+                        cart = cart.filter(i => i.id !== itemId);
+                    }
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                    renderCartItems();
                 } else if (target.closest(".remove-item-btn")) {
-                    handleQuantityChange(itemId, -Infinity);
+                    cart = cart.filter(i => i.id !== itemId);
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                    renderCartItems();
                 }
-            }));
+            });
+
             document.getElementById("deliveryZone").addEventListener("change", updateTotals);
             document.getElementById("complete-order-btn").addEventListener("click", handleCompleteOrder);
-            document.getElementById("phone").addEventListener("input", (function(e) {
-                this.value = this.value.replace(/[^0-9]/g, "");
-            }));
-        }));
+            document.getElementById("phone").addEventListener("input", (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+            });
+        });
     </script>
 </body>
 </html>
-
