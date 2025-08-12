@@ -437,16 +437,53 @@
                 orderDate: serverTimestamp()
             };
             try {
-                const orderId = await runTransaction(db, (async transaction => {
-                    const counterDocRef = doc(db, "counters", "order_counter");
-                    const counterDoc = await transaction.get(counterDocRef);
-                    let newOrderId = counterDoc.exists() ? counterDoc.data().lastId + 1 : 1001;
-                    const newOrderRef = doc(collection(db, "orders"));
-                    orderData.orderId = newOrderId;
-                    transaction.set(newOrderRef, orderData);
-                    transaction.set(counterDocRef, { lastId: newOrderId });
-                    return newOrderId;
-                }));
+                const orderId = await runTransaction(db, async (transaction) => {
+    const counterDocRef = doc(db, "counters", "order_counter");
+    const counterDoc = await transaction.get(counterDocRef);
+    let newOrderId = counterDoc.exists() ? counterDoc.data().lastId + 1 : 1001;
+
+    // 🟢 প্রতিটি product এর stock কমানো
+    for (const item of orderData.products) {
+        const productRef = doc(db, "products", item.productId);
+        const productSnap = await transaction.get(productRef);
+        if (!productSnap.exists()) {
+            throw `Product ${item.name} not found`;
+        }
+        let currentData = productSnap.data();
+
+        if (item.variantDetails && Object.keys(item.variantDetails).length > 0) {
+            // Variant stock update
+            const variants = currentData.variants.map((v) => {
+                if (Object.keys(item.variantDetails).every(
+                    (key) => v[key] === item.variantDetails[key]
+                )) {
+                    if (v.quantity < item.quantity) {
+                        throw `Not enough stock for ${item.name}`;
+                    }
+                    return { ...v, quantity: v.quantity - item.quantity };
+                }
+                return v;
+            });
+            transaction.update(productRef, { variants });
+        } else {
+            // Simple stock update
+            if (currentData.quantity < item.quantity) {
+                throw `Not enough stock for ${item.name}`;
+            }
+            transaction.update(productRef, {
+                quantity: currentData.quantity - item.quantity
+            });
+        }
+    }
+
+    // Order save
+    const newOrderRef = doc(collection(db, "orders"));
+    orderData.orderId = newOrderId;
+    transaction.set(newOrderRef, orderData);
+    transaction.set(counterDocRef, { lastId: newOrderId });
+    return newOrderId;
+});
+
                 document.getElementById("final-order-id").textContent = `#${orderId}`;
                 document.getElementById("final-total-amount").textContent = `Tk ${total.toFixed(2)}`;
                 document.getElementById("thank-you-modal").classList.add("active");
@@ -518,3 +555,4 @@
     </script>
 </body>
 </html>
+
