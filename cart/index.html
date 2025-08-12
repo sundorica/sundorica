@@ -238,7 +238,6 @@
             const toast = document.createElement("div");
             toast.className = `toast ${type}`;
             toast.textContent = message;
-            // Accessibility: Announce the toast message to screen readers
             toast.setAttribute("role", "alert");
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
@@ -412,7 +411,10 @@
                 showToast("Could not load delivery options.", "error");
             }
         }
-
+        
+        // =================================================================
+        // CORRECTED FUNCTION TO FIX THE TRANSACTION ERROR
+        // =================================================================
         async function handleCompleteOrder(event) {
             event.preventDefault();
             const orderBtn = document.getElementById("complete-order-btn");
@@ -427,13 +429,12 @@
                 return;
             }
 
-            // Final stock verification before committing to order
             const isStockAvailable = await verifyCartStock();
             if (!isStockAvailable) {
                 showToast("Some items in your cart are out of stock. Please review.", "error");
                 orderBtn.disabled = false;
                 orderBtn.textContent = "Complete Order";
-                await renderCartItems(); // Re-render to show updated stock/removals
+                await renderCartItems();
                 return;
             }
 
@@ -452,43 +453,53 @@
 
             try {
                 const orderId = await runTransaction(db, async (transaction) => {
-                    // Get all product documents involved in the transaction
+                    // --- STEP 1: ALL READS MUST HAPPEN FIRST ---
+                    const counterDocRef = doc(db, "counters", "order_counter");
                     const productRefs = cart.map(item => doc(db, "products", item.productId));
-                    const productDocs = await Promise.all(productRefs.map(ref => transaction.get(ref)));
+                    
+                    // Create an array of all documents to read
+                    const docsToRead = [transaction.get(counterDocRef), ...productRefs.map(ref => transaction.get(ref))];
+                    
+                    // Execute all reads at once
+                    const resolvedDocs = await Promise.all(docsToRead);
+                    
+                    const counterDoc = resolvedDocs[0];
+                    const productDocs = resolvedDocs.slice(1);
 
+                    // --- STEP 2: ALL WRITES CAN HAPPEN NOW ---
+                    
+                    // Logic to update product stock
                     for (let i = 0; i < cart.length; i++) {
                         const productDoc = productDocs[i];
                         const cartItem = cart[i];
 
-                        if (!productDoc.exists()) throw `Product ${cartItem.name} not found.`;
+                        if (!productDoc.exists()) throw new Error(`Product ${cartItem.name} not found.`);
                         
                         const productData = productDoc.data();
                         
-                        // Handle variant stock
                         if (cartItem.variantDetails && Object.keys(cartItem.variantDetails).length > 0) {
                             const variantIndex = productData.variants.findIndex(v => Object.keys(cartItem.variantDetails).every(key => v[key] === cartItem.variantDetails[key]));
-                            if (variantIndex === -1) throw `Variant for ${cartItem.name} not found.`;
+                            if (variantIndex === -1) throw new Error(`Variant for ${cartItem.name} not found.`);
                             
                             const variant = productData.variants[variantIndex];
-                            if (variant.quantity < cartItem.quantity) throw `Not enough stock for ${cartItem.name}.`;
+                            if (variant.quantity < cartItem.quantity) throw new Error(`Not enough stock for ${cartItem.name}.`);
                             
                             productData.variants[variantIndex].quantity -= cartItem.quantity;
                             transaction.update(productRefs[i], { variants: productData.variants });
-                        } else { // Handle simple product stock
-                            if (productData.quantity < cartItem.quantity) throw `Not enough stock for ${cartItem.name}.`;
+                        } else {
+                            if (productData.quantity < cartItem.quantity) throw new Error(`Not enough stock for ${cartItem.name}.`);
                             
                             const newQuantity = productData.quantity - cartItem.quantity;
                             transaction.update(productRefs[i], { quantity: newQuantity });
                         }
                     }
 
-                    // Create and save the order
-                    const counterDocRef = doc(db, "counters", "order_counter");
-                    const counterDoc = await transaction.get(counterDocRef);
-                    let newOrderId = (counterDoc.exists() ? counterDoc.data().lastId : 1000) + 1;
-                    
+                    // Logic to create the new order
+                    const newOrderId = (counterDoc.exists() ? counterDoc.data().lastId : 1000) + 1;
                     const newOrderRef = doc(collection(db, "orders"));
                     orderData.orderId = newOrderId;
+                    
+                    // Queue writes for the order and the counter update
                     transaction.set(newOrderRef, orderData);
                     transaction.set(counterDocRef, { lastId: newOrderId });
                     
@@ -513,10 +524,10 @@
 
             } catch (error) {
                 console.error("Order failed:", error);
-                showToast(`Order could not be placed: ${error.message || error}`, "error");
+                showToast(`Order could not be placed: ${error.message || "Transaction failed."}`, "error");
                 orderBtn.disabled = false;
                 orderBtn.textContent = "Complete Order";
-                await renderCartItems(); // Re-render to show latest stock info
+                await renderCartItems();
             }
         }
         
