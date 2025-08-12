@@ -4,27 +4,5 @@
     <title>Sundorica Product Feed</title>
     <link>https://www.sundorica.com</link>
     <description>Product feed for Sundorica's Facebook Catalog.</description>
-    <item>
-      <g:id>PBqVwjOmg8kLacuz292r</g:id>
-      <g:title>Unstitched lawn 3 Pc</g:title>
-      <g:description>&lt;p&gt;test&lt;/p&gt;</g:description>
-      <g:link>https://www.sundorica.com/product-details/unstitched-lawn-3-pc/PBqVwjOmg8kLacuz292r</g:link>
-      <g:image_link>https://res.cloudinary.com/daybjvuot/image/upload/v1754935512/uhl5i3hno27wo9lh0vbx.webp</g:image_link>
-      <g:availability>in stock</g:availability>
-      <g:price>4000 BDT</g:price>
-      <g:brand>Sundorica</g:brand>
-      <g:condition>new</g:condition>
-    </item>
-    <item>
-      <g:id>tPr32Q1zcRAjrisRx3Gi</g:id>
-      <g:title>3 Piece Lawn Suit-Printed (Unstitched)</g:title>
-      <g:description>&lt;p&gt;&lt;strong&gt;Lawn Slub Shirt&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Monar Slub Dupatta&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Cambric Trouser&lt;/strong&gt;&lt;/p&gt;</g:description>
-      <g:link>https://www.sundorica.com/product-details/3-piece-lawn-suit-printed-unstitched/tPr32Q1zcRAjrisRx3Gi</g:link>
-      <g:image_link>https://res.cloudinary.com/daybjvuot/image/upload/v1754927729/mzr3vptuknkm3lxz7lel.webp</g:image_link>
-      <g:availability>in stock</g:availability>
-      <g:price>5000 BDT</g:price>
-      <g:brand>Sundorica</g:brand>
-      <g:condition>new</g:condition>
-    </item>
   </channel>
 </rss>
