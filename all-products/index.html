@@ -185,7 +185,7 @@
                 if (item.type === "collection" && slugMap.has(item.name)) {
                     finalLink = `/collections/${slugMap.get(item.name)}`;
                 }
-                let linkHTML = `<a href="${finalLink}">${item.name}</a>`;
+                let linkHTML = `<a href="${finalLink}">${item.name}`;
                 if (item.children && item.children.length > 0) {
                     li.classList.add("has-submenu");
                     linkHTML += ' <i class="fas fa-chevron-down"></i>';
@@ -334,13 +334,32 @@
 
         async function loadAllProducts() {
             const productsCollection = collection(db, "products");
-            // **FIX**: Fetch all products first, then filter. This is more robust.
             const productsSnapshot = await getDocs(productsCollection);
             
+            // MODIFIED LOGIC: Filter by status and stock level
             allProducts = productsSnapshot.docs
                 .map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(product => product.status === "active");
+                .filter(product => {
+                    // Condition 1: Must be active
+                    if (product.status !== 'active') {
+                        return false;
+                    }
 
+                    // Condition 2: Must be in stock
+                    const hasVariants = product.variants && Array.isArray(product.variants) && product.variants.length > 0;
+                    if (hasVariants) {
+                        const totalStock = product.variants.reduce((sum, variant) => {
+                            const stockCount = variant.stock !== undefined ? variant.stock : variant.quantity;
+                            return sum + (Number(stockCount) || 0);
+                        }, 0);
+                        return totalStock > 0;
+                    } else {
+                        const stockCount = product.stock !== undefined ? product.stock : product.quantity;
+                        return (Number(stockCount) || 0) > 0;
+                    }
+                });
+
+            // Sort remaining products by newest first
             allProducts.sort(((a, b) => {
                 const timeA = a.createdAt?.toMillis() || 0;
                 return (b.createdAt?.toMillis() || 0) - timeA
@@ -369,10 +388,12 @@
         function setupEventListeners() {
             const handleSearch = e => {
                 const searchTerm = e.target.value.toLowerCase().trim();
-                if (typeof fbq === "function" && searchTerm) {
-                    fbq("track", "Search", { search_string: searchTerm });
+                const filteredProducts = allProducts.filter(product => product.name.toLowerCase().includes(searchTerm));
+                renderProducts(filteredProducts);
+
+                if (typeof fbq === "function" && e.target.value.trim()) {
+                    fbq("track", "Search", { search_string: e.target.value.trim() });
                 }
-                renderProducts(allProducts.filter(product => product.name.toLowerCase().includes(searchTerm)));
             };
             const desktopSearchInput = document.getElementById("desktopSearchInput");
             const mobileSearchInput = document.getElementById("mobileSearchInput");
