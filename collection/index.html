@@ -58,7 +58,7 @@
         @media (min-width: 769px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
         @media (min-width: 1200px) { .product-grid { grid-template-columns: repeat(5, 1fr); } }
         .product-card { text-decoration: none; color: var(--primary-color); }
-        .product-image-container { aspect-ratio: 4/5; overflow: hidden; border-radius: 8px; background-color: var(--surface-color); position: relative; }
+        .product-image-container { aspect-ratio: 2/3; overflow: hidden; border-radius: 8px; background-color: var(--surface-color); position: relative; }
         .product-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease, opacity .4s ease; position: absolute; top: 0; left: 0; }
         .product-card .img-secondary { opacity: 0; }
         .product-card:hover .img-primary { opacity: 0; }
@@ -286,11 +286,8 @@
             }));
         }
 
-        // SEO FIX: Enhanced function to handle all SEO tags
         function addCollectionSeoTags(collectionData, collectionPath, products) {
             const fullUrl = `https://www.sundorica.com${collectionPath}`;
-
-            // 1. Set canonical URL
             let canonicalTag = document.querySelector("link[rel='canonical']");
             if (!canonicalTag) {
                 canonicalTag = document.createElement("link");
@@ -298,8 +295,6 @@
                 document.head.appendChild(canonicalTag);
             }
             canonicalTag.href = fullUrl;
-
-            // 2. Set meta description
             let metaDescTag = document.querySelector('meta[name="description"]');
             if (!metaDescTag) {
                 metaDescTag = document.createElement('meta');
@@ -307,8 +302,6 @@
                 document.head.appendChild(metaDescTag);
             }
             metaDescTag.content = collectionData.description ? collectionData.description.substring(0, 160) : `Explore the ${collectionData.name} collection at Sundorica. Find high-quality products and great styles.`;
-
-            // 3. Set JSON-LD Schema
             let schemaTag = document.getElementById('collection-schema-script');
             if (!schemaTag) {
                 schemaTag = document.createElement("script");
@@ -386,8 +379,28 @@
                 const productsQuery = query(collection(db, "products"), where("collections", "array-contains", collectionName));
                 const productsSnapshot = await getDocs(productsQuery);
                 
-                allCollectionProducts = productsSnapshot.docs.map((doc => ({ id: doc.id, ...doc.data() })))
-                    .filter((product => product.status === "active"))
+                // MODIFIED LOGIC: Filter products by status and stock level
+                allCollectionProducts = productsSnapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(product => {
+                        // Condition 1: Must be active
+                        if (product.status !== 'active') {
+                            return false;
+                        }
+
+                        // Condition 2: Must be in stock
+                        const hasVariants = product.variants && Array.isArray(product.variants) && product.variants.length > 0;
+                        if (hasVariants) {
+                            const totalStock = product.variants.reduce((sum, variant) => {
+                                const stockCount = variant.stock !== undefined ? variant.stock : variant.quantity;
+                                return sum + (Number(stockCount) || 0);
+                            }, 0);
+                            return totalStock > 0;
+                        } else {
+                            const stockCount = product.stock !== undefined ? product.stock : product.quantity;
+                            return (Number(stockCount) || 0) > 0;
+                        }
+                    })
                     .sort(((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0)));
                 
                 renderProducts(allCollectionProducts);
@@ -464,4 +477,3 @@
     </script>
 </body>
 </html>
-
