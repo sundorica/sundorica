@@ -334,24 +334,17 @@
 
         async function loadAllProducts() {
             const productsCollection = collection(db, "products");
+            // **FIX**: Fetch all products first, then filter. This is more robust.
             const productsSnapshot = await getDocs(productsCollection);
             
             allProducts = productsSnapshot.docs
                 .map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(product => {
-                    // START: Code to be updated
-                    if (product.status !== "active") return false;
-                    
-                    const hasVariants = product.variants && product.variants.length > 0;
-                    if (hasVariants) {
-                        // If it has variants, at least one must have quantity > 0
-                        return product.variants.some(v => v.quantity > 0);
-                    } else {
-                        // If it's a simple product, quantity must be > 0
-                        return product.quantity > 0;
-                    }
-                    // END: Code to be updated
-                });
+                .filter(product => product.status === "active");
+
+            allProducts.sort(((a, b) => {
+                const timeA = a.createdAt?.toMillis() || 0;
+                return (b.createdAt?.toMillis() || 0) - timeA
+            }));
             
             const searchTerm = new URLSearchParams(window.location.search).get("search");
             if (searchTerm) {
@@ -433,4 +426,3 @@
     </script>
 </body>
 </html>
-
