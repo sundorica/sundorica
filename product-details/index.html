@@ -385,28 +385,10 @@
 
         function renderProductDetails(product, productPath) {
             const container = document.getElementById("product-details-container");
-
-            // START: Code to be added/updated
-            const hasVariants = product && product.variants && product.variants.length > 0;
-            const availableVariants = hasVariants ? product.variants.filter(v => v.quantity > 0) : [];
-            const isProductAvailable = (hasVariants && availableVariants.length > 0) || (!hasVariants && product && product.quantity > 0);
-
-            if (!product || product.status !== "active" || !isProductAvailable) {
+            if (!product || product.status !== "active") {
                 container.innerHTML = "<h2>Product Not Found</h2><p>This product might be out of stock or no longer available.</p>";
                 document.title = "Product Not Found - Sundorica";
                 return;
-            }
-            // END: Code to be added/updated
-            let variantsHTML = "";
-            if (hasVariants && availableVariants.length > 0) { // Check against availableVariants
-                const variantTypes = Object.keys(availableVariants[0]).filter(key => !["price", "comparePrice", "id", "quantity", "sku"].includes(key));
-                
-                // Only show options from available variants
-                variantsHTML = variantTypes.map(type => {
-                    const options = [...new Set(availableVariants.map(v => v[type]))].map(value => `<button class="variant-btn" data-option-name="${type}" data-option-value="${value}">${value}</button>`).join("");
-                    const label = type.charAt(0).toUpperCase() + type.slice(1);
-                    return `<div class="variant-selector" data-variant-group="${type}"><span class="variant-label">${label}:</span><div class="variant-options">${options}</div></div>`;
-                }).join("");
             }
 
             // SEO FIX: Update canonical URL and meta description
@@ -793,5 +775,3 @@
     </script>
 </body>
 </html>
-
-
