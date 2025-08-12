@@ -362,6 +362,33 @@
 
         async function loadCollectionProducts() {
             try {
+                const productsQuery = query(collection(db, "products"), where("collections", "array-contains", collectionName));
+                const productsSnapshot = await getDocs(productsQuery);
+                
+                // START: Code to be updated
+                allCollectionProducts = productsSnapshot.docs.map((doc => ({ id: doc.id, ...doc.data() })))
+                    .filter((product => {
+                        if (product.status !== "active") return false;
+
+                        const hasVariants = product.variants && product.variants.length > 0;
+                        if (hasVariants) {
+                             return product.variants.some(v => v.quantity > 0);
+                        } else {
+                            return product.quantity > 0;
+                        }
+                    }))
+                    .sort(((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0)));
+                // END: Code to be updated
+                
+                renderProducts(allCollectionProducts);
+                addCollectionSeoTags(collectionData, path, allCollectionProducts);
+
+            } catch (error) {
+                console.error("Error loading collection products:", error);
+                document.getElementById("collection-title").textContent = "Collection Not Found";
+                document.getElementById("product-grid").innerHTML = `<p style="text-align: center; grid-column: 1 / -1;">${error.message}</p>`;
+            }
+        }
                 let path = sessionStorage.getItem("originalPath") || window.location.pathname;
                 if (sessionStorage.getItem("originalPath")) sessionStorage.removeItem("originalPath");
                 const pathSegments = path.split("/");
@@ -464,4 +491,5 @@
     </script>
 </body>
 </html>
+
 
