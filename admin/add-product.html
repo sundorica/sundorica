@@ -283,7 +283,6 @@
                 return wrapper;
             }
 
-            // --- START: FIXED UPLOAD LOGIC ---
             uploadMediaBtn.addEventListener('click', async () => {
                 if (filesToUpload.length === 0) {
                     return showToast("No new images to upload.");
@@ -291,14 +290,13 @@
                 uploadMediaBtn.disabled = true;
                 uploadMediaBtn.textContent = 'Uploading...';
 
-                // Get only the files that need uploading, in the current visual order.
                 const orderedPreviewElements = Array.from(imagePreviewContainer.querySelectorAll('.image-preview-wrapper'));
                 const sortedFilesToUpload = orderedPreviewElements
                     .map(el => {
                         const fileName = el.dataset.fileName;
                         return fileName ? filesToUpload.find(f => f.name === fileName) : null;
                     })
-                    .filter(Boolean); // Filter out nulls (already uploaded images) and undefineds.
+                    .filter(Boolean); 
 
                 if (sortedFilesToUpload.length === 0) {
                     filesToUpload = [];
@@ -321,17 +319,16 @@
                 try {
                     const uploadResults = await Promise.all(uploadPromises);
 
-                    // Update the DOM with the new Cloudinary URLs
                     uploadResults.forEach((data, index) => {
                         if (data.secure_url) {
                             const uploadedFile = sortedFilesToUpload[index];
                             const previewWrapper = imagePreviewContainer.querySelector(`.image-preview-wrapper[data-file-name="${uploadedFile.name}"]`);
                             if (previewWrapper) {
                                 const imgElement = previewWrapper.querySelector('img');
-                                imgElement.src = data.secure_url; // Update src from blob to Cloudinary URL
-                                previewWrapper.removeAttribute('data-file-name'); // Mark as uploaded
+                                imgElement.src = data.secure_url;
+                                previewWrapper.removeAttribute('data-file-name');
                                 const removeBtn = previewWrapper.querySelector('.remove-image');
-                                removeBtn.onclick = () => previewWrapper.remove(); // Update remove logic
+                                removeBtn.onclick = () => previewWrapper.remove();
                             }
                         } else {
                             console.error('Upload failed for:', sortedFilesToUpload[index].name, 'Response:', data);
@@ -339,20 +336,19 @@
                         }
                     });
 
-                    filesToUpload = []; // Clear the queue
+                    filesToUpload = [];
                     
                     uploadMediaBtn.textContent = 'Upload Complete';
-                    uploadMediaBtn.style.display = 'none'; // Hide button after success
+                    uploadMediaBtn.style.display = 'none';
                     document.getElementById('uploadCompleteModal').style.display = 'flex';
 
                 } catch (error) {
                     console.error("Error during upload: ", error);
                     showToast("An error occurred during upload. Please try again.");
                 } finally {
-                    uploadMediaBtn.disabled = false; // Re-enable in case of partial failure
+                    uploadMediaBtn.disabled = false;
                 }
             });
-            // --- END: FIXED UPLOAD LOGIC ---
 
             function renderCollectionsDropdown() {
                 const searchTerm = collectionSearch.value.toLowerCase();
@@ -427,11 +423,30 @@
             });
             sizeChartSearch.addEventListener('input', () => renderPages(sizeChartSearch.value));
 
+            // --- START: MODIFIED GLOBAL CLICK LISTENER ---
             document.addEventListener('click', (e) => {
-                if (!e.target.closest('.multiselect-container')) collectionDropdown.style.display = 'none';
-                if (!e.target.closest('.searchable-select-container')) sizeChartDropdown.style.display = 'none';
-                if (!e.target.closest('.add-variant-wrapper')) variantOptionsPopup.style.display = 'none';
+                const collectionContainer = collectionSearch.closest('.multiselect-container');
+                if (collectionContainer && !collectionContainer.contains(e.target)) {
+                    collectionDropdown.style.display = 'none';
+                }
+
+                if (!e.target.closest('.searchable-select-container')) {
+                    sizeChartDropdown.style.display = 'none';
+                }
+
+                if (!e.target.closest('.add-variant-wrapper')) {
+                    variantOptionsPopup.style.display = 'none';
+                }
+
+                // Close variant dropdowns (Size, Color) if click is outside
+                document.querySelectorAll('.variant-group').forEach(group => {
+                    const dropdown = group.querySelector('.variant-dropdown');
+                    if (dropdown && !group.contains(e.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
             });
+            // --- END: MODIFIED GLOBAL CLICK LISTENER ---
 
             addVariantOptionBtn.addEventListener('click', () => variantOptionsPopup.style.display = 'block');
             variantOptionsPopup.addEventListener('click', (e) => {
@@ -554,7 +569,6 @@
                 }, []);
             }
 
-            // --- START: FIXED SAVE LOGIC ---
             saveBtn.addEventListener('click', async () => {
                 if (!document.getElementById('productName').value) return showToast("Product Name is required.");
                 if (filesToUpload.length > 0) return showToast("You have new images that have not been uploaded. Please click 'Upload Media' first.");
@@ -562,7 +576,6 @@
                 saveBtn.disabled = true;
                 saveBtn.textContent = "Saving...";
 
-                // Get the final, ordered list of image URLs directly from the DOM.
                 const orderedImagePreviews = Array.from(imagePreviewContainer.querySelectorAll('.image-preview-wrapper img'));
                 const finalOrderedImageUrls = orderedImagePreviews.map(img => img.src);
 
@@ -593,7 +606,7 @@
                     status: document.getElementById('status').value,
                     collections: selectedCollections,
                     sizeChartId: selectedSizeChartId,
-                    imageUrls: finalOrderedImageUrls, // Use the correctly ordered URLs
+                    imageUrls: finalOrderedImageUrls,
                     variants: variantsData,
                     hasVariants: variantsData.length > 0,
                     createdAt: new Date()
@@ -616,7 +629,6 @@
                     saveBtn.textContent = "Save Product";
                 }
             });
-            // --- END: FIXED SAVE LOGIC ---
             
             async function saveNewOptions(optionType, values) {
                 if (!values || values.length === 0) return;
@@ -628,7 +640,6 @@
                 }
             }
             
-            // --- START: NEW AND IMPROVED DUPLICATE LOGIC ---
             function populateFormWithData(data) {
                 document.getElementById('productName').value = data.name || '';
                 quill.root.innerHTML = data.description || '';
@@ -646,7 +657,6 @@
                         removeBtn.className = 'remove-image';
                         removeBtn.innerHTML = '&times;';
                         removeBtn.onclick = () => {
-                            // Since we now get URLs from the DOM on save, we just need to remove the element.
                             wrapper.remove();
                         };
                         wrapper.appendChild(img);
@@ -728,7 +738,7 @@
                     if (!productSnap.exists()) return showToast("Error: Original product not found.");
 
                     const originalData = productSnap.data();
-                    const newData = JSON.parse(JSON.stringify(originalData)); // Deep copy
+                    const newData = JSON.parse(JSON.stringify(originalData));
 
                     newData.name = `Copy of ${originalData.name}`;
                     
@@ -780,7 +790,6 @@
 
             duplicateBtn.addEventListener('click', () => duplicateModal.style.display = 'flex');
             confirmDuplicateBtn.addEventListener('click', duplicateProduct);
-            // --- END: NEW AND IMPROVED DUPLICATE LOGIC ---
 
             const querySnapshot = await getDocs(collection(db, "products"));
             skuInput.value = 1001 + querySnapshot.size;
