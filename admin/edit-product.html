@@ -416,7 +416,6 @@
                 };
             }
             
-            // --- START: CORRECTED FUNCTION WITH MOUSEDOWN FIX ---
             function renderVariantDropdown(optionName, input) {
                 const dropdown = input.nextElementSibling;
                 const searchTerm = input.value.toLowerCase();
@@ -447,7 +446,6 @@
                     dropdown.style.display = 'none';
                 }
             }
-            // --- END: CORRECTED FUNCTION ---
 
             function selectVariantValue(optionName, value) {
                 if (!value || variantOptions[optionName].includes(value)) return;
@@ -620,11 +618,24 @@
                 clearSizeChartBtn.style.display = "none";
             });
             sizeChartSearch.addEventListener("input", () => renderPages(sizeChartSearch.value));
+            
+            // Updated Event Listener for closing dropdowns
             document.addEventListener("click", (e => {
                 !e.target.closest('.multiselect-container') && (collectionDropdown.style.display = "none");
                 !e.target.closest('.searchable-select-container') && (sizeChartDropdown.style.display = "none");
                 !e.target.closest('.add-variant-wrapper') && (variantOptionsPopup.style.display = "none");
+
+                // Logic to close variant suggestion dropdowns
+                document.querySelectorAll('.variant-group').forEach(group => {
+                    if (!group.contains(e.target)) {
+                        const dropdown = group.querySelector('.variant-dropdown');
+                        if (dropdown) {
+                            dropdown.style.display = 'none';
+                        }
+                    }
+                });
             }));
+
             addVariantOptionBtn.addEventListener("click", () => variantOptionsPopup.style.display = "block");
             variantOptionsPopup.addEventListener("click", (e => {
                 if (e.target.dataset.option) {
