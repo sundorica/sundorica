@@ -241,29 +241,34 @@
                 countElement.style.display = totalItems > 0 ? "block" : "none";
             }
         }
-
+        
+        // --- START: CORRECTED FUNCTION ---
         function createMenuItems(items, parentUl, slugMap) {
-            items.forEach((item => {
+            items.forEach(item => {
                 const li = document.createElement("li");
                 let finalLink = item.link || "#";
                 if (item.type === "collection" && slugMap.has(item.name)) {
                     finalLink = `/collections/${slugMap.get(item.name)}`;
                 }
-                let linkHTML = `<a href="${finalLink}">${item.name}</a>`;
+                
+                let linkHTML = `<a href="${finalLink}">${item.name}`;
                 if (item.children && item.children.length > 0) {
                     li.classList.add("has-submenu");
-                    linkHTML += ' <i class="fas fa-chevron-down"></i>'
+                    linkHTML += ` <i class="fas fa-chevron-down"></i>`;
                 }
+                linkHTML += `</a>`; 
                 li.innerHTML = linkHTML;
+
                 if (item.children && item.children.length > 0) {
                     const subUl = document.createElement("ul");
                     subUl.className = "submenu";
                     createMenuItems(item.children, subUl, slugMap);
-                    li.appendChild(subUl)
+                    li.appendChild(subUl);
                 }
-                parentUl.appendChild(li)
-            }))
+                parentUl.appendChild(li);
+            });
         }
+        // --- END: CORRECTED FUNCTION ---
 
         function renderSocialLinks(links) {
             const container = document.getElementById("social-links");
@@ -324,7 +329,6 @@
             return priceHTML;
         }
 
-        // SEO FIX: Enhanced JSON-LD with Breadcrumbs
         function addProductSchema(product, productPath) {
             const oldSchema = document.getElementById('product-schema-script');
             if (oldSchema) oldSchema.remove();
@@ -391,7 +395,6 @@
                 return;
             }
 
-            // SEO FIX: Update canonical URL and meta description
             const canonicalTag = document.querySelector("link[rel='canonical']");
             if(canonicalTag) canonicalTag.href = `https://www.sundorica.com${productPath}`;
             
@@ -775,7 +778,3 @@
     </script>
 </body>
 </html>
-
-
-
-
