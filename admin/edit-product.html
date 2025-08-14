@@ -281,7 +281,6 @@
             const variantOptionsPopup = document.getElementById('variant-options-popup');
             const variantsContainer = document.getElementById('variants-container');
             
-            // Duplicate functionality elements
             const duplicateBtn = document.getElementById('duplicateBtn');
             const duplicateModal = document.getElementById('duplicateModal');
             const confirmDuplicateBtn = document.getElementById('confirmDuplicateBtn');
@@ -417,6 +416,7 @@
                 };
             }
             
+            // --- START: CORRECTED FUNCTION WITH MOUSEDOWN FIX ---
             function renderVariantDropdown(optionName, input) {
                 const dropdown = input.nextElementSibling;
                 const searchTerm = input.value.toLowerCase();
@@ -447,6 +447,7 @@
                     dropdown.style.display = 'none';
                 }
             }
+            // --- END: CORRECTED FUNCTION ---
 
             function selectVariantValue(optionName, value) {
                 if (!value || variantOptions[optionName].includes(value)) return;
@@ -526,7 +527,7 @@
                 confirmDuplicateBtn.textContent = "Duplicating...";
 
                 try {
-                    const newData = JSON.parse(JSON.stringify(currentProductData)); // Deep copy
+                    const newData = JSON.parse(JSON.stringify(currentProductData));
 
                     newData.name = `Copy of ${currentProductData.name}`;
                     
@@ -633,7 +634,6 @@
                 }
             }));
             
-            // Event Listeners for Duplicate Modal
             duplicateBtn.addEventListener('click', () => duplicateModal.style.display = 'flex');
             cancelDuplicateBtn.addEventListener('click', () => duplicateModal.style.display = 'none');
             closeModalSpan.addEventListener('click', () => duplicateModal.style.display = 'none');
