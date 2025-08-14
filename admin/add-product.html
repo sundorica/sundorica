@@ -324,10 +324,10 @@
                             const previewWrapper = imagePreviewContainer.querySelector(`.image-preview-wrapper[data-file-name="${uploadedFile.name}"]`);
                             if (previewWrapper) {
                                 const imgElement = previewWrapper.querySelector('img');
-                                imgElement.src = data.secure_url;
-                                previewWrapper.removeAttribute('data-file-name');
+                                imgElement.src = data.secure_url; 
+                                previewWrapper.removeAttribute('data-file-name'); 
                                 const removeBtn = previewWrapper.querySelector('.remove-image');
-                                removeBtn.onclick = () => previewWrapper.remove();
+                                removeBtn.onclick = () => previewWrapper.remove(); 
                             }
                         } else {
                             console.error('Upload failed for:', sortedFilesToUpload[index].name, 'Response:', data);
@@ -477,7 +477,6 @@
                 };
             }
             
-            // --- START: MODIFIED FUNCTION ---
             function renderVariantDropdown(optionName, input) {
                 const dropdown = input.nextElementSibling;
                 const searchTerm = input.value.toLowerCase();
@@ -506,7 +505,6 @@
                     dropdown.style.display = 'none';
                 }
             }
-            // --- END: MODIFIED FUNCTION ---
 
             function selectVariantValue(optionName, value) {
                 if (!value || variantOptions[optionName].includes(value)) return;
@@ -571,13 +569,14 @@
 
             saveBtn.addEventListener('click', async () => {
                 if (!document.getElementById('productName').value) return showToast("Product Name is required.");
+                
+                const orderedImagePreviews = Array.from(imagePreviewContainer.querySelectorAll('.image-preview-wrapper img'));
+                const finalOrderedImageUrls = orderedImagePreviews.map(img => img.src);
+                
                 if (filesToUpload.length > 0) return showToast("You have new images that have not been uploaded. Please click 'Upload Media' first.");
 
                 saveBtn.disabled = true;
                 saveBtn.textContent = "Saving...";
-
-                const orderedImagePreviews = Array.from(imagePreviewContainer.querySelectorAll('.image-preview-wrapper img'));
-                const finalOrderedImageUrls = orderedImagePreviews.map(img => img.src);
 
                 const variantsData = [];
                 const variantTableRows = document.querySelectorAll('.variant-table tbody tr');
@@ -790,10 +789,21 @@
 
             duplicateBtn.addEventListener('click', () => duplicateModal.style.display = 'flex');
             confirmDuplicateBtn.addEventListener('click', duplicateProduct);
+            
+            await loadMasterData();
+            
+            // --- START: CODE TO LOAD DUPLICATED DATA ---
+            const duplicatedDataString = sessionStorage.getItem('duplicatedProductData');
+            if (duplicatedDataString) {
+                sessionStorage.removeItem('duplicatedProductData');
+                const duplicatedData = JSON.parse(duplicatedDataString);
+                populateFormWithData(duplicatedData);
+                showToast("Product data populated from duplicate. Review and save.");
+            }
+            // --- END: CODE TO LOAD DUPLICATED DATA ---
 
             const querySnapshot = await getDocs(collection(db, "products"));
             skuInput.value = 1001 + querySnapshot.size;
-            await loadMasterData();
         }
     </script>
     </body>
