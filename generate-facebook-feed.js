@@ -48,7 +48,6 @@ async function generateFacebookFeed() {
       }
       
       const productId = doc.id;
-      // === এই অংশটি পরিবর্তন করা হয়েছে ===
       const productName = productData.name;
       const productNameSlug = slugify(productName);
       const productLink = `${BASE_URL}/product-details/${productNameSlug}/${productId}`;
