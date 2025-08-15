@@ -36,15 +36,22 @@ async function generateFacebookFeed() {
 
   try {
     const productsSnapshot = await getDocs(collection(db, "products"));
-    
-    // ডিবাগিং এর জন্য এই লাইনটি যোগ করা হয়েছে
     console.log(`Found ${productsSnapshot.size} products in the collection.`);
 
     productsSnapshot.forEach((doc) => {
       const productData = doc.data();
 
-      if (!productData.quantity || productData.quantity <= 0) {
-        return; 
+      // === এই অংশটি পরিবর্তন করা হয়েছে ===
+      // Check if variants exist and is an array with at least one item
+      if (!productData.variants || !Array.isArray(productData.variants) || productData.variants.length === 0) {
+        return;
+      }
+
+      const firstVariant = productData.variants[0];
+
+      // Check for quantity inside the first variant
+      if (!firstVariant.quantity || firstVariant.quantity <= 0) {
+        return;
       }
       
       const productId = doc.id;
@@ -59,11 +66,12 @@ async function generateFacebookFeed() {
       item.ele("g:link").txt(productLink).up();
       item.ele("g:image_link").txt(productData.imageUrls[0]).up();
       item.ele("g:availability").txt("in stock").up();
-      item.ele("g:price").txt(`${productData.price} BDT`).up();
+      // Price is now taken from the variant
+      item.ele("g:price").txt(`${firstVariant.price} BDT`).up();
       item.ele("g:brand").txt("Sundorica").up();
       item.ele("g:condition").txt("new").up();
     });
-    console.log("Successfully fetched products for Facebook feed.");
+    console.log("Successfully processed products for Facebook feed.");
   } catch (error) {
     console.error("Error fetching products:", error);
   }
