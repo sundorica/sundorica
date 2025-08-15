@@ -40,18 +40,25 @@ async function generateFacebookFeed() {
 
     productsSnapshot.forEach((doc) => {
       const productData = doc.data();
-
+      
       // === এই অংশটি পরিবর্তন করা হয়েছে ===
-      // Check if variants exist and is an array with at least one item
-      if (!productData.variants || !Array.isArray(productData.variants) || productData.variants.length === 0) {
-        return;
+      let price;
+      let quantity;
+
+      // Check if the product has variants and the array is not empty
+      if (productData.variants && Array.isArray(productData.variants) && productData.variants.length > 0) {
+          const firstVariant = productData.variants[0];
+          price = firstVariant.price;
+          quantity = firstVariant.quantity;
+      } else {
+          // If no variants, use top-level price and quantity
+          price = productData.price;
+          quantity = productData.quantity;
       }
 
-      const firstVariant = productData.variants[0];
-
-      // Check for quantity inside the first variant
-      if (!firstVariant.quantity || firstVariant.quantity <= 0) {
-        return;
+      // Now, check the final quantity and price to decide whether to include the product
+      if (!quantity || quantity <= 0 || !price) {
+          return; // Skip if no valid quantity or price is found
       }
       
       const productId = doc.id;
@@ -66,8 +73,7 @@ async function generateFacebookFeed() {
       item.ele("g:link").txt(productLink).up();
       item.ele("g:image_link").txt(productData.imageUrls[0]).up();
       item.ele("g:availability").txt("in stock").up();
-      // Price is now taken from the variant
-      item.ele("g:price").txt(`${firstVariant.price} BDT`).up();
+      item.ele("g:price").txt(`${price} BDT`).up(); // Use the determined price
       item.ele("g:brand").txt("Sundorica").up();
       item.ele("g:condition").txt("new").up();
     });
