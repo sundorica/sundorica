@@ -36,6 +36,10 @@ async function generateFacebookFeed() {
 
   try {
     const productsSnapshot = await getDocs(collection(db, "products"));
+    
+    // ডিবাগিং এর জন্য এই লাইনটি যোগ করা হয়েছে
+    console.log(`Found ${productsSnapshot.size} products in the collection.`);
+
     productsSnapshot.forEach((doc) => {
       const productData = doc.data();
 
