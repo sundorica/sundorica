@@ -41,7 +41,6 @@ async function generateFacebookFeed() {
     productsSnapshot.forEach((doc) => {
       const productData = doc.data();
       
-      // === এই অংশটি পরিবর্তন করা হয়েছে ===
       let price;
       let quantity;
 
@@ -66,10 +65,16 @@ async function generateFacebookFeed() {
       const productNameSlug = slugify(productName);
       const productLink = `${BASE_URL}/product-details/${productNameSlug}/${productId}`;
 
+      // === বিবরণ (Description) ঠিক করার জন্য এই অংশটি পরিবর্তন করা হয়েছে ===
+      // Raw description থেকে HTML ট্যাগ মুছে ফেলা হচ্ছে
+      const rawDescription = productData.description || "No description available";
+      const cleanDescription = rawDescription.replace(/<[^>]*>/g, '').trim();
+
       const item = rss.ele("item");
       item.ele("g:id").txt(productId).up();
       item.ele("g:title").txt(productData.name).up();
-      item.ele("g:description").txt(productData.description || "No description available").up();
+      // পরিষ্কার করা বিবরণ (description) ব্যবহার করা হচ্ছে
+      item.ele("g:description").txt(cleanDescription).up();
       item.ele("g:link").txt(productLink).up();
       item.ele("g:image_link").txt(productData.imageUrls[0]).up();
       item.ele("g:availability").txt("in stock").up();
