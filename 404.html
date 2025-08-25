@@ -2,67 +2,33 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Redirecting...</title>
-  <style>
-    /* Added some basic styling for the 404 page */
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-      text-align: center; 
-      padding: 50px; 
-      color: #333;
-    }
-    h1 { 
-      font-size: 48px; 
-      margin-bottom: 10px;
-    }
-    p { 
-      font-size: 18px; 
-      margin-bottom: 20px;
-    }
-    a { 
-      color: #007bff; 
-      text-decoration: none; 
-      font-weight: bold;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <p>Loading...</p>
-
+  <title>Loading...</title>
   <script type="text/javascript">
-    const originalPath = window.location.pathname;
-    sessionStorage.setItem('originalPath', originalPath);
+    // 1. Get the full path that caused the 404 error.
+    const path = window.location.pathname;
 
-    let destination = null;
+    // 2. Store this path in sessionStorage. The correct page's script will read this.
+    sessionStorage.setItem('originalPath', path);
 
-    // Your existing redirect logic is kept the same
-    if (originalPath.startsWith('/collections/')) {
+    // 3. Determine the correct base HTML file to redirect to.
+    let destination = '/'; // Default to homepage
+
+    if (path.startsWith('/collections/') || path.startsWith('/collection/')) {
       destination = '/collection/'; 
-    } else if (originalPath.startsWith('/product-details/')) {
+    } else if (path.startsWith('/product-details/')) {
       destination = '/product-details/';
-    } else if (originalPath.startsWith('/cart')) {
+    } else if (path.startsWith('/cart')) {
       destination = '/cart/';
-    } else if (originalPath.startsWith('/all-products')) {
+    } else if (path.startsWith('/all-products')) {
       destination = '/all-products/';
     }
     
-    // Check if a redirection is needed
-    if (destination) {
-      // If a destination is found, redirect the user
-      window.location.replace(destination);
-    } else {
-      // **The Main Fix:** If no redirection rule matches, it's a genuine 404 error.
-      // Therefore, we change the page's content to show a 404 message.
-      document.title = "404 - Page Not Found";
-      document.body.innerHTML = `
-        <h1>404 - Page Not Found</h1>
-        <p>Sorry, the page you were looking for could not be found.</p>
-        <a href="/">Go back to the Homepage</a>
-      `;
-    }
+    // 4. Redirect to the correct base HTML file.
+    // The script on that page will handle loading the right content using the saved path.
+    window.location.replace(destination);
   </script>
+</head>
+<body>
+  <p>Please wait while we find your page...</p>
 </body>
 </html>
