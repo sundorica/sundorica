@@ -1,36 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Redirecting...</title>
   <style>
-    /* Added some basic styling for the 404 page */
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
       text-align: center; 
-      padding: 50px; 
+      padding: 40px 20px; 
       color: #333;
+      background-color: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      width: 100%;
+    }
+    .logo {
+      max-width: 180px;
+      margin-bottom: 30px;
     }
     h1 { 
-      font-size: 48px; 
+      font-size: 3em; 
       margin-bottom: 10px;
+      color: #dc3545;
     }
     p { 
-      font-size: 18px; 
-      margin-bottom: 20px;
+      font-size: 1.1em; 
+      margin-bottom: 30px;
+      color: #6c757d;
     }
-    a { 
+    .search-form {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+    .search-box {
+      width: 70%;
+      max-width: 400px;
+      padding: 12px;
+      font-size: 1em;
+      border: 1px solid #ced4da;
+      border-right: none;
+      border-radius: 5px 0 0 5px;
+    }
+    .search-button {
+      padding: 12px 20px;
+      font-size: 1em;
+      border: 1px solid #007bff;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      border-radius: 0 5px 5px 0;
+    }
+    .home-link { 
       color: #007bff; 
       text-decoration: none; 
       font-weight: bold;
     }
-    a:hover {
+    .home-link:hover {
       text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <p>Loading...</p>
+
+  <p id="loading-message">Loading...</p>
+
+  <div id="not-found-container" class="container" style="display: none;">
+    
+    <img src="your-logo-url.png" alt="Your Company Logo" class="logo">
+    
+    <h1>404 - Page Not Found</h1>
+    <p>Sorry, the page you were looking for could not be found. You can try searching for a product or go back to the homepage.</p>
+    
+    <form action="/search" method="get" class="search-form">
+      <input type="text" name="q" class="search-box" placeholder="Search for products...">
+      <button type="submit" class="search-button">Search</button>
+    </form>
+    
+    <a href="/" class="home-link">Go back to the Homepage</a>
+  </div>
 
   <script type="text/javascript">
     const originalPath = window.location.pathname;
@@ -38,7 +93,7 @@
 
     let destination = null;
 
-    // Your existing redirect logic is kept the same
+    // Your existing redirect logic
     if (originalPath.startsWith('/collections/')) {
       destination = '/collection/'; 
     } else if (originalPath.startsWith('/product-details/')) {
@@ -51,17 +106,12 @@
     
     // Check if a redirection is needed
     if (destination) {
-      // If a destination is found, redirect the user
       window.location.replace(destination);
     } else {
-      // **The Main Fix:** If no redirection rule matches, it's a genuine 404 error.
-      // Therefore, we change the page's content to show a 404 message.
+      // If not a redirect, show the 404 page content
       document.title = "404 - Page Not Found";
-      document.body.innerHTML = `
-        <h1>404 - Page Not Found</h1>
-        <p>Sorry, the page you were looking for could not be found.</p>
-        <a href="/">Go back to the Homepage</a>
-      `;
+      document.getElementById('loading-message').style.display = 'none';
+      document.getElementById('not-found-container').style.display = 'block';
     }
   </script>
 </body>
