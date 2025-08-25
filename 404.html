@@ -3,33 +3,66 @@
 <head>
   <meta charset="utf-8">
   <title>Redirecting...</title>
+  <style>
+    /* Added some basic styling for the 404 page */
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      text-align: center; 
+      padding: 50px; 
+      color: #333;
+    }
+    h1 { 
+      font-size: 48px; 
+      margin-bottom: 10px;
+    }
+    p { 
+      font-size: 18px; 
+      margin-bottom: 20px;
+    }
+    a { 
+      color: #007bff; 
+      text-decoration: none; 
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <p>Loading...</p>
+
   <script type="text/javascript">
     const originalPath = window.location.pathname;
-
     sessionStorage.setItem('originalPath', originalPath);
 
     let destination = null;
 
+    // Your existing redirect logic is kept the same
     if (originalPath.startsWith('/collections/')) {
-      // MODIFIED: Redirect to the folder, not the file
       destination = '/collection/'; 
     } else if (originalPath.startsWith('/product-details/')) {
-      // MODIFIED: Redirect to the folder, not the file
       destination = '/product-details/';
     } else if (originalPath.startsWith('/cart')) {
-      // MODIFIED: Redirect to the folder, not the file
       destination = '/cart/';
     } else if (originalPath.startsWith('/all-products')) {
-      // MODIFIED: Redirect to the folder, not the file
       destination = '/all-products/';
     }
     
+    // Check if a redirection is needed
     if (destination) {
+      // If a destination is found, redirect the user
       window.location.replace(destination);
+    } else {
+      // **The Main Fix:** If no redirection rule matches, it's a genuine 404 error.
+      // Therefore, we change the page's content to show a 404 message.
+      document.title = "404 - Page Not Found";
+      document.body.innerHTML = `
+        <h1>404 - Page Not Found</h1>
+        <p>Sorry, the page you were looking for could not be found.</p>
+        <a href="/">Go back to the Homepage</a>
+      `;
     }
   </script>
-</head>
-<body>
-  <p>Loading...</p>
 </body>
 </html>
