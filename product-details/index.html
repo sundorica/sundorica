@@ -6,7 +6,6 @@
     <title>Product Details - Sundorica</title>
     
     <meta name="description" content="Discover product details from Sundorica. Explore our collection of high-quality skincare and fashion items.">
-    <link rel="canonical" href="https://www.sundorica.com/products">
     
     <link rel="icon" href="/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -242,7 +241,6 @@
             }
         }
         
-        // --- START: CORRECTED FUNCTION ---
         function createMenuItems(items, parentUl, slugMap) {
             items.forEach(item => {
                 const li = document.createElement("li");
@@ -268,7 +266,6 @@
                 parentUl.appendChild(li);
             });
         }
-        // --- END: CORRECTED FUNCTION ---
 
         function renderSocialLinks(links) {
             const container = document.getElementById("social-links");
@@ -395,8 +392,14 @@
                 return;
             }
 
-            const canonicalTag = document.querySelector("link[rel='canonical']");
-            if(canonicalTag) canonicalTag.href = `https://www.sundorica.com${productPath}`;
+            const oldCanonical = document.querySelector("link[rel='canonical']");
+            if (oldCanonical) {
+                oldCanonical.remove();
+            }
+            const newCanonical = document.createElement('link');
+            newCanonical.rel = 'canonical';
+            newCanonical.href = `https://www.sundorica.com${productPath}`;
+            document.head.appendChild(newCanonical);
             
             let metaDescTag = document.querySelector('meta[name="description"]');
             if (!metaDescTag) {
