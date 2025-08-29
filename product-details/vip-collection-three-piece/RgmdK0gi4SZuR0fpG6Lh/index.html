@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-thumbnail.min.css">
 
     <style>
-        /* আপনার দেওয়া মূল ফাইলের সব CSS এখানে থাকবে */
         :root { --primary-color: #1a1a1a; --secondary-color: #666666; --accent-color: #007bff; --background-color: #ffffff; --surface-color: #f8f9fa; --border-color: #e9ecef; --danger-color: #dc3545; --success-color: #28a745; }
         html { height: 100%; }
         body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--background-color); color: var(--primary-color); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
@@ -110,6 +109,11 @@
         .buy-now-btn:hover { background-color: #333; }
         .add-to-cart-btn:disabled, .buy-now-btn:disabled { background-color: #ccc; border-color: #ccc; cursor: not-allowed; }
         .product-info-details .product-description { margin-top: 25px; color: var(--secondary-color); }
+        /* Material & Color Section Styling */
+        .product-meta-info { margin-bottom: 20px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .product-meta-info p { margin: 5px 0; font-size: 15px; }
+        .product-meta-info span { font-weight: 500; color: var(--primary-color); }
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, .6); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { background-color: #fff; padding: 30px; border-radius: 8px; max-width: 90%; width: 700px; max-height: 90vh; overflow-y: auto; position: relative; transform: scale(.9); transition: transform .3s ease; }
@@ -196,6 +200,11 @@
                         <h1 class="product-name">Vip collection Three piece</h1>
                         <div class="product-price"><span class="current-price">Tk 2200</span></div>
                         <div id="variant-container"><div class="variant-selector" data-variant-group="size"><span class="variant-label">Size:</span><div class="variant-options"><button class="variant-btn" data-option-name="size" data-option-value="38">38</button><button class="variant-btn" data-option-name="size" data-option-value="42">42</button><button class="variant-btn" data-option-name="size" data-option-value="44">44</button></div></div></div>
+                        
+                        <div class="product-meta-info">
+                            {{PRODUCT_MATERIAL_COLOR_HTML}}
+                        </div>
+
                         
                         <div class="action-buttons">
                              <button class="add-to-cart-btn">Add to Cart</button>
