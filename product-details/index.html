@@ -8,6 +8,11 @@
         if (redirectPath && redirectPath !== window.location.pathname) {
             sessionStorage.removeItem('redirectPath');
             window.history.replaceState(null, '', redirectPath);
+            // URL ঠিক হয়ে যাওয়ার পর একটি কাস্টম ইভেন্ট পাঠানো হচ্ছে
+            document.dispatchEvent(new CustomEvent('pathReady'));
+        } else {
+            // যদি কোনো রিডাইরেক্ট না থাকে, তাহলেও ইভেন্টটি পাঠাতে হবে
+            document.dispatchEvent(new CustomEvent('pathReady'));
         }
     })();
     </script>
@@ -779,12 +784,16 @@
         document.addEventListener("DOMContentLoaded", (async () => {
             document.getElementById("copyright-year").textContent = (new Date).getFullYear();
             await loadSharedComponents();
-            await loadProductDetails();
             document.querySelector(".main-footer").style.display = "block";
             addMenuEventListeners();
             setupEventListeners();
             updateCartCount();
-        }))
+        }));
+
+        document.addEventListener('pathReady', () => {
+            loadProductDetails();
+        });
+
     </script>
 </body>
 </html>
