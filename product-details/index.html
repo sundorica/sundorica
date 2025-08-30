@@ -696,13 +696,14 @@
 
         async function loadProductDetails() {
             try {
-                // ### THIS IS THE CORRECTED CODE ###
                 const path = window.location.pathname;
-                
-                const pathSegments = path.split("/");
+                const pathSegments = path.split('/').filter(segment => segment);
                 const productId = pathSegments[pathSegments.length - 1];
-                if (!productId) throw new Error("Product ID not found in URL.");
-                
+
+                if (!productId) {
+                    throw new Error("Product ID could not be parsed from the URL.");
+                }
+
                 const productDoc = await getDoc(doc(db, "products", productId));
                 let productData = null;
                 if (productDoc.exists()) {
@@ -715,9 +716,6 @@
                     }
                 }
                 renderProductDetails(productData, path);
-                
-                // This line below was also in your original code, it's good to keep it.
-                window.history.replaceState(null, "", path);
 
             } catch (error) {
                 console.error("Error loading product details:", error);
