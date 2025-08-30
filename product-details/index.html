@@ -8,9 +8,6 @@
         if (redirectPath && redirectPath !== window.location.pathname) {
             sessionStorage.removeItem('redirectPath');
             window.history.replaceState(null, '', redirectPath);
-            document.dispatchEvent(new CustomEvent('pathReady'));
-        } else {
-            document.dispatchEvent(new CustomEvent('pathReady'));
         }
     })();
     </script>
@@ -699,14 +696,13 @@
 
         async function loadProductDetails() {
             try {
+                // ### THIS IS THE CORRECTED CODE ###
                 const path = window.location.pathname;
-                const pathSegments = path.split('/').filter(segment => segment);
+                
+                const pathSegments = path.split("/");
                 const productId = pathSegments[pathSegments.length - 1];
-
-                if (!productId) {
-                    throw new Error("Product ID could not be parsed from the URL.");
-                }
-
+                if (!productId) throw new Error("Product ID not found in URL.");
+                
                 const productDoc = await getDoc(doc(db, "products", productId));
                 let productData = null;
                 if (productDoc.exists()) {
@@ -719,6 +715,9 @@
                     }
                 }
                 renderProductDetails(productData, path);
+                
+                // This line below was also in your original code, it's good to keep it.
+                window.history.replaceState(null, "", path);
 
             } catch (error) {
                 console.error("Error loading product details:", error);
@@ -782,16 +781,12 @@
         document.addEventListener("DOMContentLoaded", (async () => {
             document.getElementById("copyright-year").textContent = (new Date).getFullYear();
             await loadSharedComponents();
+            await loadProductDetails();
             document.querySelector(".main-footer").style.display = "block";
             addMenuEventListeners();
             setupEventListeners();
             updateCartCount();
-        }));
-
-        document.addEventListener('pathReady', () => {
-            loadProductDetails();
-        });
-
+        }))
     </script>
 </body>
 </html>
