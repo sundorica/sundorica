@@ -229,6 +229,24 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // ### NEW HELPER FUNCTION START ###
+        /**
+         * Removes HTML tags from a string to create a plain text version.
+         * @param {string} html The HTML string to clean.
+         * @returns {string} The plain text string.
+         */
+        function stripHtml(html) {
+            if (!html) return "";
+            try {
+                let doc = new DOMParser().parseFromString(html, 'text/html');
+                return doc.body.textContent || "";
+            } catch (e) {
+                console.error("Could not parse HTML string", e);
+                return "";
+            }
+        }
+        // ### NEW HELPER FUNCTION END ###
+
         function showToast(message, type = "success") {
             const container = document.getElementById("toast-container");
             if (!container) return;
@@ -335,12 +353,17 @@
             return priceHTML;
         }
 
+        // ### UPDATED FUNCTION START ###
         function addProductSchema(product, productPath) {
             const oldSchema = document.getElementById('product-schema-script');
             if (oldSchema) oldSchema.remove();
             
             if (!product) return;
             const fullUrl = `https://www.sundorica.com${productPath}`;
+
+            // ### MODIFIED LINE ###
+            // Use the stripHtml helper to get clean text for the description.
+            const plainTextDescription = stripHtml(product.description);
 
             const schema = {
                 "@context": "https://schema.org/",
@@ -349,7 +372,9 @@
                         "@type": "Product",
                         "name": product.name,
                         "image": product.imageUrls || [],
-                        "description": product.description || `Discover ${product.name} at Sundorica.`,
+                        // ### MODIFIED LINE ###
+                        // Use the clean plain text description here.
+                        "description": plainTextDescription || `Discover ${product.name} at Sundorica.`,
                         "sku": product.id,
                         "brand": {
                             "@type": "Brand",
@@ -392,7 +417,9 @@
             script.textContent = JSON.stringify(schema);
             document.head.appendChild(script);
         }
+        // ### UPDATED FUNCTION END ###
 
+        // ### UPDATED FUNCTION START ###
         function renderProductDetails(product, productPath) {
             const container = document.getElementById("product-details-container");
             if (!product || product.status !== "active") {
@@ -401,25 +428,33 @@
                 return;
             }
 
+            // Set dynamic page title
+            document.title = `${product.name || "Product"} - Sundorica`;
+            
+            // Set dynamic canonical URL
             const oldCanonical = document.querySelector("link[rel='canonical']");
-            if (oldCanonical) {
-                oldCanonical.remove();
-            }
+            if (oldCanonical) oldCanonical.remove();
             const newCanonical = document.createElement('link');
             newCanonical.rel = 'canonical';
             newCanonical.href = `https://www.sundorica.com${productPath}`;
             document.head.appendChild(newCanonical);
             
+            // ### MODIFIED BLOCK START ###
+            // Set dynamic meta description using the clean, plain text
             let metaDescTag = document.querySelector('meta[name="description"]');
             if (!metaDescTag) {
                 metaDescTag = document.createElement('meta');
                 metaDescTag.name = 'description';
                 document.head.appendChild(metaDescTag);
             }
-            metaDescTag.content = product.description ? product.description.substring(0, 160) : `Buy ${product.name} from Sundorica. High quality and great prices.`;
+            const plainTextDescription = stripHtml(product.description);
+            metaDescTag.content = plainTextDescription ? plainTextDescription.substring(0, 160) : `Buy ${product.name} from Sundorica. High quality and great prices.`;
+            // ### MODIFIED BLOCK END ###
 
+            // Add the JSON-LD Product Schema
             addProductSchema(product, productPath);
 
+            // Facebook Pixel Event
             if (typeof fbq === 'function') {
                 fbq("track", "ViewContent", {
                     content_name: product.name,
@@ -437,8 +472,7 @@
                 container.innerHTML = "<h2>Product Out of Stock</h2><p>This product is currently unavailable.</p>";
                 return;
             }
-
-            document.title = `${product.name || "Product"} - Sundorica`;
+            
             let mainImageHTML = "";
             let thumbnailsHTML = "";
             const fallbackImage = "https://placehold.co/800x1000/eee/ccc?text=No+Image";
@@ -481,13 +515,14 @@
                         </div>
                         <div class="product-description">
                             <h3>Description</h3>
-                            <p>${product.description || "No description available."}</p>
+                            <div>${product.description || "No description available."}</div>
                         </div>
                     </div>
                 </div>`;
                 
             addProductDetailsEventListeners(product);
         }
+        // ### UPDATED FUNCTION END ###
 
         function addProductDetailsEventListeners(product) {
             const hasVariants = product.variants && product.variants.length > 0;
@@ -696,7 +731,6 @@
 
         async function loadProductDetails() {
             try {
-                // ### THIS IS THE CORRECTED CODE ###
                 const path = window.location.pathname;
                 
                 const pathSegments = path.split("/");
@@ -716,7 +750,6 @@
                 }
                 renderProductDetails(productData, path);
                 
-                // This line below was also in your original code, it's good to keep it.
                 window.history.replaceState(null, "", path);
 
             } catch (error) {
