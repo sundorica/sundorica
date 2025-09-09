@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <script>
-    // This script helps handle client-side routing redirects correctly.
     (function() {
         const redirectPath = sessionStorage.getItem('redirectPath');
         if (redirectPath && redirectPath !== window.location.pathname) {
@@ -13,56 +12,10 @@
     })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Sundorica</title>
     
-    <title>__PRODUCT_NAME__ - Sundorica</title>
-    <meta name="description" content="__PRODUCT_DESCRIPTION_PLAIN_TEXT__">
-    <link rel="canonical" href="__PRODUCT_CANONICAL_URL__">
+    <meta name="description" content="Discover product details from Sundorica. Explore our collection of high-quality skincare and fashion items.">
     
-    <script type="application/ld+json" id="product-schema-script">
-    {
-        "@context": "https://schema.org/",
-        "@graph": [
-            {
-                "@type": "Product",
-                "name": "__PRODUCT_NAME__",
-                "image": [__PRODUCT_IMAGE_URLS_JSON__],
-                "description": "__PRODUCT_DESCRIPTION_PLAIN_TEXT__",
-                "sku": "__PRODUCT_ID__",
-                "brand": {
-                    "@type": "Brand",
-                    "name": "Sundorica"
-                },
-                "offers": {
-                    "@type": "Offer",
-                    "url": "__PRODUCT_CANONICAL_URL__",
-                    "priceCurrency": "BDT",
-                    "price": "__PRODUCT_PRICE__",
-                    "availability": "__PRODUCT_AVAILABILITY__",
-                    "seller": {
-                        "@type": "Organization",
-                        "name": "Sundorica"
-                    }
-                }
-            },
-            {
-                "@type": "BreadcrumbList",
-                "itemListElement": [
-                    {
-                        "@type": "ListItem",
-                        "position": 1,
-                        "name": "Home",
-                        "item": "https://www.sundorica.com/"
-                    },
-                    {
-                        "@type": "ListItem",
-                        "position": 2,
-                        "name": "__PRODUCT_NAME__"
-                    }
-                ]
-            }
-        ]
-    }
-    </script>
     <link rel="icon" href="/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,7 +31,6 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-thumbnail.min.css"></noscript>
 
     <style>
-        /* Your existing CSS styles remain unchanged here */
         :root { --primary-color: #1a1a1a; --secondary-color: #666666; --accent-color: #007bff; --background-color: #ffffff; --surface-color: #f8f9fa; --border-color: #e9ecef; --danger-color: #dc3545; --success-color: #28a745; }
         html { height: 100%; }
         body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--background-color); color: var(--primary-color); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
@@ -238,33 +190,13 @@
     <main>
         <section class="container">
             <div id="product-details-container">
-                <div class="product-details-layout">
-                    <div class="product-gallery">
-                        <div class="main-image">
-                            <a id="main-image-link" href="__PRODUCT_IMAGE_URL_1__">
-                                <img src="__PRODUCT_IMAGE_URL_1__" alt="__PRODUCT_NAME__" id="main-product-image">
-                            </a>
-                        </div>
-                        <div class="thumbnail-images">__PRODUCT_THUMBNAILS_HTML__</div>
-                    </div>
-                    <div class="product-info-details">
-                        <h1 class="product-name">__PRODUCT_NAME__</h1>
-                        <div class="product-price">__PRODUCT_PRICE_HTML__</div>
-                        <div id="variant-container">
-                            </div>
-                        __PRODUCT_SIZE_CHART_LINK_HTML__
-                        <div class="action-buttons">
-                             <button class="add-to-cart-btn">Add to Cart</button>
-                             <button class="buy-now-btn">Buy It Now</button>
-                        </div>
-                        <div class="product-description">
-                            <h3>Description</h3>
-                            <div>__PRODUCT_DESCRIPTION_HTML__</div>
-                        </div>
-                    </div>
+                <noscript>
+                    <h1>Product Details</h1>
+                    <p>To view product details, please enable JavaScript in your browser.</p>
+                    <p>Our products are loaded dynamically to give you the best experience.</p>
+                </noscript>
                 </div>
-            </div>
-            </section>
+        </section>
     </main>
 
     <footer class="main-footer">
@@ -287,7 +219,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/thumbnail/lg-thumbnail.min.js" defer></script>
 
     <script type="module">
-        // Your existing Firebase and helper functions here...
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
@@ -303,70 +234,584 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Your existing functions (stripHtml, showToast, updateCartCount, createMenuItems, renderSocialLinks, etc.)
-        // should be placed here. I am omitting them for brevity.
-        
-        // PASTE YOUR EXISTING JAVASCRIPT FUNCTIONS HERE...
-        // ... (like showToast, updateCartCount, createMenuItems, etc.) ...
-        
-        // IMPORTANT: The original 'renderProductDetails' and 'addProductSchema' functions are no longer
-        // needed for the initial page load as the content is now pre-rendered.
-        // The JavaScript is now mainly for interactivity.
-        // We still need the 'loadProductDetails' function to get the data and attach event listeners.
+        /**
+         * Removes HTML tags from a string to create a plain text version.
+         * @param {string} html The HTML string to clean.
+         * @returns {string} The plain text string.
+         */
+        function stripHtml(html) {
+            if (!html) return "";
+            try {
+                let doc = new DOMParser().parseFromString(html, 'text/html');
+                return doc.body.textContent || "";
+            } catch (e) {
+                console.error("Could not parse HTML string", e);
+                return "";
+            }
+        }
 
-        // You would keep your `addProductDetailsEventListeners` function exactly as it is.
-        // And other event listener setup functions.
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toast-container");
+            if (!container) return;
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            const iconClass = type === "success" ? "fa-check-circle" : "fa-exclamation-circle";
+            toast.innerHTML = `<i class="fas ${iconClass}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove() }, 4000);
+        }
 
-        async function loadProductDetailsForInteractivity() {
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const totalItems = cart.reduce(((sum, item) => sum + item.quantity), 0);
+            const countElement = document.querySelector(".cart-item-count");
+            if (countElement) {
+                countElement.textContent = totalItems;
+                countElement.style.display = totalItems > 0 ? "block" : "none";
+            }
+        }
+        
+        function createMenuItems(items, parentUl, slugMap) {
+            items.forEach(item => {
+                const li = document.createElement("li");
+                let finalLink = item.link || "#";
+                if (item.type === "collection" && slugMap.has(item.name)) {
+                    finalLink = `/collections/${slugMap.get(item.name)}`;
+                }
+                
+                let linkHTML = `<a href="${finalLink}">${item.name}`;
+                if (item.children && item.children.length > 0) {
+                    li.classList.add("has-submenu");
+                    linkHTML += ` <i class="fas fa-chevron-down"></i>`;
+                }
+                linkHTML += `</a>`; 
+                li.innerHTML = linkHTML;
+
+                if (item.children && item.children.length > 0) {
+                    const subUl = document.createElement("ul");
+                    subUl.className = "submenu";
+                    createMenuItems(item.children, subUl, slugMap);
+                    li.appendChild(subUl);
+                }
+                parentUl.appendChild(li);
+            });
+        }
+
+        function renderSocialLinks(links) {
+            const container = document.getElementById("social-links");
+            if (!links || !container) return;
+            let html = "";
+            if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`;
+            if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`;
+            if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`;
+            if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>`;
+            container.innerHTML = html;
+        }
+
+        async function loadSharedComponents() {
+            const [storeDetailsSnap, navigationSnap, allCollectionsSnap] = await Promise.all([getDoc(doc(db, "settings", "store_details")), getDoc(doc(db, "navigation", "main-menu")), getDocs(collection(db, "collections"))]);
+            if (storeDetailsSnap.exists()) {
+                const data = storeDetailsSnap.data();
+                const logoLink = document.getElementById("store-logo-link");
+                if (data.logoUrl) {
+                    logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || "Store Logo"}">`
+                } else if (data.storeName) {
+                    logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`
+                }
+                document.getElementById("footer-store-name").textContent = data.storeName || "Sundorica";
+                renderSocialLinks(data.socialLinks);
+            }
+            const collectionSlugMap = new Map;
+            if (!allCollectionsSnap.empty) {
+                allCollectionsSnap.forEach((doc => {
+                    const data = doc.data();
+                    if (data.name && data.slug) collectionSlugMap.set(data.name, data.slug);
+                }))
+            }
+            if (navigationSnap.exists()) {
+                const menuData = navigationSnap.data();
+                if (menuData.items) {
+                    const navContainer = document.getElementById("main-nav");
+                    const mobileNavContainer = document.getElementById("mobile-nav-links");
+                    const ul = document.createElement("ul");
+                    const mobileUl = document.createElement("ul");
+                    createMenuItems(menuData.items, ul, collectionSlugMap);
+                    navContainer.innerHTML = "";
+                    navContainer.appendChild(ul);
+                    createMenuItems(menuData.items, mobileUl, collectionSlugMap);
+                    mobileNavContainer.innerHTML = "";
+                    mobileNavContainer.appendChild(mobileUl);
+                }
+            }
+        }
+        
+        let currentSelections = {};
+
+        function formatPrice(productData) {
+            if (!productData || typeof productData.price === 'undefined') return "";
+            let priceHTML = `<span class="current-price">Tk ${productData.price}</span>`;
+            if (productData.comparePrice && productData.comparePrice > productData.price) {
+                priceHTML += `<span class="compare-at-price">Tk ${productData.comparePrice}</span>`;
+            }
+            return priceHTML;
+        }
+
+        function addProductSchema(product, productPath) {
+            const oldSchema = document.getElementById('product-schema-script');
+            if (oldSchema) oldSchema.remove();
+            
+            if (!product) return;
+            const fullUrl = `https://www.sundorica.com${productPath}`;
+            const plainTextDescription = stripHtml(product.description);
+
+            const schema = {
+                "@context": "https://schema.org/",
+                "@graph": [
+                    {
+                        "@type": "Product",
+                        "name": product.name,
+                        "image": product.imageUrls || [],
+                        "description": plainTextDescription || `Discover ${product.name} at Sundorica.`,
+                        "sku": product.id,
+                        "brand": {
+                            "@type": "Brand",
+                            "name": "Sundorica"
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "url": fullUrl,
+                            "priceCurrency": "BDT",
+                            "price": product.price,
+                            "availability": (product.quantity > 0 || (product.variants && product.variants.some(v => v.quantity > 0))) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                            "seller": {
+                                "@type": "Organization",
+                                "name": "Sundorica"
+                            }
+                        }
+                    },
+                    {
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "Home",
+                                "item": "https://www.sundorica.com/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": product.name
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const script = document.createElement("script");
+            script.type = "application/ld+json";
+            script.id = 'product-schema-script';
+            script.textContent = JSON.stringify(schema);
+            document.head.appendChild(script);
+        }
+
+        function renderProductDetails(product, productPath) {
+            const container = document.getElementById("product-details-container");
+            if (!product || product.status !== "active") {
+                container.innerHTML = "<h2>Product Not Found</h2><p>This product might be out of stock or no longer available.</p>";
+                document.title = "Product Not Found - Sundorica";
+                return;
+            }
+
+            document.title = `${product.name || "Product"} - Sundorica`;
+            
+            const oldCanonical = document.querySelector("link[rel='canonical']");
+            if (oldCanonical) oldCanonical.remove();
+            const newCanonical = document.createElement('link');
+            newCanonical.rel = 'canonical';
+            newCanonical.href = `https://www.sundorica.com${productPath}`;
+            document.head.appendChild(newCanonical);
+            
+            let metaDescTag = document.querySelector('meta[name="description"]');
+            if (!metaDescTag) {
+                metaDescTag = document.createElement('meta');
+                metaDescTag.name = 'description';
+                document.head.appendChild(metaDescTag);
+            }
+            const plainTextDescription = stripHtml(product.description);
+            metaDescTag.content = plainTextDescription ? plainTextDescription.substring(0, 160) : `Buy ${product.name} from Sundorica. High quality and great prices.`;
+
+            addProductSchema(product, productPath);
+
+            if (typeof fbq === 'function') {
+                fbq("track", "ViewContent", {
+                    content_name: product.name,
+                    content_ids: [product.id],
+                    content_type: "product",
+                    content_category: product.collections ? product.collections.join(", ") : "",
+                    value: product.price,
+                    currency: "BDT"
+                });
+            }
+
+            const availableVariants = (product.variants || []).filter(v => v.quantity > 0);
+            const hasVariants = product.variants && product.variants.length > 0;
+            if (hasVariants && availableVariants.length === 0) {
+                container.innerHTML = "<h2>Product Out of Stock</h2><p>This product is currently unavailable.</p>";
+                return;
+            }
+            
+            let mainImageHTML = "";
+            let thumbnailsHTML = "";
+            const fallbackImage = "https://placehold.co/800x1000/eee/ccc?text=No+Image";
+
+            if (product.imageUrls && product.imageUrls.length > 0) {
+                mainImageHTML = `<a id="main-image-link" href="${product.imageUrls[0]}"><img src="${product.imageUrls[0]}" alt="${product.name || "Product Image"}" id="main-product-image"></a>`;
+                if (product.imageUrls.length > 1) {
+                    thumbnailsHTML = product.imageUrls.map(((url, index) => `<a href="${url}" class="thumbnail-link ${index === 0 ? "active" : ""}"><img src="${url}" alt="Product thumbnail ${index + 1}" loading="lazy"></a>`)).join("");
+                }
+            } else {
+                mainImageHTML = `<img src="${fallbackImage}" alt="No Image">`;
+            }
+
+            let variantsHTML = "";
+            if (hasVariants) {
+                const variantTypes = Object.keys(product.variants[0]).filter(key => !["price", "comparePrice", "id", "quantity", "sku"].includes(key));
+                variantsHTML = variantTypes.map(type => {
+                    const options = [...new Set(product.variants.map(v => v[type]))].map(value => `<button class="variant-btn" data-option-name="${type}" data-option-value="${value}">${value}</button>`).join("");
+                    const label = type.charAt(0).toUpperCase() + type.slice(1);
+                    return `<div class="variant-selector" data-variant-group="${type}"><span class="variant-label">${label}:</span><div class="variant-options">${options}</div></div>`;
+                }).join("");
+            }
+            
+            let sizeChartHTML = product.sizeChartContent ? '<span class="size-chart-link" id="open-size-chart"><i class="fas fa-ruler-horizontal"></i> Size Chart</span>' : "";
+            
+            container.innerHTML = `
+                <div class="product-details-layout">
+                    <div class="product-gallery">
+                        <div class="main-image">${mainImageHTML}</div>
+                        <div class="thumbnail-images">${thumbnailsHTML}</div>
+                    </div>
+                    <div class="product-info-details">
+                        <h1 class="product-name">${product.name || "No Name"}</h1>
+                        <div class="product-price">${formatPrice(product)}</div>
+                        <div id="variant-container">${variantsHTML}</div>
+                        ${sizeChartHTML}
+                        <div class="action-buttons">
+                             <button class="add-to-cart-btn">Add to Cart</button>
+                             <button class="buy-now-btn">Buy It Now</button>
+                        </div>
+                        <div class="product-description">
+                            <h3>Description</h3>
+                            <div>${product.description || "No description available."}</div>
+                        </div>
+                    </div>
+                </div>`;
+                
+            addProductDetailsEventListeners(product);
+        }
+
+        function addProductDetailsEventListeners(product) {
+            const hasVariants = product.variants && product.variants.length > 0;
+            const availableVariants = hasVariants ? product.variants.filter(v => v.quantity > 0) : [];
+            const variantTypes = hasVariants && availableVariants.length > 0 ? Object.keys(product.variants[0]).filter(key => !["price", "comparePrice", "id", "quantity", "sku"].includes(key)) : [];
+            
+            currentSelections = {};
+            variantTypes.forEach(type => currentSelections[type] = null);
+
+            const addToCartBtn = document.querySelector(".add-to-cart-btn");
+            const buyNowBtn = document.querySelector(".buy-now-btn");
+
+            function updateButtonStates() {
+                if (!addToCartBtn || !buyNowBtn) return;
+                let isReady = false;
+                if (hasVariants) {
+                    if (variantTypes.every(type => currentSelections[type])) {
+                        const variantExists = availableVariants.find(v => variantTypes.every(type => v[type] === currentSelections[type]));
+                        if (variantExists) isReady = true;
+                    }
+                } else if (product.quantity > 0) {
+                    isReady = true;
+                }
+                addToCartBtn.disabled = !isReady;
+                buyNowBtn.disabled = !isReady;
+            }
+
+            function updateAvailableOptions() {
+                let tempAvailableVariants = [...availableVariants];
+                for (let i = 0; i < variantTypes.length; i++) {
+                    const type = variantTypes[i];
+                    const groupEl = document.querySelector(`.variant-selector[data-variant-group="${type}"]`);
+                    if (!groupEl) continue;
+                    
+                    const availableOptions = [...new Set(tempAvailableVariants.map(v => v[type]))];
+                    
+                    if (i > 0 && !currentSelections[variantTypes[i - 1]]) {
+                        groupEl.classList.add("hidden");
+                        continue;
+                    }
+                    
+                    groupEl.classList.remove("hidden");
+                    groupEl.querySelectorAll(".variant-btn").forEach(btn => btn.classList.toggle("hidden", !availableOptions.includes(btn.dataset.optionValue)));
+                    
+                    if (currentSelections[type]) {
+                        tempAvailableVariants = tempAvailableVariants.filter(v => v[type] === currentSelections[type]);
+                    }
+                }
+            }
+
+            document.querySelectorAll(".variant-btn").forEach(button => {
+                button.addEventListener("click", (e => {
+                    const clickedBtn = e.target;
+                    const optionName = clickedBtn.dataset.optionName;
+                    const optionValue = clickedBtn.dataset.optionValue;
+                    const typeIndex = variantTypes.indexOf(optionName);
+
+                    if (clickedBtn.classList.contains("active")) {
+                        clickedBtn.classList.remove("active");
+                        currentSelections[optionName] = null;
+                    } else {
+                        clickedBtn.closest(".variant-options").querySelectorAll(".variant-btn").forEach(btn => btn.classList.remove("active"));
+                        clickedBtn.classList.add("active");
+                        currentSelections[optionName] = optionValue;
+                    }
+                    
+                    for (let i = typeIndex + 1; i < variantTypes.length; i++) {
+                        const subsequentType = variantTypes[i];
+                        currentSelections[subsequentType] = null;
+                        document.querySelector(`.variant-selector[data-variant-group="${subsequentType}"]`)?.querySelectorAll(".variant-btn").forEach(btn => btn.classList.remove("active"));
+                    }
+                    
+                    updateAvailableOptions();
+                    updateButtonStates();
+
+                    if (variantTypes.every(type => currentSelections[type])) {
+                        const selectedVariant = availableVariants.find(v => variantTypes.every(type => v[type] === currentSelections[type]));
+                        if (selectedVariant) {
+                            document.querySelector(".product-price").innerHTML = formatPrice(selectedVariant);
+                        }
+                    } else {
+                         document.querySelector(".product-price").innerHTML = formatPrice(product);
+                    }
+                }))
+            });
+
+            document.querySelectorAll(".thumbnail-link").forEach(link => {
+                link.addEventListener("click", (e => {
+                    e.preventDefault();
+                    const newSrc = link.href;
+                    document.getElementById("main-product-image").src = newSrc;
+                    document.getElementById("main-image-link").href = newSrc;
+                    document.querySelectorAll(".thumbnail-link").forEach(l => l.classList.remove("active"));
+                    link.classList.add("active");
+                }))
+            });
+
+            const mainImageLink = document.getElementById("main-image-link");
+            if (mainImageLink && product.imageUrls && product.imageUrls.length > 0 && typeof lightGallery !== 'undefined') {
+                mainImageLink.addEventListener("click", (e => {
+                    e.preventDefault();
+                    const galleryItems = product.imageUrls.map(url => ({ src: url, thumb: url }));
+                    const currentIndex = product.imageUrls.indexOf(mainImageLink.href);
+                    const gallery = lightGallery(e.currentTarget, {
+                        dynamic: true,
+                        dynamicEl: galleryItems,
+                        index: currentIndex > -1 ? currentIndex : 0,
+                        plugins: [lgZoom, lgThumbnail],
+                        licenseKey: "0000-0000-000-0000",
+                        download: false,
+                        mobileSettings: { controls: true, showCloseIcon: true }
+                    });
+                    gallery.openGallery();
+                }));
+            }
+            
+            const sizeChartLink = document.getElementById("open-size-chart");
+            if (sizeChartLink) {
+                const modal = document.getElementById("size-chart-modal");
+                const closeBtn = document.getElementById("modal-close-btn");
+                sizeChartLink.addEventListener("click", (() => {
+                    document.getElementById("size-chart-content").innerHTML = `<h2 id="size-chart-title">Size Chart</h2>${product.sizeChartContent}`;
+                    modal.classList.add("active")
+                }));
+                closeBtn.addEventListener("click", (() => modal.classList.remove("active")));
+                modal.addEventListener("click", (e => { if (e.target === modal) modal.classList.remove("active") }));
+            }
+
+            function getSelectedProduct() {
+                let itemToAdd = null;
+                // ### MODIFIED LINE: URL Generation ###
+                const productPagePath = `/product-details/${product.name.toLowerCase().replace(/\s+/g,"-").replace(/[^\w-]+/g,"")}-${product.id}`;
+                
+                if (hasVariants) {
+                    if (!variantTypes.every(type => currentSelections[type])) {
+                        showToast("Please select all options", "error");
+                        return null;
+                    }
+                    const selectedVariant = availableVariants.find(v => variantTypes.every(type => v[type] === currentSelections[type]));
+                    if (!selectedVariant) {
+                        showToast("This product combination is out of stock.", "error");
+                        return null;
+                    }
+                    const variantIdString = variantTypes.map(type => currentSelections[type]).join("-");
+                    itemToAdd = {
+                        id: `${product.id}-${variantIdString}`,
+                        productId: product.id,
+                        name: product.name,
+                        price: selectedVariant.price,
+                        image: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : "",
+                        variantDetails: { ...currentSelections },
+                        quantity: 1,
+                        productPage: productPagePath
+                    };
+                } else {
+                    if (!(product.quantity > 0)) {
+                        showToast("This product is out of stock.", "error");
+                        return null;
+                    }
+                    itemToAdd = {
+                        id: product.id,
+                        productId: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : "",
+                        quantity: 1,
+                        productPage: productPagePath
+                    };
+                }
+                return itemToAdd;
+            }
+
+            if (addToCartBtn) addToCartBtn.addEventListener("click", (() => {
+                const item = getSelectedProduct();
+                if (!item) return;
+                const cart = JSON.parse(localStorage.getItem("cart")) || [];
+                const existingItemIndex = cart.findIndex(cartItem => cartItem.id === item.id);
+                if (existingItemIndex > -1) {
+                    cart[existingItemIndex].quantity++;
+                } else {
+                    cart.push(item);
+                }
+                localStorage.setItem("cart", JSON.stringify(cart));
+                showToast(`'${item.name}' has been added to cart`);
+                if (typeof fbq === 'function') fbq("track", "AddToCart", { content_name: item.name, content_ids: [item.productId], content_type: "product", value: item.price, currency: "BDT" });
+                updateCartCount();
+            }));
+
+            if (buyNowBtn) buyNowBtn.addEventListener("click", (() => {
+                const item = getSelectedProduct();
+                if (!item) return;
+                const cart = JSON.parse(localStorage.getItem("cart")) || [];
+                const existingItemIndex = cart.findIndex(cartItem => cartItem.id === item.id);
+                if (existingItemIndex === -1) {
+                    cart.push(item);
+                } else {
+                    cart[existingItemIndex].quantity++;
+                }
+                localStorage.setItem("cart", JSON.stringify(cart));
+                if (typeof fbq === 'function') fbq("track", "AddToCart", { content_name: item.name, content_ids: [item.productId], content_type: "product", value: item.price, currency: "BDT" });
+                window.location.href = "/cart/";
+            }));
+            
+            updateAvailableOptions();
+            updateButtonStates();
+        }
+
+        async function loadProductDetails() {
             try {
                 const path = window.location.pathname;
+                
+                // ### MODIFIED BLOCK: URL Parsing ###
                 const pathSegments = path.split('/');
                 const lastSegment = pathSegments[pathSegments.length - 1];
+                const idSegments = lastSegment.split('-');
+                const productId = idSegments[idSegments.length - 1];
 
-                // Check if the last segment is not empty and has a length of at least 20
-                if (!lastSegment || lastSegment.length < 20) {
-                    throw new Error("Invalid product slug or ID in URL.");
-                }
-
-                // Firestore IDs are 20 characters long. We extract it from the end of the slug.
-                const productId = lastSegment.slice(-20);
-                
                 if (!productId) throw new Error("Product ID not found in URL.");
                 
                 const productDoc = await getDoc(doc(db, "products", productId));
+                let productData = null;
                 if (productDoc.exists()) {
-                    const productData = { id: productDoc.id, ...productDoc.data() };
-                    
+                    productData = { id: productDoc.id, ...productDoc.data() };
                     if (productData.sizeChartId) {
                         const sizeChartDoc = await getDoc(doc(db, "pages", productData.sizeChartId));
                         if (sizeChartDoc.exists()) {
                             productData.sizeChartContent = sizeChartDoc.data().content;
                         }
                     }
-                    
-                    // The HTML is already there, we just need to make it interactive.
-                    // This function will handle clicks on variants, add to cart, etc.
-                    addProductDetailsEventListeners(productData); 
                 }
+                renderProductDetails(productData, path);
+                
+                window.history.replaceState(null, "", path);
+
             } catch (error) {
-                console.error("Error attaching interactivity:", error);
+                console.error("Error loading product details:", error);
+                renderProductDetails(null);
             }
         }
+        
+        function addMenuEventListeners() {
+            document.querySelectorAll(".main-nav .has-submenu > a, .mobile-nav-panel .has-submenu > a").forEach(menu => {
+                menu.addEventListener("click", (function(e) {
+                    e.preventDefault();
+                    this.parentElement.classList.toggle("active");
+                }))
+            })
+        }
 
-        // Keep all your other functions like addProductDetailsEventListeners, loadSharedComponents, etc.
-        // ... PASTE THEM HERE ...
+        function setupEventListeners() {
+            const handleSearch = () => {
+                const desktopValue = document.getElementById("desktopSearchInput").value;
+                const mobileValue = document.getElementById("mobileSearchInput").value;
+                const searchTerm = desktopValue || mobileValue;
+                if (searchTerm) {
+                    window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`;
+                }
+            };
+            document.getElementById("desktopSearchInput").addEventListener("keydown", (e => { if (e.key === "Enter") handleSearch() }));
+            document.getElementById("mobileSearchInput").addEventListener("keydown", (e => { if (e.key === "Enter") handleSearch() }));
+            
+            document.getElementById("desktop-search-trigger").addEventListener("click", (e => {
+                e.preventDefault();
+                document.body.classList.add("desktop-search-active");
+                document.getElementById("desktopSearchInput").focus();
+            }));
+            document.querySelector(".close-desktop-search-btn").addEventListener("click", (() => document.body.classList.remove("desktop-search-active")));
+            
+            document.getElementById("mobile-search-icon").addEventListener("click", (e => {
+                e.preventDefault();
+                document.body.classList.add("search-active");
+                document.getElementById("mobileSearchInput").focus();
+            }));
+            document.querySelector(".close-search-btn").addEventListener("click", (() => document.body.classList.remove("search-active")));
+            
+            const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+            const mobileNavPanel = document.getElementById("mobile-nav-panel");
+            const closeMobileNav = document.querySelector(".close-mobile-nav");
+            const overlay = document.getElementById("overlay");
+            
+            const closeMenu = () => {
+                mobileNavPanel.classList.remove("active");
+                overlay.classList.remove("active");
+            };
+
+            mobileMenuToggle.addEventListener("click", (() => {
+                mobileNavPanel.classList.add("active");
+                overlay.classList.add("active");
+            }));
+            closeMobileNav.addEventListener("click", closeMenu);
+            overlay.addEventListener("click", closeMenu);
+        }
 
         document.addEventListener("DOMContentLoaded", (async () => {
             document.getElementById("copyright-year").textContent = (new Date).getFullYear();
-            // The main content is pre-rendered, so we load shared components
-            // and then attach interactivity to the existing product details.
             await loadSharedComponents();
-            await loadProductDetailsForInteractivity(); // This function attaches event listeners
+            await loadProductDetails();
             document.querySelector(".main-footer").style.display = "block";
             addMenuEventListeners();
             setupEventListeners();
             updateCartCount();
-        }));
+        }))
     </script>
 </body>
 </html>
