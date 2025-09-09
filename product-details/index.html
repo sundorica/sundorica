@@ -640,7 +640,7 @@
 
             function getSelectedProduct() {
                 let itemToAdd = null;
-                // ### MODIFIED LINE: URL Generation ###
+                // ### পরিবর্তিত লাইন: নতুন URL তৈরি করা হচ্ছে ###
                 const productPagePath = `/product-details/${product.name.toLowerCase().replace(/\s+/g,"-").replace(/[^\w-]+/g,"")}-${product.id}`;
                 
                 if (hasVariants) {
@@ -721,9 +721,9 @@
             try {
                 const path = window.location.pathname;
                 
-                // ### MODIFIED BLOCK: URL Parsing ###
+                // ### পরিবর্তিত ব্লক: URL থেকে আইডি বের করা হচ্ছে ###
                 const pathSegments = path.split('/');
-                const lastSegment = pathSegments[pathSegments.length - 1];
+                const lastSegment = pathSegments[pathSegments.length - 1] || pathSegments[pathSegments.length - 2]; // Handles trailing slash
                 const idSegments = lastSegment.split('-');
                 const productId = idSegments[idSegments.length - 1];
 
