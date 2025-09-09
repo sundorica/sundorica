@@ -234,6 +234,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // ### NEW HELPER FUNCTION START ###
         /**
          * Removes HTML tags from a string to create a plain text version.
          * @param {string} html The HTML string to clean.
@@ -249,6 +250,7 @@
                 return "";
             }
         }
+        // ### NEW HELPER FUNCTION END ###
 
         function showToast(message, type = "success") {
             const container = document.getElementById("toast-container");
@@ -356,12 +358,16 @@
             return priceHTML;
         }
 
+        // ### UPDATED FUNCTION START ###
         function addProductSchema(product, productPath) {
             const oldSchema = document.getElementById('product-schema-script');
             if (oldSchema) oldSchema.remove();
             
             if (!product) return;
             const fullUrl = `https://www.sundorica.com${productPath}`;
+
+            // ### MODIFIED LINE ###
+            // Use the stripHtml helper to get clean text for the description.
             const plainTextDescription = stripHtml(product.description);
 
             const schema = {
@@ -371,6 +377,8 @@
                         "@type": "Product",
                         "name": product.name,
                         "image": product.imageUrls || [],
+                        // ### MODIFIED LINE ###
+                        // Use the clean plain text description here.
                         "description": plainTextDescription || `Discover ${product.name} at Sundorica.`,
                         "sku": product.id,
                         "brand": {
@@ -414,7 +422,9 @@
             script.textContent = JSON.stringify(schema);
             document.head.appendChild(script);
         }
+        // ### UPDATED FUNCTION END ###
 
+        // ### UPDATED FUNCTION START ###
         function renderProductDetails(product, productPath) {
             const container = document.getElementById("product-details-container");
             if (!product || product.status !== "active") {
@@ -423,8 +433,10 @@
                 return;
             }
 
+            // Set dynamic page title
             document.title = `${product.name || "Product"} - Sundorica`;
             
+            // Set dynamic canonical URL
             const oldCanonical = document.querySelector("link[rel='canonical']");
             if (oldCanonical) oldCanonical.remove();
             const newCanonical = document.createElement('link');
@@ -432,6 +444,8 @@
             newCanonical.href = `https://www.sundorica.com${productPath}`;
             document.head.appendChild(newCanonical);
             
+            // ### MODIFIED BLOCK START ###
+            // Set dynamic meta description using the clean, plain text
             let metaDescTag = document.querySelector('meta[name="description"]');
             if (!metaDescTag) {
                 metaDescTag = document.createElement('meta');
@@ -440,9 +454,12 @@
             }
             const plainTextDescription = stripHtml(product.description);
             metaDescTag.content = plainTextDescription ? plainTextDescription.substring(0, 160) : `Buy ${product.name} from Sundorica. High quality and great prices.`;
+            // ### MODIFIED BLOCK END ###
 
+            // Add the JSON-LD Product Schema
             addProductSchema(product, productPath);
 
+            // Facebook Pixel Event
             if (typeof fbq === 'function') {
                 fbq("track", "ViewContent", {
                     content_name: product.name,
@@ -510,6 +527,7 @@
                 
             addProductDetailsEventListeners(product);
         }
+        // ### UPDATED FUNCTION END ###
 
         function addProductDetailsEventListeners(product) {
             const hasVariants = product.variants && product.variants.length > 0;
@@ -640,8 +658,7 @@
 
             function getSelectedProduct() {
                 let itemToAdd = null;
-                // ### পরিবর্তিত লাইন: নতুন URL তৈরি করা হচ্ছে ###
-                const productPagePath = `/product-details/${product.name.toLowerCase().replace(/\s+/g,"-").replace(/[^\w-]+/g,"")}-${product.id}`;
+                const productPagePath = `/product-details/${product.name.toLowerCase().replace(/\s+/g,"-").replace(/[^\w-]+/g,"")}/${product.id}`;
                 
                 if (hasVariants) {
                     if (!variantTypes.every(type => currentSelections[type])) {
@@ -721,12 +738,8 @@
             try {
                 const path = window.location.pathname;
                 
-                // ### পরিবর্তিত ব্লক: URL থেকে আইডি বের করা হচ্ছে ###
-                const pathSegments = path.split('/');
-                const lastSegment = pathSegments[pathSegments.length - 1] || pathSegments[pathSegments.length - 2]; // Handles trailing slash
-                const idSegments = lastSegment.split('-');
-                const productId = idSegments[idSegments.length - 1];
-
+                const pathSegments = path.split("/");
+                const productId = pathSegments[pathSegments.length - 1];
                 if (!productId) throw new Error("Product ID not found in URL.");
                 
                 const productDoc = await getDoc(doc(db, "products", productId));
