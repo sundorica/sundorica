@@ -52,6 +52,8 @@
         .dark .suggestion-item:hover { background-color: #4b5563; }
         .dark .cancel-btn { background-color: #991b1b; color: #fef2f2; }
         .dark .cancel-btn:hover { background-color: #b91c1c; }
+        .brand-suggestion-container { position: absolute; z-index: 10; width: 100%; left: 0; background-color: var(--surface-light); border: 1px solid var(--border-light); border-radius: 0.375rem; margin-top: 0.25rem; max-height: 10rem; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .dark .brand-suggestion-container { background-color: var(--surface-dark); border-color: var(--border-dark); }
     </style>
 </head>
 <body class="text-gray-800">
@@ -182,7 +184,6 @@
       const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzOj1fMjodE9eQflDPOmkaYY7S3kEjl7qxZE7ZHWvWlRK5v0RZk7Xi04lpQfz0M72E/exec';
 
       async function callAppsScript(action, payload) {
-          // Do not show the main loader for login checks
           if (action !== 'checkLogin') {
               showLoader();
           }
@@ -219,14 +220,12 @@
           } 
       });
 
-      // **** UPDATED handleLogin FUNCTION ****
       async function handleLogin(e) { 
           e.preventDefault();
           const loginBtn = document.getElementById('login-btn');
           const originalBtnHTML = loginBtn.innerHTML;
           const errorDiv = document.getElementById('login-error');
 
-          // --- Set loading state ---
           loginBtn.disabled = true;
           loginBtn.innerHTML = `
               <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -234,7 +233,7 @@
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               Processing...`;
-          errorDiv.textContent = ''; // Clear previous errors
+          errorDiv.textContent = '';
 
           var credentials = { username: document.getElementById('username').value, password: document.getElementById('password').value }; 
           
@@ -248,13 +247,11 @@
               } else { 
                   errorDiv.textContent = result.message || 'Login failed.'; 
                   setTimeout(function() { errorDiv.textContent = ''; }, 3000); 
-                  // --- Restore button on failure ---
                   loginBtn.disabled = false;
                   loginBtn.innerHTML = originalBtnHTML;
               } 
           } catch(error) {
               errorDiv.textContent = 'Network error. Please try again.';
-              // --- Restore button on error ---
               loginBtn.disabled = false;
               loginBtn.innerHTML = originalBtnHTML;
           }
@@ -350,6 +347,7 @@
           document.getElementById('confirm-print-no').addEventListener('click', function() { document.getElementById('print-invoice-modal').style.display = 'none'; });
           document.getElementById('add-brand-form').addEventListener('submit', handleAddBrand);
           document.getElementById('brand-search').addEventListener('input', function(e) { populateBrandTable(ALL_BRANDS.filter(function(b){ return b.toLowerCase().includes(e.target.value.toLowerCase()); })); });
+          
           var brandInput = document.getElementById('new-pbrand');
           var suggestionsContainer = document.getElementById('brand-suggestions');
           brandInput.addEventListener('input', function() {
@@ -369,7 +367,15 @@
                   } else { suggestionsContainer.style.display = 'none'; }
               } else { suggestionsContainer.style.display = 'none'; }
           });
-          document.addEventListener('click', function(e){ if (!brandInput.contains(e.target) && !suggestionsContainer.contains(e.target)) { suggestionsContainer.style.display = 'none'; } });
+
+          // CORRECTED Global Click Listener
+          document.addEventListener('click', function(e){ 
+            // This ONLY handles the main form's suggestion box
+            if (!brandInput.contains(e.target) && !suggestionsContainer.contains(e.target)) { 
+                suggestionsContainer.style.display = 'none'; 
+            }
+          });
+
           document.getElementById('add-stock-btn').addEventListener('click', openAddStockModal);
           document.getElementById('check-stock-sku-btn').addEventListener('click', handleCheckStockSku);
           document.getElementById('add-stock-sku').addEventListener('keydown', function(e) { if(e.key === 'Enter') { e.preventDefault(); handleCheckStockSku(); } });
@@ -429,14 +435,13 @@
       }
       function updateDashboard(data) { document.getElementById('today-sales').textContent = data.todaysSales || '0.00'; document.getElementById('month-sales').textContent = data.monthsSales || '0.00'; document.getElementById('today-qty').textContent = data.todaysSaleQty || '0'; }
       
-      // **** UPDATED populateProductTable FUNCTION ****
       function populateProductTable(products) { 
           var tbody = document.getElementById('product-list-body'); 
           tbody.innerHTML = products.map(function(p) { 
               return `<tr data-original-sku="${p[0]}">
                           <td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td>
                           <td class="px-3 py-2 text-sm"><input type="text" value="${p[1]}" class="w-full bg-transparent p-1 product-edit-input product-edit-name" readonly></td>
-                          <td class="px-3 py-2 text-sm"><input type="text" value="${p[7] || ''}" class="w-full bg-transparent p-1 product-edit-input product-edit-brand" readonly></td>
+                          <td class="px-3 py-2 text-sm relative"><input type="text" value="${p[7] || ''}" class="w-full bg-transparent p-1 product-edit-input product-edit-brand" readonly autocomplete="off"></td>
                           <td class="px-3 py-2 text-sm"><input type="number" value="${p[2]}" class="w-full bg-transparent p-1 product-edit-input product-edit-pprice" readonly></td>
                           <td class="px-3 py-2 text-sm"><input type="number" value="${p[3]}" class="w-full bg-transparent p-1 product-edit-input product-edit-mrp" readonly></td>
                           <td class="px-3 py-2 text-sm">
@@ -496,31 +501,70 @@
       function handleEditCustomer(e) { var row = e.target.closest('tr'); row.querySelectorAll('.customer-edit-input').forEach(function(i) { i.readOnly = false; }); row.querySelector('.edit-customer-btn').classList.add('hidden'); row.querySelector('.save-customer-btn').classList.remove('hidden'); }
       async function handleSaveCustomerUpdate(e) { var row = e.target.closest('tr'); var d = { originalPhone: row.dataset.originalPhone, newCustomerData: { name: row.querySelector('.customer-edit-name').value, phone: row.querySelector('.customer-edit-phone').value, address: row.querySelector('.customer-edit-address').value } }; try { const r = await callAppsScript('updateCustomer', d); if (r.success) { showToast(r.message, 'success'); const { customers } = await callAppsScript('getInitialData'); ALL_CUSTOMERS = customers; populateCustomerTable(ALL_CUSTOMERS); } else { onFailure(r); } } catch(err){} }
       
-      // **** NEW FUNCTIONS for Product Edit ****
       function handleEditProduct(e) {
           var row = e.target.closest('tr');
           row.querySelectorAll('.product-edit-input').forEach(function(i) { i.readOnly = false; });
           row.querySelector('.edit-product-btn').classList.add('hidden');
           row.querySelector('.save-product-btn').classList.remove('hidden');
+          
+          var brandInput = row.querySelector('.product-edit-brand');
+          setupBrandAutocomplete(brandInput);
+      }
+
+      function setupBrandAutocomplete(brandInput) {
+          var container = document.createElement('div');
+          container.className = 'brand-suggestion-container hidden';
+          brandInput.parentElement.appendChild(container);
+
+          var showSuggestions = function() {
+              var query = brandInput.value.toLowerCase();
+              container.innerHTML = '';
+              var filtered = ALL_BRANDS.filter(function(b) { return b.toLowerCase().includes(query); });
+              if (filtered.length) {
+                  container.classList.remove('hidden');
+                  filtered.forEach(function(brand) {
+                      var div = document.createElement('div');
+                      div.textContent = brand;
+                      div.className = 'p-2 cursor-pointer suggestion-item';
+                      div.onmousedown = function() {
+                          brandInput.value = brand;
+                          container.classList.add('hidden');
+                      };
+                      container.appendChild(div);
+                  });
+              } else {
+                  container.classList.add('hidden');
+              }
+          };
+
+          brandInput.addEventListener('input', showSuggestions);
+          brandInput.addEventListener('focus', showSuggestions);
+          brandInput.addEventListener('blur', function() {
+              setTimeout(function() { container.classList.add('hidden'); }, 150);
+          });
       }
 
       async function handleSaveProductUpdate(e) {
           var row = e.target.closest('tr');
+          var brandValue = row.querySelector('.product-edit-brand').value.trim();
+
+          if (!brandValue || ALL_BRANDS.indexOf(brandValue) === -1) {
+              return showToast('Invalid brand. Please select a brand from the list.', 'error');
+          }
+
           var d = {
               sku: row.dataset.originalSku,
               newProductData: {
                   name: row.querySelector('.product-edit-name').value,
-                  brand: row.querySelector('.product-edit-brand').value,
+                  brand: brandValue,
                   purchasePrice: row.querySelector('.product-edit-pprice').value,
                   mrp: row.querySelector('.product-edit-mrp').value
               }
           };
           try {
-              // Note: You need to create an 'updateProduct' function in your Google Apps Script
               const r = await callAppsScript('updateProduct', d);
               if (r.success) {
                   showToast(r.message, 'success');
-                  // Update local data and re-render tables
                   const productIndex = ALL_PRODUCTS.findIndex(p => p[0].toString() === r.updatedProduct[0].toString());
                   if (productIndex > -1) {
                       ALL_PRODUCTS[productIndex] = r.updatedProduct;
