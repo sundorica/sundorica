@@ -46,8 +46,8 @@
         .loader { border: 8px solid #f3f3f3; border-top: 8px solid #4f46e5; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         .dark .loader { border-color: #374151; border-top-color: #6366f1; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .customer-edit-input:not([readonly]) { background-color: #fef9c3; border: 1px solid #facc15; border-radius: 4px; }
-        .dark .customer-edit-input:not([readonly]) { background-color: #4b5563; }
+        .customer-edit-input:not([readonly]), .product-edit-input:not([readonly]) { background-color: #fef9c3; border: 1px solid #facc15; border-radius: 4px; }
+        .dark .customer-edit-input:not([readonly]), .dark .product-edit-input:not([readonly]) { background-color: #4b5563; }
         .suggestion-item:hover { background-color: #eef; }
         .dark .suggestion-item:hover { background-color: #4b5563; }
         .dark .cancel-btn { background-color: #991b1b; color: #fef2f2; }
@@ -63,7 +63,7 @@
                 <div><label for="username" class="block text-sm font-medium text-gray-700">Username</label><input id="username" name="username" type="text" required class="block w-full px-3 py-2 mt-1 border rounded-md"></div>
                 <div><label for="password" class="block text-sm font-medium text-gray-700">Password</label><input id="password" name="password" type="password" required class="block w-full px-3 py-2 mt-1 border rounded-md"></div>
                 <div id="login-error" class="text-sm text-red-600 text-center h-4"></div>
-                <div><button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Login</button></div>
+                <div><button type="submit" id="login-btn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Login</button></div>
             </form>
         </div>
     </div>
@@ -94,7 +94,7 @@
             
             <div id="bill" class="page"><h1 class="text-3xl font-bold mb-6">Create Bill</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Billing Items</h2><div class="grid grid-cols-5 gap-4 items-end mb-4"><div class="col-span-2"><label for="bill-sku" class="block text-sm font-medium text-gray-700">Enter SKU</label><input type="text" id="bill-sku" class="mt-1 block w-full rounded-md shadow-sm p-2"></div><div><label for="bill-pname" class="block text-sm font-medium text-gray-700">Product Name</label><input type="text" id="bill-pname" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-avail-qty" class="block text-sm font-medium text-gray-700">Available Qty</label><input type="text" id="bill-avail-qty" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-sale-qty" class="block text-sm font-medium text-gray-700">Sale Quantity</label><input type="number" id="bill-sale-qty" class="mt-1 block w-full rounded-md shadow-sm p-2"></div></div><div class="mt-6 flow-root"><div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8"><div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8"><table id="sale-items-table" class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-0">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Quantity</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Total</th><th class="relative py-3.5 pl-3 pr-4 sm:pr-0"><span class="sr-only">Remove</span></th></tr></thead><tbody id="sale-list-body" class="divide-y"></tbody></table></div></div></div></div><div class="bg-white p-6 rounded-lg shadow-md"><div class="mb-6"><h3 class="text-lg font-bold mb-4">Bill To</h3><div><label for="cust-phone" class="block text-sm font-medium text-gray-700">Customer Phone</label><input type="text" id="cust-phone" class="mt-1 block w-full rounded-md shadow-sm p-2"></div><div class="mt-4"><label for="cust-name" class="block text-sm font-medium text-gray-700">Customer Name</label><input type="text" id="cust-name" class="mt-1 block w-full rounded-md p-2" readonly></div><div class="mt-4"><label for="cust-address" class="block text-sm font-medium text-gray-700">Customer Address</label><textarea id="cust-address" rows="2" class="mt-1 block w-full rounded-md p-2" readonly></textarea></div></div><div class="border-t pt-4"><h3 class="text-lg font-bold mb-4">Billing Summary</h3><div class="space-y-3 text-sm"><div class="flex justify-between"><span>Subtotal</span><span id="summary-subtotal">0.00</span></div><div class="flex items-center justify-between"><span>Discount</span><div class="flex items-center gap-2"><input type="number" id="discount-value" placeholder="0" class="w-20 rounded-md text-right p-1"><select id="discount-type" class="rounded-md p-1"><option value="amount">Amount</option><option value="percent">%</option></select></div></div><div class="flex justify-between"><span>Shipping Charges</span><input type="number" id="shipping-charges" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between font-medium"><span>Payment</span><input type="number" id="payment-amount" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Due Amount</span><span id="summary-due-amount">0.00</span></div></div><button id="bill-now-btn" class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-md font-bold hover:bg-indigo-700 transition">Bill Now</button></div></div></div></div>
             
-            <div id="products" class="page"><h1 class="text-3xl font-bold mb-6">Manage Products</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Product List</h2><input type="text" id="product-search" placeholder="Search by SKU or Name..." class="block w-1/2 rounded-md shadow-sm p-2"></div><div class="overflow-auto h-96"><table class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">SKU</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Brand</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Purchase Price</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th></tr></thead><tbody id="product-list-body" class="divide-y"></tbody></table></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add New Product</h2><form id="add-product-form" class="space-y-4"><div><label for="new-pname" class="block text-sm font-medium">Product Name</label><input type="text" id="new-pname" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pprice" class="block text-sm font-medium">Purchase Price</label><input type="number" id="new-pprice" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-mrp" class="block text-sm font-medium">MRP</label><input type="number" id="new-mrp" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pqty" class="block text-sm font-medium">Purchase Quantity</label><input type="number" id="new-pqty" required class="mt-1 block w-full rounded-md p-2"></div><div class="relative"><label for="new-pbrand" class="block text-sm font-medium">Brand Name</label><input type="text" id="new-pbrand" autocomplete="off" class="mt-1 block w-full rounded-md p-2"><div id="brand-suggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 hidden max-h-40 overflow-y-auto"></div></div><button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md font-bold hover:bg-indigo-700">Save Product</button></form></div></div></div>
+            <div id="products" class="page"><h1 class="text-3xl font-bold mb-6">Manage Products</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Product List</h2><input type="text" id="product-search" placeholder="Search by SKU or Name..." class="block w-1/2 rounded-md shadow-sm p-2"></div><div class="overflow-auto h-96"><table class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">SKU</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Brand</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Purchase Price</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Actions</th></tr></thead><tbody id="product-list-body" class="divide-y"></tbody></table></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add New Product</h2><form id="add-product-form" class="space-y-4"><div><label for="new-pname" class="block text-sm font-medium">Product Name</label><input type="text" id="new-pname" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pprice" class="block text-sm font-medium">Purchase Price</label><input type="number" id="new-pprice" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-mrp" class="block text-sm font-medium">MRP</label><input type="number" id="new-mrp" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pqty" class="block text-sm font-medium">Purchase Quantity</label><input type="number" id="new-pqty" required class="mt-1 block w-full rounded-md p-2"></div><div class="relative"><label for="new-pbrand" class="block text-sm font-medium">Brand Name</label><input type="text" id="new-pbrand" autocomplete="off" class="mt-1 block w-full rounded-md p-2"><div id="brand-suggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 hidden max-h-40 overflow-y-auto"></div></div><button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md font-bold hover:bg-indigo-700">Save Product</button></form></div></div></div>
             
             <div id="sales" class="page"><h1 class="text-3xl font-bold mb-6">Sales Report</h1><div class="bg-white p-6 rounded-lg shadow-md"><div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-end"><div><label for="sales-from-date" class="block text-sm font-medium">From Date</label><input type="date" id="sales-from-date" class="mt-1 block w-full rounded-md p-2"></div><div><label for="sales-to-date" class="block text-sm font-medium">To Date</label><input type="date" id="sales-to-date" class="mt-1 block w-full rounded-md p-2"></div><div><input type="text" id="sales-search" placeholder="Search by Invoice or Phone..." class="block w-full rounded-md p-2"></div><div class="flex gap-2"><button id="show-report-btn" class="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Show Report</button><button id="download-sales-btn" class="flex-1 bg-green-600 text-white py-2 rounded-md hover:bg-green-700">Download CSV</button></div></div><div class="mt-4 flex items-center gap-2"><input type="text" id="reprint-invoice-id" placeholder="Enter Invoice NO to Reprint" class="block w-1/3 rounded-md p-2"><button id="reprint-btn" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">Reprint</button></div><div class="overflow-auto h-[60vh] mt-4"><table id="sales-report-table" class="min-w-full divide-y"><thead class="bg-gray-50 sticky top-0"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">Invoice NO</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Sale Date</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Customer</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Phone</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Address</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Due</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Discount</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Payment</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Qty</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Products</th></tr></thead><tbody id="sales-list-body" class="divide-y"></tbody></table></div></div></div>
             
@@ -182,7 +182,10 @@
       const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzOj1fMjodE9eQflDPOmkaYY7S3kEjl7qxZE7ZHWvWlRK5v0RZk7Xi04lpQfz0M72E/exec';
 
       async function callAppsScript(action, payload) {
-          showLoader();
+          // Do not show the main loader for login checks
+          if (action !== 'checkLogin') {
+              showLoader();
+          }
           try {
               const response = await fetch(WEB_APP_URL, {
                   method: 'POST',
@@ -192,7 +195,9 @@
               });
               if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
               const result = await response.json();
-              hideLoader();
+              if (action !== 'checkLogin') {
+                  hideLoader();
+              }
               return result;
           } catch (error) {
               onFailure({ message: `Network or server call failed: ${error.message}` });
@@ -214,23 +219,45 @@
           } 
       });
 
+      // **** UPDATED handleLogin FUNCTION ****
       async function handleLogin(e) { 
-          e.preventDefault(); 
-          var c = { username: document.getElementById('username').value, password: document.getElementById('password').value }; 
+          e.preventDefault();
+          const loginBtn = document.getElementById('login-btn');
+          const originalBtnHTML = loginBtn.innerHTML;
+          const errorDiv = document.getElementById('login-error');
+
+          // --- Set loading state ---
+          loginBtn.disabled = true;
+          loginBtn.innerHTML = `
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...`;
+          errorDiv.textContent = ''; // Clear previous errors
+
+          var credentials = { username: document.getElementById('username').value, password: document.getElementById('password').value }; 
+          
           try {
-            const r = await callAppsScript('checkLogin', c);
-            if (r.success) { 
-                sessionStorage.setItem('isLoggedIn', 'true'); 
-                document.getElementById('login-screen').style.display = 'none'; 
-                document.getElementById('main-app').classList.remove('hidden'); 
-                startApp(); 
-            } else { 
-                hideLoader(); 
-                var err = document.getElementById('login-error'); 
-                err.textContent = r.message || 'Login failed.'; 
-                setTimeout(function() { err.textContent = ''; }, 3000); 
-            } 
-          } catch(error) {}
+              const result = await callAppsScript('checkLogin', credentials);
+              if (result.success) { 
+                  sessionStorage.setItem('isLoggedIn', 'true'); 
+                  document.getElementById('login-screen').style.display = 'none'; 
+                  document.getElementById('main-app').classList.remove('hidden'); 
+                  startApp(); 
+              } else { 
+                  errorDiv.textContent = result.message || 'Login failed.'; 
+                  setTimeout(function() { errorDiv.textContent = ''; }, 3000); 
+                  // --- Restore button on failure ---
+                  loginBtn.disabled = false;
+                  loginBtn.innerHTML = originalBtnHTML;
+              } 
+          } catch(error) {
+              errorDiv.textContent = 'Network error. Please try again.';
+              // --- Restore button on error ---
+              loginBtn.disabled = false;
+              loginBtn.innerHTML = originalBtnHTML;
+          }
       }
 
       async function startApp() {
@@ -401,7 +428,28 @@
           } catch (e) {}
       }
       function updateDashboard(data) { document.getElementById('today-sales').textContent = data.todaysSales || '0.00'; document.getElementById('month-sales').textContent = data.monthsSales || '0.00'; document.getElementById('today-qty').textContent = data.todaysSaleQty || '0'; }
-      function populateProductTable(products) { var tbody = document.getElementById('product-list-body'); tbody.innerHTML = products.map(function(p) { return `<tr><td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td><td class="px-3 py-2 text-sm">${p[1]}</td><td class="px-3 py-2 text-sm">${p[7] || ''}</td><td class="px-3 py-2 text-sm">${p[2]}</td><td class="px-3 py-2 text-sm">${p[3]}</td></tr>`; }).join(''); }
+      
+      // **** UPDATED populateProductTable FUNCTION ****
+      function populateProductTable(products) { 
+          var tbody = document.getElementById('product-list-body'); 
+          tbody.innerHTML = products.map(function(p) { 
+              return `<tr data-original-sku="${p[0]}">
+                          <td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td>
+                          <td class="px-3 py-2 text-sm"><input type="text" value="${p[1]}" class="w-full bg-transparent p-1 product-edit-input product-edit-name" readonly></td>
+                          <td class="px-3 py-2 text-sm"><input type="text" value="${p[7] || ''}" class="w-full bg-transparent p-1 product-edit-input product-edit-brand" readonly></td>
+                          <td class="px-3 py-2 text-sm"><input type="number" value="${p[2]}" class="w-full bg-transparent p-1 product-edit-input product-edit-pprice" readonly></td>
+                          <td class="px-3 py-2 text-sm"><input type="number" value="${p[3]}" class="w-full bg-transparent p-1 product-edit-input product-edit-mrp" readonly></td>
+                          <td class="px-3 py-2 text-sm">
+                              <button class="text-indigo-600 hover:text-indigo-900 edit-product-btn">Edit</button>
+                              <button class="text-green-600 hover:text-green-900 save-product-btn hidden">Save</button>
+                          </td>
+                      </tr>`; 
+          }).join(''); 
+          
+          tbody.querySelectorAll('.edit-product-btn').forEach(function(b) { b.addEventListener('click', handleEditProduct); }); 
+          tbody.querySelectorAll('.save-product-btn').forEach(function(b) { b.addEventListener('click', handleSaveProductUpdate); }); 
+      }
+      
       function populateStockTable(products) { var tbody = document.getElementById('stock-list-body'); tbody.innerHTML = products.map(function(p) { var qtyClass = parseInt(p[5]) <= 5 ? 'text-red-600 font-bold' : ''; return `<tr><td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td><td class="px-3 py-2 text-sm">${p[1]}</td><td class="px-3 py-2 text-sm">${p[7] || ''}</td><td class="px-3 py-2 text-sm">${p[3]}</td><td class="px-3 py-2 text-sm">${p[4]}</td><td class="px-3 py-2 text-sm ${qtyClass}">${p[5]}</td><td class="px-3 py-2 text-sm">${p[6]}</td></tr>`; }).join(''); }
       function populateCustomerTable(customers) { var tbody = document.getElementById('customer-list-body'); tbody.innerHTML = customers.map(function(c) { return `<tr data-original-phone="${c[1]}"><td class="py-2 pl-4 pr-3 text-sm"><input type="text" value="${c[0]}" class="w-full bg-transparent p-1 customer-edit-input customer-edit-name" readonly></td><td class="px-3 py-2 text-sm"><input type="text" value="${c[1]}" class="w-full bg-transparent p-1 customer-edit-input customer-edit-phone" readonly></td><td class="px-3 py-2 text-sm"><input type="text" value="${c[2]}" class="w-full bg-transparent p-1 customer-edit-input customer-edit-address" readonly></td><td class="px-3 py-2 text-sm"><button class="text-indigo-600 hover:text-indigo-900 edit-customer-btn">Edit</button><button class="text-green-600 hover:text-green-900 save-customer-btn hidden">Save</button></td></tr>`; }).join(''); tbody.querySelectorAll('.edit-customer-btn').forEach(function(b) { b.addEventListener('click', handleEditCustomer); }); tbody.querySelectorAll('.save-customer-btn').forEach(function(b) { b.addEventListener('click', handleSaveCustomerUpdate); }); }
       function populateSalesTable(sales) { var tbody = document.getElementById('sales-list-body'); tbody.innerHTML = sales.map(function(s) { return `<tr><td class="py-2 pl-4 pr-3 text-sm">${s[0]}</td><td class="px-3 py-2 text-sm">${s[1]}</td><td class="px-3 py-2 text-sm">${s[2]}</td><td class="px-3 py-2 text-sm">${s[3]}</td><td class="px-3 py-2 text-sm">${s[4]}</td><td class="px-3 py-2 text-sm">${s[6] || '0.00'}</td><td class="px-3 py-2 text-sm">${s[5]}</td><td class="px-3 py-2 text-sm">${s[9] || '0.00'}</td><td class="px-3 py-2 text-sm">${s[7]}</td><td class="px-3 py-2 text-sm">${s[8]}</td></tr>`; }).join(''); }
@@ -412,7 +460,6 @@
       function handleCustomerPhoneEnter(e) { if (e.key === 'Enter') { e.preventDefault(); var phone = e.target.value; if (!phone) return; var sPhone = phone.startsWith('0') ? phone : '0' + phone; var c = ALL_CUSTOMERS.find(function(c) { return c[1] === sPhone; }); if (c) { document.getElementById('cust-name').value = c[0]; document.getElementById('cust-address').value = c[2]; } else { document.getElementById('new-cust-modal-phone').textContent = phone; document.getElementById('add-customer-modal').style.display = 'flex'; document.getElementById('new-cust-modal-name').focus(); } } }
       async function handleSaveNewCustomer(e) { e.preventDefault(); var c = { phone: document.getElementById('new-cust-modal-phone').textContent, name: document.getElementById('new-cust-modal-name').value, address: document.getElementById('new-cust-modal-address').value }; try { const r = await callAppsScript('addNewCustomer', c); if (r.success) { showToast('Customer saved!', 'success'); ALL_CUSTOMERS.push(r.newCustomer); populateCustomerTable(ALL_CUSTOMERS); document.getElementById('cust-phone').value = r.newCustomer[1]; document.getElementById('cust-name').value = r.newCustomer[0]; document.getElementById('cust-address').value = r.newCustomer[2]; document.getElementById('add-customer-modal').style.display = 'none'; e.target.reset(); } else { onFailure(r); } } catch(err){} }
       
-      // **** OPTIMIZED handleBillNow FUNCTION ****
       async function handleBillNow() {
           if (SALE_LIST_ITEMS.length === 0) { return showToast('Add items first.', 'error'); }
           if (!document.getElementById('cust-phone').value) { return showToast('Enter customer phone.', 'error'); }
@@ -427,8 +474,6 @@
                   document.getElementById('print-invoice-modal').style.display = 'flex';
                   resetBillingPage();
                   
-                  // --- OPTIMIZED REFRESH: START ---
-                  // Instead of reloading all data, just update the changed stock
                   if (r.updatedStock && r.updatedStock.length > 0) {
                       r.updatedStock.forEach(updatedProduct => {
                           const productIndex = ALL_PRODUCTS.findIndex(p => p[0].toString() === updatedProduct[0].toString());
@@ -436,16 +481,12 @@
                               ALL_PRODUCTS[productIndex] = updatedProduct;
                           }
                       });
-                      // Refresh only the tables that show stock info
                       populateStockTable(ALL_PRODUCTS);
                       populateProductTable(ALL_PRODUCTS);
                   }
                   
-                  // Refresh dashboard data with a lightweight call
                   const dashboardData = await callAppsScript('getDashboardData');
                   updateDashboard(dashboardData);
-                  // --- OPTIMIZED REFRESH: END ---
-
               } else {
                   onFailure(r);
               }
@@ -454,6 +495,44 @@
 
       function handleEditCustomer(e) { var row = e.target.closest('tr'); row.querySelectorAll('.customer-edit-input').forEach(function(i) { i.readOnly = false; }); row.querySelector('.edit-customer-btn').classList.add('hidden'); row.querySelector('.save-customer-btn').classList.remove('hidden'); }
       async function handleSaveCustomerUpdate(e) { var row = e.target.closest('tr'); var d = { originalPhone: row.dataset.originalPhone, newCustomerData: { name: row.querySelector('.customer-edit-name').value, phone: row.querySelector('.customer-edit-phone').value, address: row.querySelector('.customer-edit-address').value } }; try { const r = await callAppsScript('updateCustomer', d); if (r.success) { showToast(r.message, 'success'); const { customers } = await callAppsScript('getInitialData'); ALL_CUSTOMERS = customers; populateCustomerTable(ALL_CUSTOMERS); } else { onFailure(r); } } catch(err){} }
+      
+      // **** NEW FUNCTIONS for Product Edit ****
+      function handleEditProduct(e) {
+          var row = e.target.closest('tr');
+          row.querySelectorAll('.product-edit-input').forEach(function(i) { i.readOnly = false; });
+          row.querySelector('.edit-product-btn').classList.add('hidden');
+          row.querySelector('.save-product-btn').classList.remove('hidden');
+      }
+
+      async function handleSaveProductUpdate(e) {
+          var row = e.target.closest('tr');
+          var d = {
+              sku: row.dataset.originalSku,
+              newProductData: {
+                  name: row.querySelector('.product-edit-name').value,
+                  brand: row.querySelector('.product-edit-brand').value,
+                  purchasePrice: row.querySelector('.product-edit-pprice').value,
+                  mrp: row.querySelector('.product-edit-mrp').value
+              }
+          };
+          try {
+              // Note: You need to create an 'updateProduct' function in your Google Apps Script
+              const r = await callAppsScript('updateProduct', d);
+              if (r.success) {
+                  showToast(r.message, 'success');
+                  // Update local data and re-render tables
+                  const productIndex = ALL_PRODUCTS.findIndex(p => p[0].toString() === r.updatedProduct[0].toString());
+                  if (productIndex > -1) {
+                      ALL_PRODUCTS[productIndex] = r.updatedProduct;
+                  }
+                  populateProductTable(ALL_PRODUCTS);
+                  populateStockTable(ALL_PRODUCTS);
+              } else {
+                  onFailure(r);
+              }
+          } catch (err) {}
+      }
+
       function handleShowSalesReport() { var from = document.getElementById('sales-from-date').value, to = document.getElementById('sales-to-date').value, term = document.getElementById('sales-search').value.toLowerCase(); var f = ALL_SALES.filter(function(s) { return (!from || new Date(s[1].split(' ')[0].split('/').reverse().join('-')) >= new Date(from)) && (!to || new Date(s[1].split(' ')[0].split('/').reverse().join('-')) <= new Date(to)) && (!term || s[0].toString().toLowerCase().includes(term) || s[3].toLowerCase().includes(term)); }); populateSalesTable(f); }
       async function handleReprint() { var id = document.getElementById('reprint-invoice-id').value; if (!id) { return showToast('Enter invoice number.', 'error'); } try { const r = await callAppsScript('findInvoice', id); if (r.success) { printInvoice(r.invoiceData); } else { onFailure(r); } } catch(err){} }
       async function handleFindInvoiceForReturn() { var id = document.getElementById('return-invoice-id').value; if (!id) return; RETURN_QUEUE = []; renderReturnQueue(); document.getElementById('return-list-container').style.display = 'none'; try { const res = await callAppsScript('getReturnableInvoiceDetails', id); if (res.success) { document.getElementById('return-invoice-display').textContent = '#' + res.invoiceId; var list = document.getElementById('return-product-list'); list.innerHTML = res.products.map(function(p) { var statusClass = p.returnableQty > 0 ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-400 cursor-not-allowed'; var statusText = p.returnableQty > 0 ? 'Return' : 'Returned'; return `<div class="flex justify-between items-center bg-gray-100 p-3 rounded-md"><div><p class="font-semibold">${p.name}</p><p class="text-sm text-gray-500">SKU: ${p.sku} | Sold: ${p.soldQty} | Returned: ${p.returnedQty}</p></div><button class="text-white px-3 py-1 rounded-md open-return-modal-btn ${statusClass}" data-sku="${p.sku}" data-name="${p.name}" data-invoiceid="${res.invoiceId}" data-max-return="${p.returnableQty}" ${p.returnableQty <= 0 ? 'disabled' : ''}>${statusText}</button></div>`; }).join(''); document.getElementById('return-products-container').style.display = 'block'; list.querySelectorAll('.open-return-modal-btn').forEach(function(b) { b.addEventListener('click', function() { var max = this.dataset.maxReturn; document.getElementById('return-modal-pname').textContent = this.dataset.name; document.getElementById('return-modal-sku').value = this.dataset.sku; document.getElementById('return-modal-invoiceid').value = this.dataset.invoiceid; document.getElementById('return-modal-maxqty').value = max; var qtyInput = document.getElementById('return-modal-qty'); qtyInput.max = max; qtyInput.value = 1; document.getElementById('return-qty-modal').style.display = 'flex'; qtyInput.focus(); }); }); } else { onFailure(res); } } catch(err){} }
