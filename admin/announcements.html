@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>announcements</title>
+<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<link rel=stylesheet href=style.css>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
+<style>
+    .sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}
+    .sidebar .menu-list .logout-button:hover{background-color:#b71c1c}
+    .sidebar .menu-list .logout-button i{margin-right:10px}
+
+    /* --- Mobile Responsive Styles Start --- */
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        z-index: 1001;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 260px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .main-content {
+            width: 100%;
+            margin-left: 0;
+        }
+        
+        .header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 15px; /* Space between title and button */
+        }
+        .mobile-menu-btn {
+            display: block;
+            padding-top: 5px;
+            margin-left: auto; /* Pushes menu to the far right */
+            flex-shrink: 0; /* Prevents button from shrinking */
+        }
+        #saveAnnouncementsBtnDesktop {
+            display: none; /* Hide desktop button on mobile */
+        }
+        .form-grid-2, .customization-grid {
+            grid-template-columns: 1fr; /* Stack grid items */
+        }
+    }
+    
+    @media (min-width: 769px) {
+        #saveAnnouncementsBtnMobile {
+            display: none; /* Hide mobile button on desktop */
+        }
+    }
+    /* --- Mobile Responsive Styles End --- */
+</style>
+</head>
+<body>
+<div class=container>
+<div class=sidebar>
+<h2>Admin Panel</h2>
+<ul class=menu-list>
+<li><a href=index.html>Dashboard</a></li>
+<li><a href=orders.html>Orders</a></li>
+<li><a href=products.html>Products</a></li>
+<li><a href=collections.html>Collections</a></li>
+<li><a href=navigation.html>Navigation</a></li>
+<li class=active><a href=announcements.html>Announcements</a></li>
+<li><a href=shipping-zones.html>Shipping Zones</a></li>
+<li><a href=store-details.html>Store Details</a></li>
+<li><a href=hero-slider.html>Hero Slider</a></li>
+<li><a href=pages.html>Pages</a></li>
+<li>
+<button id=logout-button class=logout-button>
+<i class="fas fa-sign-out-alt"></i>Logout
+</button>
+</li>
+</ul>
+</div>
+<div class=main-content>
+<div class=header>
+    <div class="header-main">
+        <h1>Announcements</h1>
+        <button class="btn btn-primary" id="saveAnnouncementsBtnMobile">Save Changes</button>
+    </div>
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+    <button class="btn btn-primary" id="saveAnnouncementsBtnDesktop">Save Changes</button>
+</div>
+<div class=preview-container>
+<p class=preview-label>Live Preview (texts will rotate)</p>
+<div id=preview-bar class=announcement-bar>
+<span id=preview-text>Your announcement will appear here!</span>
+</div>
+</div>
+<div class=content-card>
+<div class=form-grid-2>
+<div class=form-group>
+<label class=form-label>Announcement Texts</label>
+<div id=announcement-texts-container>
+</div>
+<button class=btn id=add-announcement-btn style=margin-top:10px>
+<i class="fas fa-plus"></i> Add Announcement
+</button>
+</div>
+<div class=form-group>
+<label class=form-label>Customization</label>
+<div class=customization-grid>
+<div>
+<label for=backgroundColor class=form-label-sm>Background Color</label>
+<input type=color id=backgroundColor class=color-picker value=#2c3e50>
+</div>
+<div>
+<label for=textColor class=form-label-sm>Text Color</label>
+<input type=color id=textColor class=color-picker value=#ffffff>
+</div>
+<div>
+<label for=fontSize class=form-label-sm>Font Size (px)</label>
+<input type=number id=fontSize class=form-control value=14 min=10 max=24>
+</div>
+<div class=checkbox-group>
+<input type=checkbox id=transparentBg>
+<label for=transparentBg>Transparent Background</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id=toast-notification class=toast></div>
+<script type=module>
+    import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import{getFirestore,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    
+    const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9"};
+    const app=initializeApp(firebaseConfig);
+    const db=getFirestore(app);
+    const auth=getAuth(app);
+    
+    const getLoginUrl=()=>{const e=window.location.pathname;return e.substring(0,e.lastIndexOf("/"))+"/login.html"};
+    
+    function initializeMobileMenu() {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+            document.addEventListener('click', (event) => {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnMenuButton = mobileMenuBtn.contains(event.target);
+                if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            }, true);
+        }
+    }
+
+    const logoutButton=document.getElementById("logout-button");
+    
+    function initializePage(){
+        const e=document.getElementById("preview-bar"),t=document.getElementById("preview-text"),n=document.getElementById("announcement-texts-container"),o=document.getElementById("add-announcement-btn"),a=document.getElementById("backgroundColor"),r=document.getElementById("textColor"),i=document.getElementById("fontSize"),s=document.getElementById("transparentBg");
+        const saveBtnMobile=document.getElementById("saveAnnouncementsBtnMobile"),saveBtnDesktop=document.getElementById("saveAnnouncementsBtnDesktop"),l=document.getElementById("toast-notification");
+        let u;
+        function d(e=[""]){n.innerHTML="",e.forEach((e=>m(e))),g()}
+        function m(e=""){const t=document.createElement("div");t.className="input-group-dynamic",t.innerHTML=`\n                    <input type="text" class="form-control announcement-text-input" value="${e}" placeholder="Enter announcement text...">\n                    <button class="btn-icon-danger remove-text-btn">&times;</button>\n                `,n.appendChild(t),t.querySelector(".announcement-text-input").addEventListener("input",g),t.querySelector(".remove-text-btn").addEventListener("click",(()=>{t.remove(),g()}))}
+        function g(){clearInterval(u);const o=n.querySelectorAll(".announcement-text-input"),c=Array.from(o).map((e=>e.value.trim())).filter((e=>e)),l=a.value,d=r.value,m=i.value,g=s.checked;if(e.style.color=d,e.style.fontSize=`${m}px`,e.style.backgroundColor=g?"transparent":l,e.style.border=g?"1px dashed #ccc":"none",0===c.length)return void(t.textContent="Your announcement will appear here!");let p=0;t.textContent=c[p],c.length>1&&(u=setInterval((()=>{p=(p+1)%c.length,t.style.opacity=0,setTimeout((()=>{t.textContent=c[p],t.style.opacity=1}),500)}),3e3))}
+        function p(e){l.textContent=e,l.classList.add("show"),setTimeout((()=>{l.classList.remove("show")}),3e3)}
+        
+        o.addEventListener("click",(()=>m())); // This now works correctly
+        
+        [a,r,i,s].forEach((e=>{e.addEventListener("input",g)}));
+        
+        const saveFunction=async()=>{
+            saveBtnMobile.disabled=!0,saveBtnDesktop.disabled=!0;
+            saveBtnMobile.textContent="Saving...",saveBtnDesktop.textContent="Saving...";
+            const e=n.querySelectorAll(".announcement-text-input"),t={texts:Array.from(e).map((e=>e.value.trim())).filter((e=>e)),backgroundColor:a.value,textColor:r.value,fontSize:parseInt(i.value),isTransparent:s.checked};
+            try{
+                await setDoc(doc(db,"settings","announcementBar"),t),
+                p("Announcements saved successfully!")
+            }catch(e){
+                console.error("Error saving settings: ",e),
+                p("Error: Could not save settings.")
+            }finally{
+                saveBtnMobile.disabled=!1,saveBtnDesktop.disabled=!1;
+                saveBtnMobile.textContent="Save Changes",saveBtnDesktop.textContent="Save Changes";
+            }
+        };
+        
+        saveBtnMobile.addEventListener("click",saveFunction);
+        saveBtnDesktop.addEventListener("click",saveFunction);
+        
+        // This self-invoking function now correctly loads the data
+        (async function(){
+            const e=doc(db,"settings","announcementBar"),t=await getDoc(e);
+            if(t.exists()){
+                const e=t.data();
+                d(e.texts&&e.texts.length>0?e.texts:[""]),
+                a.value=e.backgroundColor||"#2c3e50",
+                r.value=e.textColor||"#ffffff",
+                i.value=e.fontSize||14,
+                s.checked=e.isTransparent||!1
+            }else d([""]);
+            g();
+        })();
+    }
+    
+    logoutButton&&logoutButton.addEventListener("click",(()=>{signOut(auth).then((()=>{window.location.href=getLoginUrl()})).catch((e=>console.error("Sign out error",e)))}));
+    onAuthStateChanged(auth,(e=>{
+        if(e) {
+            initializePage();
+            initializeMobileMenu();
+        } else {
+            window.location.href=getLoginUrl();
+        }
+    }));
+</script>
+</body>
+</html>

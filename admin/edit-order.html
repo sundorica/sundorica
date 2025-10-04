@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>edit-order</title>
+<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<link rel=stylesheet href=style.css>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
+<style>
+    .sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}
+    .sidebar .menu-list .logout-button:hover{background-color:#b71c1c}
+    .sidebar .menu-list .logout-button i{margin-right:10px}
+
+    /* --- Mobile Responsive Styles Start --- */
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        z-index: 1001;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 260px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .main-content {
+            width: 100%;
+            margin-left: 0;
+        }
+        .header {
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header h1 {
+            font-size: 24px;
+            width: 100%; /* Make title take full width */
+        }
+        .mobile-menu-btn {
+            display: block;
+            position: absolute;
+            top: 25px;
+            right: 20px;
+        }
+        .order-details-layout {
+            grid-template-columns: 1fr; /* Stack the columns */
+        }
+    }
+    /* --- Mobile Responsive Styles End --- */
+</style>
+</head>
+<body>
+<div class=container>
+<div class=sidebar>
+<h2>Admin Panel</h2>
+<ul class=menu-list>
+<li><a href=index.html>Dashboard</a></li>
+<li class=active><a href=orders.html>Orders</a></li>
+<li><a href=products.html>Products</a></li>
+<li><a href=collections.html>Collections</a></li>
+<li><a href=navigation.html>Navigation</a></li>
+<li><a href=announcements.html>Announcements</a></li>
+<li><a href=shipping-zones.html>Shipping Zones</a></li>
+<li><a href=store-details.html>Store Details</a></li>
+<li><a href=hero-slider.html>Hero Slider</a></li>
+<li><a href=pages.html>Pages</a></li>
+<li>
+<button id=logout-button class=logout-button>
+<i class="fas fa-sign-out-alt"></i>Logout
+</button>
+</li>
+</ul>
+</div>
+<div class=main-content>
+<div id=loader class=content-card style=text-align:center>Loading order details...</div>
+<div id=orderDetailsContainer style=display:none>
+<div class=header>
+<h1 id=orderTitle>Edit Order #...</h1>
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+    <i class="fas fa-bars"></i>
+</button>
+<div class=header-actions>
+<a href=# id=cancelBtn class=btn>Cancel</a>
+<button class="btn btn-primary" id=updateOrderBtn>Update Order</button>
+</div>
+</div>
+<div class=order-details-layout>
+<div class=order-summary-column>
+<div class=content-card>
+<h3>Order Summary</h3>
+<div id=productList class=product-list-editable>
+</div>
+<div class=summary-totals>
+<div class=summary-row><span>Subtotal</span><span id=subtotal></span></div>
+<div class=summary-row><span>Shipping</span><span id=shipping></span></div>
+<div class="summary-row total"><span>Total</span><span id=total></span></div>
+</div>
+</div>
+</div>
+<div class=order-customer-column>
+<div class=content-card>
+<h3>Customer Details</h3>
+<div class=form-group>
+<label for=customerName class=form-label>Name</label>
+<input id=customerName class=form-control>
+</div>
+<div class=form-group>
+<label for=customerPhone class=form-label>Phone</label>
+<input id=customerPhone class=form-control>
+</div>
+<div class=form-group>
+<label for=customerAddress class=form-label>Address</label>
+<textarea id=customerAddress class=form-control rows=3></textarea>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id=toast-notification class=toast></div>
+<script type=module>
+    import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import{getFirestore,doc,getDoc,updateDoc,runTransaction}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    
+    const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9"};
+    const app=initializeApp(firebaseConfig);
+    const db=getFirestore(app);
+    const auth=getAuth(app);
+    
+    const getLoginUrl=()=>{const t=window.location.pathname;return t.substring(0,t.lastIndexOf("/"))+"/login.html"};
+    
+    function initializeMobileMenu() {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+            document.addEventListener('click', (event) => {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnMenuButton = mobileMenuBtn.contains(event.target);
+                if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            }, true);
+        }
+    }
+
+    const logoutButton=document.getElementById("logout-button");
+    
+    function initializePage(){
+        const t=document.getElementById("loader"),e=document.getElementById("orderDetailsContainer"),n=document.getElementById("productList"),o=document.getElementById("updateOrderBtn"),r=document.getElementById("cancelBtn"),a=document.getElementById("toast-notification"),i=new URLSearchParams(window.location.search).get("id");
+        let s=null,d=[];
+        function c(){n.innerHTML="",d.forEach(((t,e)=>{n.innerHTML+=`\n                        <div class="product-item-editable" data-index="${e}">\n                            <img src="${t.imageUrl}" alt="${t.name}">\n                            <div class="product-info">\n                                <span>${t.name}</span>\n                                <span class="text-secondary">Price: ৳${t.price}</span>\n                            </div>\n                            <div class="product-actions">\n                                <input type="number" class="form-control quantity-input" value="${t.quantity}" min="1">\n                                <button class="btn-icon-danger remove-product-btn">&times;</button>\n                            </div>\n                        </div>\n                    `})),document.querySelectorAll(".quantity-input").forEach((t=>{t.addEventListener("change",u)})),document.querySelectorAll(".remove-product-btn").forEach((t=>{t.addEventListener("click",l)}))}
+        function u(t){const e=t.target.closest(".product-item-editable").dataset.index;d[e].quantity=parseInt(t.target.value),m()}
+        function l(t){const e=t.target.closest(".product-item-editable").dataset.index;d.splice(e,1),c(),m()}
+        function m(){const t=d.reduce(((t,e)=>t+e.price*e.quantity),0),e=s.summary.shipping,n=t+e;document.getElementById("subtotal").textContent=`৳${t}`,document.getElementById("shipping").textContent=`৳${e}`,document.getElementById("total").textContent=`৳${n}`}
+        function p(t){a.textContent=t,a.classList.add("show"),setTimeout((()=>{a.classList.remove("show")}),3e3)}
+        o.addEventListener("click",(async()=>{
+            o.disabled=!0,o.textContent="Updating...";
+            const t={name:document.getElementById("customerName").value,phone:document.getElementById("customerPhone").value,address:document.getElementById("customerAddress").value},e=d.reduce(((t,e)=>t+e.price*e.quantity),0),n={subtotal:e,shipping:s.summary.shipping,total:e+s.summary.shipping};
+            try{
+                await runTransaction(db,(async e=>{
+                    const o=new Map;s.products.forEach((t=>{const e=d.find((e=>e.productId===t.productId)),n=e?t.quantity-e.quantity:t.quantity;0!==n&&o.set(t.productId,n)}));
+                    for(const[t,n]of o.entries()){
+                        if(t.startsWith("dummy"))continue;
+                        const o=doc(db,"products",t),r=await e.get(o);
+                        if(r.exists()){const t=(r.data().quantity||0)+n;e.update(o,{quantity:t})}
+                    }
+                    const r=doc(db,"orders",i);e.update(r,{customerDetails:t,products:d,summary:n})
+                }));
+                p("Order updated successfully!");
+                setTimeout((()=>{window.location.href=`view-order.html?id=${i}`}),1500);
+            }catch(t){
+                console.error("Error updating order:",t);
+                p("Error: Could not update order.");
+                o.disabled=!1;
+                o.textContent="Update Order";
+            }
+        }));
+        
+        async function loadOrderData(){
+            if(i)try{
+                const n=doc(db,"orders",i),o=await getDoc(n);
+                if(o.exists()) {
+                    s=o.data(),d=JSON.parse(JSON.stringify(s.products)),document.getElementById("orderTitle").textContent=`Edit Order #${s.orderId}`,r.href=`view-order.html?id=${i}`,document.getElementById("customerName").value=s.customerDetails.name,document.getElementById("customerPhone").value=s.customerDetails.phone,document.getElementById("customerAddress").value=s.customerDetails.address,c(),m(),t.style.display="none",e.style.display="block"
+                } else t.textContent="Error: Order not found.";
+            }catch(e){
+                console.error("Error loading order:",e),t.textContent="Error loading data.";
+            }else t.textContent="Error: No Order ID provided.";
+        }
+        loadOrderData();
+    }
+    
+    logoutButton&&logoutButton.addEventListener("click",(()=>{signOut(auth).then((()=>{window.location.href=getLoginUrl()})).catch((t=>console.error("Sign out error",t)))}));
+    onAuthStateChanged(auth,(t=>{
+        if(t) {
+            initializePage();
+            initializeMobileMenu();
+        } else {
+            window.location.href=getLoginUrl();
+        }
+    }));
+</script>
+</body>
+</html>

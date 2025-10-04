@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>shipping-zones</title>
+<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<link rel=stylesheet href=style.css>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
+<style>
+    .sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}
+    .sidebar .menu-list .logout-button:hover{background-color:#b71c1c}
+    .sidebar .menu-list .logout-button i{margin-right:10px}
+
+    /* --- Mobile Responsive Styles Start --- */
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        z-index: 1001;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 260px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .main-content {
+            width: 100%;
+            margin-left: 0;
+        }
+        .header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 15px; /* Space between title and button */
+        }
+        .mobile-menu-btn {
+            display: block;
+            padding-top: 5px;
+            margin-left: auto; /* Pushes menu to the far right */
+            flex-shrink: 0; /* Prevents button from shrinking */
+        }
+        #addZoneBtnDesktop {
+            display: none; /* Hide desktop button on mobile */
+        }
+    }
+    
+    @media (min-width: 769px) {
+        #addZoneBtnMobile {
+            display: none; /* Hide mobile button on desktop */
+        }
+    }
+    /* --- Mobile Responsive Styles End --- */
+</style>
+</head>
+<body>
+<div class=container>
+<div class=sidebar>
+<h2>Admin Panel</h2>
+<ul class=menu-list>
+<li><a href=index.html>Dashboard</a></li>
+<li><a href=orders.html>Orders</a></li>
+<li><a href=products.html>Products</a></li>
+<li><a href=collections.html>Collections</a></li>
+<li><a href=navigation.html>Navigation</a></li>
+<li><a href=announcements.html>Announcements</a></li>
+<li class=active><a href=shipping-zones.html>Shipping Zones</a></li>
+<li><a href=store-details.html>Store Details</a></li>
+<li><a href=hero-slider.html>Hero Slider</a></li>
+<li><a href=pages.html>Pages</a></li>
+<li>
+<button id=logout-button class=logout-button>
+<i class="fas fa-sign-out-alt"></i>Logout
+</button>
+</li>
+</ul>
+</div>
+<div class=main-content>
+<div class=header>
+    <div class="header-main">
+        <h1>Shipping Zones</h1>
+        <button class="btn btn-primary" id="addZoneBtnMobile">Add New Zone</button>
+    </div>
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+    <button class="btn btn-primary" id="addZoneBtnDesktop">Add New Zone</button>
+</div>
+<div class=content-card>
+<div id=zonesList>
+<p class=empty-message>Loading shipping zones...</p>
+</div>
+</div>
+</div>
+</div>
+<div id=zoneModal class=modal>
+<div class=modal-dialog>
+<div class=modal-header>
+<h3 id=modalTitle>Add New Zone</h3>
+<span class=close-modal onclick='closeModal("zoneModal")'>&times;</span>
+</div>
+<div class=modal-body>
+<div class=form-group>
+<label for=zoneName class=form-label>Zone Name</label>
+<input id=zoneName class=form-control placeholder="e.g. Inside Dhaka">
+</div>
+<div class=form-group>
+<label for=zoneAmount class=form-label>Amount (৳)</label>
+<input type=number id=zoneAmount class=form-control placeholder="e.g. 60">
+</div>
+<input type=hidden id=zoneId>
+</div>
+<div class=modal-footer>
+<button class=btn onclick='closeModal("zoneModal")'>Cancel</button>
+<button class="btn btn-primary" id=saveZoneBtn>Save</button>
+</div>
+</div>
+</div>
+<div id=confirmDeleteModal class=modal>
+<div class=modal-dialog>
+<div class=modal-header><h3>Delete Zone</h3></div>
+<div class=modal-body><p>Are you sure you want to delete this shipping zone?</p></div>
+<div class=modal-footer>
+<button class=btn onclick='closeModal("confirmDeleteModal")'>Cancel</button>
+<button class="btn btn-danger" id=confirmDeleteBtn>Delete</button>
+</div>
+</div>
+</div>
+<div id=toast-notification class=toast></div>
+<script type=module>
+    import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import{getFirestore,collection,getDocs,addDoc,updateDoc,deleteDoc,doc,getDoc}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    
+    const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9"};
+    const app=initializeApp(firebaseConfig);
+    const db=getFirestore(app);
+    const auth=getAuth(app);
+    
+    const getLoginUrl=()=>{const e=window.location.pathname;return e.substring(0,e.lastIndexOf("/"))+"/login.html"};
+    
+    function initializeMobileMenu() {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+            document.addEventListener('click', (event) => {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnMenuButton = mobileMenuBtn.contains(event.target);
+                if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            }, true);
+        }
+    }
+
+    const logoutButton=document.getElementById("logout-button");
+    
+    function initializePage(){
+        const e=document.getElementById("zonesList"),
+              addZoneBtnMobile=document.getElementById("addZoneBtnMobile"),
+              addZoneBtnDesktop=document.getElementById("addZoneBtnDesktop"),
+              n=document.getElementById("zoneModal"),
+              o=document.getElementById("saveZoneBtn"),
+              i=document.getElementById("zoneName"),
+              a=document.getElementById("zoneAmount"),
+              s=document.getElementById("zoneId"),
+              l=document.getElementById("modalTitle"),
+              d=document.getElementById("toast-notification");
+        
+        async function c(){
+            const t=collection(db,"shipping_zones"),n=await getDocs(t);
+            e.innerHTML="",n.empty?e.innerHTML='<p class="empty-message">No shipping zones found. Add one to get started!</p>':n.forEach((t=>{const n=t.data(),o=t.id,i=document.createElement("div");i.className="list-item",i.dataset.id=o,i.innerHTML=`
+                <div class="list-item-info">
+                    <span class="list-item-title">${n.name}</span>
+                    <span class="list-item-subtitle">Charge: ৳${n.amount}</span>
+                </div>
+                <div class="list-item-actions">
+                    <i class="fas fa-edit icon-edit" title="Edit"></i>
+                    <i class="fas fa-trash icon-delete" title="Delete"></i>
+                </div>`,
+                e.appendChild(i)
+            }));
+        }
+        
+        function openAddModal() {
+            l.textContent="Add New Zone",s.value="",i.value="",a.value="",n.style.display="flex";
+        }
+        addZoneBtnMobile.addEventListener("click", openAddModal);
+        addZoneBtnDesktop.addEventListener("click", openAddModal);
+
+        o.addEventListener("click",(async()=>{const e=i.value.trim(),t=parseFloat(a.value),n=s.value;if(e&&!isNaN(t)){o.disabled=!0;try{const i={name:e,amount:t};if(n){const e=doc(db,"shipping_zones",n);await updateDoc(e,i),g("Zone updated successfully!")}else await addDoc(collection(db,"shipping_zones"),i),g("Zone added successfully!");closeModal("zoneModal"),c()}catch(e){console.error("Error saving zone: ",e),g("Error: Could not save zone.")}finally{o.disabled=!1}}else alert("Zone Name and a valid Amount are required.")}));
+        e.addEventListener("click",(async e=>{const t=e.target,o=t.closest(".list-item");if(!o)return;const d=o.dataset.id;if(t.classList.contains("icon-edit")){const e=doc(db,"shipping_zones",d),t=await getDoc(e);if(t.exists()){const e=t.data();l.textContent="Edit Zone",s.value=d,i.value=e.name,a.value=e.amount,n.style.display="flex"}}t.classList.contains("icon-delete")&&(u=d,r.style.display="flex")}));
+        
+        const r=document.getElementById("confirmDeleteModal"),m=document.getElementById("confirmDeleteBtn");
+        let u=null;
+        function g(e){d.textContent=e,d.classList.add("show"),setTimeout((()=>{d.classList.remove("show")}),3e3)}
+        m.addEventListener("click",(async()=>{if(u){try{await deleteDoc(doc(db,"shipping_zones",u)),g("Zone deleted successfully!"),c()}catch(e){console.error("Error deleting zone: ",e),g("Error: Could not delete zone.")}closeModal("confirmDeleteModal")}}));
+        window.closeModal=e=>document.getElementById(e).style.display="none";
+        window.addEventListener("click",(e=>{e.target.classList.contains("modal")&&(e.target.style.display="none")}));
+        c();
+    }
+    
+    logoutButton&&logoutButton.addEventListener("click",(()=>{signOut(auth).then((()=>{window.location.href=getLoginUrl()})).catch((e=>console.error("Sign out error",e)))}));
+    onAuthStateChanged(auth,(e=>{
+        if(e) {
+            initializePage();
+            initializeMobileMenu();
+        } else {
+            window.location.href=getLoginUrl();
+        }
+    }));
+</script>
+</body>
+</html>

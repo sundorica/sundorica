@@ -1,0 +1,17 @@
+User-agent: *
+
+# Admin, POS, and user-specific folders
+Disallow: /pos/
+Disallow: /admin/
+Disallow: /ads/
+Disallow: /cart/
+
+# Disallow script, config, and data feed files
+Disallow: /generate-sitemap.js
+Disallow: /generate-facebook-feed.js
+Disallow: /cleanup-cloudinary.js
+Disallow: /meta-pixel-config.js
+Disallow: /facebook_feed.xml
+
+# Point all crawlers to the correct sitemap
+Sitemap: https://www.sundorica.com/sitemap.xml

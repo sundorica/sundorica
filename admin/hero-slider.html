@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hero-slider</title>
+    <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <style>
+        .sidebar .menu-list .logout-button {
+            width: 100%; display: block; padding: 12px 20px;
+            background-color: #d32f2f; color: white; border: none;
+            text-align: left; cursor: pointer; font-size: 16px;
+            border-radius: 5px; margin-top: 15px; transition: background-color 0.3s;
+        }
+        .sidebar .menu-list .logout-button:hover { background-color: #b71c1c; }
+        .sidebar .menu-list .logout-button i { margin-right: 10px; }
+        
+        .slide-link:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            color: #495057;
+        }
+
+        /* --- Mobile Responsive Styles Start --- */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            z-index: 1001;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 260px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                z-index: 1000;
+                box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .header h1 {
+                font-size: 24px;
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 25px;
+                right: 20px;
+            }
+            .form-grid-2 {
+                grid-template-columns: 1fr; /* Stack grid items */
+            }
+            .slide-content.form-grid-2 {
+                gap: 25px; /* Add more gap for stacked slide editor */
+            }
+        }
+        /* --- Mobile Responsive Styles End --- */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="menu-list">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="collections.html">Collections</a></li>
+                <li><a href="navigation.html">Navigation</a></li>
+                <li><a href="announcements.html">Announcements</a></li>
+                <li><a href="shipping-zones.html">Shipping Zones</a></li>
+                <li><a href="store-details.html">Store Details</a></li>
+                <li class="active"><a href="hero-slider.html">Hero Slider</a></li>
+                <li><a href="pages.html">Pages</a></li>
+                <li>
+                    <button id="logout-button" class="logout-button">
+                        <i class="fas fa-sign-out-alt"></i>Logout
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Hero Slider</h1>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button class="btn btn-primary" id="saveSliderBtn">Save Changes</button>
+            </div>
+
+            <div class="content-card">
+                <h3>Slider Settings</h3>
+                <div class="form-grid-2">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="autoChangeSlides" checked>
+                        <label for="autoChangeSlides">Auto-change slides</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="slideInterval" class="form-label-sm">Change images every (seconds)</label>
+                        <input type="number" id="slideInterval" class="form-control" value="8" min="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3>Slides</h3>
+                <div id="slides-container">
+                    </div>
+                <button class="btn" id="addSlideBtn" style="margin-top: 20px;">
+                    <i class="fas fa-plus"></i> Add Slide
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast-notification" class="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
+            authDomain: "nasir-9102c.firebaseapp.com",
+            projectId: "nasir-9102c",
+            storageBucket: "nasir-9102c.firebasestorage.app",
+            messagingSenderId: "182224792140",
+            appId: "1:182224792140:web:42348e8b24f94cdf07e2e9",
+            measurementId: "G-8R5J241MJM"
+        };
+        const cloudinaryConfig = {
+            cloudName: "daybjvuot",
+            unsignedPreset: "sundorica_preset"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const getLoginUrl = () => {
+            const path = window.location.pathname;
+            return path.substring(0, path.lastIndexOf('/')) + '/login.html';
+        };
+        
+        function initializeMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            if (mobileMenuBtn && sidebar) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                });
+                document.addEventListener('click', (event) => {
+                    const isClickInsideSidebar = sidebar.contains(event.target);
+                    const isClickOnMenuButton = mobileMenuBtn.contains(event.target);
+                    if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('open')) {
+                        sidebar.classList.remove('open');
+                    }
+                }, true);
+            }
+        }
+
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                signOut(auth).then(() => {
+                    window.location.href = getLoginUrl();
+                }).catch(error => console.error('Sign out error', error));
+            });
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                initializePage();
+                initializeMobileMenu();
+            } else {
+                window.location.href = getLoginUrl();
+            }
+        });
+        
+        async function initializePage() {
+            const slidesContainer = document.getElementById('slides-container');
+            const addSlideBtn = document.getElementById('addSlideBtn');
+            const saveBtn = document.getElementById('saveSliderBtn');
+            const autoChangeCheckbox = document.getElementById('autoChangeSlides');
+            const intervalInput = document.getElementById('slideInterval');
+            const toast = document.getElementById('toast-notification');
+            let linkSuggestions = [];
+
+            async function loadLinkSuggestions() {
+                linkSuggestions.push({ suggestionName: 'Home Page', type: 'custom', target: '/' });
+                
+                const collectionsSnapshot = await getDocs(collection(db, "collections"));
+                collectionsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    linkSuggestions.push({ 
+                        suggestionName: `Collection: ${data.name}`,
+                        type: 'collection',
+                        target: data.name
+                    });
+                });
+                
+                const productsSnapshot = await getDocs(collection(db, "products"));
+                productsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+                    const cleanUrl = `/product-details/${slug}/${doc.id}`;
+                    linkSuggestions.push({ 
+                        suggestionName: `Product: ${data.name}`,
+                        type: 'product',
+                        target: cleanUrl
+                    });
+                });
+            }
+
+            function createSlideElement(slideData = {}) {
+                const slideId = slideData.id || `slide-${Date.now()}`;
+                const slideEl = document.createElement('div');
+                slideEl.className = 'slide-item';
+                slideEl.dataset.id = slideId;
+
+                slideEl.innerHTML = `
+                    <div class="slide-header">
+                        <i class="fas fa-grip-vertical drag-handle"></i>
+                        <h4 class="slide-title">Slide</h4>
+                        <button class="btn-icon-danger remove-slide-btn">&times;</button>
+                    </div>
+                    <div class="slide-content form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Image</label>
+                            <div class="slide-image-uploader">
+                                <div class="slide-image-preview">${slideData.imageUrl ? `<img src="${slideData.imageUrl}">` : '<i class="fas fa-image"></i>'}</div>
+                                <input type="file" class="slide-image-input" accept="image/*" style="display: none;">
+                            </div>
+                            <p class="text-secondary text-center">Recommended size: 1920x800 pixels.</p>
+                        </div>
+                        <div class="slide-details">
+                            <div class="form-group"><label class="form-label-sm">Heading</label><input type="text" class="form-control slide-heading" placeholder="Heading" value="${slideData.heading || ''}"></div>
+                            <div class="form-group"><label class="form-label-sm">Button Text</label><input type="text" class="form-control slide-button-text" placeholder="Button Text" value="${slideData.buttonText || ''}"></div>
+                            <div class="form-group searchable-select-container">
+                                <label class="form-label-sm">Slide Link</label>
+                                <input type="text" class="form-control slide-link" placeholder="Search or type a custom link">
+                                <input type="hidden" class="slide-link-type" value="${slideData.linkType || 'custom'}">
+                                <input type="hidden" class="slide-link-target" value="${slideData.linkTarget || ''}">
+                                <div class="dropdown-list link-suggestions"></div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group"><label class="form-label-sm">Text Alignment</label><select class="form-control slide-alignment"><option value="left">Left</option><option value="center" selected>Center</option><option value="right">Right</option></select></div>
+                                <div class="form-group"><label class="form-label-sm">Heading Size (px)</label><input type="number" class="form-control slide-heading-size" value="${slideData.headingSize || 32}" min="16"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                if(slideData.alignment) slideEl.querySelector('.slide-alignment').value = slideData.alignment;
+                const linkInput = slideEl.querySelector('.slide-link');
+                const linkTypeInput = slideEl.querySelector('.slide-link-type');
+                const linkTargetInput = slideEl.querySelector('.slide-link-target');
+
+                if (slideData.linkType && slideData.linkType !== 'custom') {
+                    linkInput.value = `Links to ${slideData.linkType}: ${slideData.linkTarget}`;
+                    linkInput.disabled = true;
+                } else {
+                    linkInput.value = slideData.linkTarget || '';
+                }
+
+                slideEl.querySelector('.remove-slide-btn').addEventListener('click', () => slideEl.remove());
+                const preview = slideEl.querySelector('.slide-image-preview');
+                const input = slideEl.querySelector('.slide-image-input');
+                preview.addEventListener('click', () => input.click());
+                input.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            preview.innerHTML = `<img src="${event.target.result}">`;
+                            slideEl.dataset.newFile = 'true';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+                const suggestionsDiv = slideEl.querySelector('.link-suggestions');
+                linkInput.addEventListener('input', () => {
+                    linkInput.disabled = false;
+                    linkTypeInput.value = 'custom';
+                    linkTargetInput.value = linkInput.value;
+                    const term = linkInput.value.toLowerCase();
+                    const filtered = linkSuggestions.filter(s => s.suggestionName.toLowerCase().includes(term));
+                    suggestionsDiv.innerHTML = '';
+                    if (filtered.length > 0 && term) {
+                        filtered.forEach(s => {
+                            const item = document.createElement('div');
+                            item.className = 'dropdown-item';
+                            item.textContent = s.suggestionName;
+                            item.onclick = () => {
+                                linkTypeInput.value = s.type;
+                                linkTargetInput.value = s.target;
+                                linkInput.value = `Links to ${s.type}: ${s.target}`;
+                                linkInput.disabled = true;
+                                suggestionsDiv.style.display = 'none';
+                            };
+                            suggestionsDiv.appendChild(item);
+                        });
+                        suggestionsDiv.style.display = 'block';
+                    } else {
+                        suggestionsDiv.style.display = 'none';
+                    }
+                });
+                document.addEventListener('click', (e) => { if (!e.target.closest('.searchable-select-container')) { suggestionsDiv.style.display = 'none'; } });
+
+                return slideEl;
+            }
+
+            addSlideBtn.addEventListener('click', () => {
+                slidesContainer.appendChild(createSlideElement());
+            });
+
+            Sortable.create(slidesContainer, { animation: 150, handle: '.drag-handle' });
+
+            async function loadSliderData() {
+                const sliderRef = doc(db, "settings", "hero_slider");
+                const docSnap = await getDoc(sliderRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    autoChangeCheckbox.checked = data.autoChange ?? true;
+                    intervalInput.value = data.interval ?? 8;
+                    if (data.slides && data.slides.length > 0) {
+                        slidesContainer.innerHTML = '';
+                        data.slides.forEach(slideData => {
+                            slidesContainer.appendChild(createSlideElement(slideData));
+                        });
+                    }
+                }
+            }
+
+            saveBtn.addEventListener('click', async () => {
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Saving...';
+                try {
+                    const slides = [];
+                    const slideElements = slidesContainer.querySelectorAll('.slide-item');
+                    for (const el of slideElements) {
+                        let imageUrl = el.querySelector('.slide-image-preview img')?.src || '';
+                        if (el.dataset.newFile === 'true') {
+                            const file = el.querySelector('.slide-image-input').files[0];
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            formData.append('upload_preset', cloudinaryConfig.unsignedPreset);
+                            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, { method: 'POST', body: formData });
+                            const data = await response.json();
+                            if (data.secure_url) { imageUrl = data.secure_url; }
+                        }
+
+                        const linkType = el.querySelector('.slide-link-type').value;
+                        const linkTargetInput = el.querySelector('.slide-link-target');
+                        const linkInput = el.querySelector('.slide-link');
+                        
+                        const linkTarget = linkType === 'custom' ? linkInput.value : linkTargetInput.value;
+
+                        slides.push({
+                            id: el.dataset.id,
+                            imageUrl: imageUrl,
+                            heading: el.querySelector('.slide-heading').value,
+                            buttonText: el.querySelector('.slide-button-text').value,
+                            alignment: el.querySelector('.slide-alignment').value,
+                            headingSize: parseInt(el.querySelector('.slide-heading-size').value),
+                            linkType: linkType,
+                            linkTarget: linkTarget
+                        });
+                    }
+                    const sliderData = {
+                        autoChange: autoChangeCheckbox.checked,
+                        interval: parseInt(intervalInput.value),
+                        slides: slides
+                    };
+                    await setDoc(doc(db, "settings", "hero_slider"), sliderData);
+                    showToast("Slider settings saved successfully!");
+                } catch (error) {
+                    console.error("Error saving slider: ", error);
+                    showToast("Error: Could not save settings.");
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save Changes';
+                }
+            });
+
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            }
+
+            await loadLinkSuggestions();
+            await loadSliderData();
+        }
+    </script>
+</body>
+</html>

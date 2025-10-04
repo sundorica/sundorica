@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>products</title>
+<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<link rel=stylesheet href=style.css>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
+<style>
+    .sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}
+    .sidebar .menu-list .logout-button:hover{background-color:#b71c1c}
+    .sidebar .menu-list .logout-button i{margin-right:10px}
+
+    /* --- Mobile Responsive Styles Start --- */
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        z-index: 1001;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 260px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .main-content {
+            width: 100%;
+            margin-left: 0;
+        }
+        .header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 15px; /* Space between title and button */
+        }
+        .mobile-menu-btn {
+            display: block;
+            padding-top: 5px;
+            margin-left: auto; /* Pushes menu to the far right */
+            flex-shrink: 0; /* Prevents button from shrinking */
+        }
+        #addProductBtnDesktop {
+            display: none; /* Hide desktop button on mobile */
+        }
+        .product-table {
+            overflow-x: auto; /* Makes table scrollable horizontally */
+        }
+    }
+
+    @media (min-width: 769px) {
+        #addProductBtnMobile {
+            display: none; /* Hide mobile button on desktop */
+        }
+    }
+    /* --- Mobile Responsive Styles End --- */
+</style>
+</head>
+<body>
+<div class=container>
+<div class=sidebar>
+<h2>Admin Panel</h2>
+<ul class=menu-list>
+<li><a href=index.html>Dashboard</a></li>
+<li><a href=orders.html>Orders</a></li>
+<li class=active><a href=products.html>Products</a></li>
+<li><a href=collections.html>Collections</a></li>
+<li><a href=navigation.html>Navigation</a></li>
+<li><a href=announcements.html>Announcements</a></li>
+<li><a href=shipping-zones.html>Shipping Zones</a></li>
+<li><a href=store-details.html>Store Details</a></li>
+<li><a href=hero-slider.html>Hero Slider</a></li>
+<li><a href=pages.html>Pages</a></li>
+<li>
+<button id=logout-button class=logout-button>
+<i class="fas fa-sign-out-alt"></i>Logout
+</button>
+</li>
+</ul>
+</div>
+<div class=main-content>
+<div class=header>
+    <div class="header-main">
+        <h1>Products</h1>
+        <a href="add-product.html" class="btn btn-primary" id="addProductBtnMobile">Add New Product</a>
+    </div>
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+    <a href="add-product.html" class="btn btn-primary" id="addProductBtnDesktop">Add New Product</a>
+</div>
+<div class=content-card>
+<div class=product-table>
+<table>
+<thead>
+<tr>
+<th>Image</th>
+<th>Product Name</th>
+<th>Price</th>
+<th>Stock</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id=products-list>
+<tr>
+<td colspan=5 class=empty-message>Loading products...</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div id=imageModal class=modal>
+<span class=close-modal id=closeImageModal>&times;</span>
+<img class=modal-content id=modalImage>
+</div>
+<div id=confirmDeleteModal class=modal>
+<div class=modal-dialog>
+<div class=modal-header><h3>Delete Product</h3></div>
+<div class=modal-body><p>Are you sure you want to delete this product?</p></div>
+<div class=modal-footer>
+<button class=btn id=cancelDeleteBtn>Cancel</button>
+<button class="btn btn-danger" id=confirmDeleteBtn>Delete</button>
+</div>
+</div>
+</div>
+<script type=module>
+    import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import{getFirestore,collection,getDocs,deleteDoc,doc,query,orderBy}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    
+    const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9"};
+    const app=initializeApp(firebaseConfig);
+    const db=getFirestore(app);
+    const auth=getAuth(app);
+    
+    const getLoginUrl=()=>{const e=window.location.pathname;return e.substring(0,e.lastIndexOf("/"))+"/login.html"};
+    
+    function initializeMobileMenu() {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+            document.addEventListener('click', (event) => {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnMenuButton = mobileMenuBtn.contains(event.target);
+                if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            }, true);
+        }
+    }
+
+    const logoutButton=document.getElementById("logout-button");
+    
+    function initializePage(){
+        const e=document.getElementById("products-list");
+        const t=document.getElementById("imageModal"),n=document.getElementById("modalImage"),a=document.getElementById("confirmDeleteModal"),o=document.getElementById("confirmDeleteBtn");
+        let i=null,r=null;
+        function c(e){document.getElementById(e).style.display="none"}
+        o.addEventListener("click",(async()=>{if(i){try{await deleteDoc(doc(db,"products",i)),r&&r.remove()}catch(e){console.error("Error removing document: ",e)}c("confirmDeleteModal")}}));
+        document.getElementById("closeImageModal").addEventListener("click",(()=>c("imageModal")));
+        document.getElementById("cancelDeleteBtn").addEventListener("click",(()=>c("confirmDeleteModal")));
+        window.addEventListener("click",(e=>{e.target==t&&c("imageModal"),e.target==a&&c("confirmDeleteModal")}));
+        
+        async function loadProducts(){
+            const o=collection(db,"products"),c=query(o,orderBy("createdAt","desc")),d=await getDocs(c);
+            e.innerHTML="";
+            d.empty?e.innerHTML='<tr><td colspan="5" class="empty-message">No products found. Add one to get started!</td></tr>':d.forEach((o=>{
+                const c=o.data(),d=o.id,s=c.imageUrls&&c.imageUrls.length>0?c.imageUrls[0]:"https://placehold.co/60x60/eee/ccc?text=NoImg";
+                let l="";
+                if(c.hasVariants&&Array.isArray(c.variants)&&c.variants.length>0){l=`<span class="stock-variant">${c.variants.reduce(((e,t)=>e+(t.quantity||0)),0)} in variants</span>`}else l=c.quantity||0;
+                const m=document.createElement("tr");
+                m.innerHTML=`
+                    <td>
+                        <img src="${s}" alt="${c.name}" class="product-thumbnail">
+                    </td>
+                    <td>${c.name}</td>
+                    <td>৳${c.price}</td>
+                    <td>${l}</td>
+                    <td class="action-buttons">
+                        <a href="edit-product.html?id=${d}" class="btn-action">Edit</a>
+                        <button class="btn-action btn-delete">Delete</button>
+                    </td>`;
+                m.querySelector(".product-thumbnail").addEventListener("click",(()=>{return e=s,t.style.display="flex",void(n.src=e);var e}));
+                m.querySelector(".btn-delete").addEventListener("click",(()=>function(e,t){i=e,r=t,a.style.display="flex"}(d,m)));
+                e.appendChild(m);
+            }));
+        }
+        loadProducts();
+    }
+    
+    logoutButton&&logoutButton.addEventListener("click",(()=>{signOut(auth).then((()=>{window.location.href=getLoginUrl()})).catch((e=>console.error("Sign out error",e)))}));
+    onAuthStateChanged(auth,(e=>{
+        if(e) {
+            initializePage();
+            initializeMobileMenu();
+        } else {
+            window.location.href=getLoginUrl();
+        }
+    }));
+</script>
+</body>
+</html>
