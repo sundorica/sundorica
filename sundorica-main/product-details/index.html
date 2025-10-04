@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script>
+    (function() {
+        const redirectPath = sessionStorage.getItem('redirectPath');
+        if (redirectPath && redirectPath !== window.location.pathname) {
+            sessionStorage.removeItem('redirectPath');
+            window.history.replaceState(null, '', redirectPath);
+        }
+    })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Sundorica</title>
+    
+    <meta name="description" content="Discover product details from Sundorica. Explore our collection of high-quality skincare and fashion items.">
+    
+    <link rel="icon" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery.min.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-zoom.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-zoom.min.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-thumbnail.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-thumbnail.min.css"></noscript>
+
+    <style>
+        :root { --primary-color: #1a1a1a; --secondary-color: #666666; --accent-color: #007bff; --background-color: #ffffff; --surface-color: #f8f9fa; --border-color: #e9ecef; --danger-color: #dc3545; --success-color: #28a745; }
+        html { height: 100%; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--background-color); color: var(--primary-color); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex-grow: 1; }
+        .container { width: 100%; max-width: 100%; margin: 0 auto; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
+        section { padding: 40px 0; }
+        .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+        .header-wrapper { position: sticky; top: 0; z-index: 100; background-color: var(--background-color); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        .main-header { padding: 15px 0; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .store-logo a { text-decoration: none; color: var(--primary-color); }
+        .store-logo img { max-height: 45px; display: block; }
+        .store-logo .store-name { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 700; }
+        .main-nav { display: none; }
+        @media (min-width: 992px) { .main-nav { display: block; } }
+        .main-nav ul { margin: 0; padding: 0; list-style: none; display: flex; gap: 25px; }
+        .main-nav li { position: relative; }
+        .main-nav a { text-decoration: none; color: var(--primary-color); font-weight: 500; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .has-submenu > a i { font-size: .7em; transition: transform .3s ease; }
+        .has-submenu.active > a i { transform: rotate(180deg); }
+        .submenu { display: none; position: absolute; top: 100%; left: 0; background-color: #fff; list-style: none; padding: 10px 0; margin-top: 10px; min-width: 200px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 0, 0, .1); border: 1px solid var(--border-color); opacity: 0; transform: translateY(10px); transition: opacity .3s ease, transform .3s ease; pointer-events: none; z-index: 10; }
+        .main-nav .has-submenu.active > .submenu { display: block; opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .submenu li { padding: 0 15px; }
+        .submenu a { padding: 8px 0; width: 100%; }
+        .header-icons { display: flex; align-items: center; gap: 15px; font-size: 20px; }
+        .header-icons a, .header-icons button { background: none; border: none; padding: 0; cursor: pointer; color: var(--primary-color); }
+        .mobile-menu-toggle { display: none; font-size: 24px; }
+        .desktop-search-header, .mobile-search-header { display: none; align-items: center; padding: 15px 0; width: 100%; }
+        .desktop-search-header .search-icon, .mobile-search-header .search-icon { padding: 0 10px; font-size: 20px; color: var(--secondary-color); }
+        .desktop-search-header input, .mobile-search-header input { flex-grow: 1; border: none; outline: 0; font-size: 16px; }
+        .desktop-search-header .close-desktop-search-btn, .mobile-search-header .close-search-btn { background: 0 0; border: none; font-size: 24px; cursor: pointer; padding: 0 10px; }
+        body.desktop-search-active .header-content, body.search-active .header-content { display: none; }
+        body.search-active .mobile-search-header { display: flex; }
+        @media (min-width: 992px) { #mobile-menu-toggle, #mobile-search-icon { display: none; } #desktop-search-trigger { display: inline-block; } body.desktop-search-active .desktop-search-header { display: flex; } }
+        @media (max-width: 991px) { .main-nav { display: none; } .mobile-menu-toggle { display: block; } #desktop-search-trigger { display: none; } }
+        .main-footer { background-color: var(--surface-color); padding: 5px 0; border-top: .5px solid var(--border-color); text-align: center; display: none; }
+        .social-links { margin-bottom: 10px; }
+        .social-links a { font-size: 12px; color: var(--secondary-color); margin: 0 6px; }
+        .copyright { font-size: 8px; color: var(--secondary-color); }
+        .mobile-nav-panel { position: fixed; top: 0; right: -100%; width: 80%; max-width: 300px; height: 100%; background-color: #fff; z-index: 102; transition: right .4s ease-in-out; padding: 20px; box-sizing: border-box; box-shadow: -2px 0 10px rgba(0, 0, 0, .1); overflow-y: auto; }
+        .mobile-nav-panel.active { right: 0; }
+        .mobile-nav-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .mobile-nav-header h3 { margin: 0; }
+        .close-mobile-nav { font-size: 24px; cursor: pointer; background: none; border: none; }
+        .mobile-nav-panel ul { list-style: none; padding: 0; margin: 20px 0 0 0; }
+        .mobile-nav-panel li { border-bottom: 1px solid var(--border-color); }
+        .mobile-nav-panel a { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; text-decoration: none; color: var(--primary-color); font-weight: 500; }
+        .mobile-nav-panel .submenu { display: block; position: static; opacity: 1; transform: none; pointer-events: auto; box-shadow: none; border: none; margin: 0; min-width: unset; background-color: transparent; list-style: none; padding-left: 20px; padding-top: 0; padding-bottom: 0; max-height: 0; overflow: hidden; transition: max-height .4s ease-in-out; }
+        .mobile-nav-panel .has-submenu.active > .submenu { max-height: 500px; }
+        .mobile-nav-panel .has-submenu > a i { transition: transform .3s ease; }
+        .mobile-nav-panel .has-submenu.active > a i { transform: rotate(180deg); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, .5); z-index: 101; display: none; }
+        .overlay.active { display: block; }
+        .cart-icon-link { position: relative; display: inline-block; }
+        .cart-item-count { position: absolute; top: -8px; right: -12px; background-color: var(--danger-color); color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: 700; line-height: 1; display: none; }
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { padding: 15px 20px; border-radius: 8px; color: #fff; font-weight: 500; box-shadow: 0 4px 12px rgba(0, 0, 0, .15); display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(100%); animation: slideInUp .5s forwards, fadeOutDown .5s 3.5s forwards; }
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--danger-color); }
+        .toast i { font-size: 20px; }
+        @keyframes slideInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOutDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(100%); } }
+        .product-details-layout { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        .main-image a { display: block; cursor: zoom-in; }
+        .main-image img { width: 100%; height: auto; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); }
+        .thumbnail-images { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .thumbnail-images .thumbnail-link { display: block; cursor: pointer; border: 2px solid transparent; border-radius: 6px; transition: border-color .3s ease; }
+        .thumbnail-images .thumbnail-link.active, .thumbnail-images .thumbnail-link:hover { border-color: var(--primary-color); }
+        .thumbnail-images img { width: 100%; height: auto; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; }
+        @media (min-width: 768px) { .product-details-layout { grid-template-columns: 1fr 1fr; gap: 50px; } .product-gallery { display: grid; grid-template-columns: 100px 1fr; gap: 20px; align-items: start; } .thumbnail-images { grid-template-columns: 1fr; order: 1; margin-top: 0; } .main-image { order: 2; } .action-buttons { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 767px) { .product-info-details .product-name { font-size: 20px; } .main-image { order: 1; } .thumbnail-images { order: 2; } }
+        .product-info-details .product-name { font-size: 24px; font-weight: 600; margin-bottom: 15px; }
+        .product-info-details .product-price { font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        .product-info-details .compare-at-price { font-size: 18px; text-decoration: line-through; color: var(--danger-color); }
+        .variant-selector { margin-bottom: 15px; }
+        .variant-selector.hidden { display: none; }
+        .variant-selector .variant-label { font-weight: 500; margin-bottom: 10px; display: block; }
+        .variant-options { display: flex; flex-wrap: wrap; gap: 10px; }
+        .variant-btn { padding: 8px 15px; border: 1px solid var(--border-color); border-radius: 5px; cursor: pointer; background-color: #fff; transition: all .3s ease; }
+        .variant-btn.hidden { display: none; }
+        .variant-btn.active { background-color: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .size-chart-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; font-size: 14px; color: var(--secondary-color); cursor: pointer; text-decoration: underline; }
+        .action-buttons { display: grid; grid-template-columns: 1fr; gap: 15px; margin: 25px 0; }
+        .add-to-cart-btn, .buy-now-btn { display: block; width: 100%; padding: 15px; border: 1px solid var(--primary-color); border-radius: 5px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all .3s ease; }
+        .add-to-cart-btn { background-color: var(--surface-color); color: var(--primary-color); }
+        .add-to-cart-btn:hover { background-color: var(--border-color); }
+        .buy-now-btn { background-color: var(--primary-color); color: #fff; }
+        .buy-now-btn:hover { background-color: #333; }
+        .add-to-cart-btn:disabled, .buy-now-btn:disabled { background-color: #ccc; border-color: #ccc; cursor: not-allowed; }
+        .product-info-details .product-description { margin-top: 25px; color: var(--secondary-color); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, .6); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background-color: #fff; padding: 30px; border-radius: 8px; max-width: 90%; width: 700px; max-height: 90vh; overflow-y: auto; position: relative; transform: scale(.9); transition: transform .3s ease; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; background: 0 0; border: none; cursor: pointer; color: #888; }
+        .modal-close-btn:hover { color: #000; }
+        #size-chart-title { font-size: 20px; margin-top: 0; margin-bottom: 20px; }
+        #size-chart-content table { width: 100%; border-collapse: collapse; text-align: center; }
+        #size-chart-content td, #size-chart-content th { border: 1px solid var(--border-color); padding: 8px; }
+        #size-chart-content th { background-color: var(--surface-color); }
+        @media (max-width: 767px) { .lg-toolbar { padding-right: 50px !important; } }
+        .lg-toolbar .lg-close { background-color: rgba(0, 0, 0, .5); color: #fff; border-radius: 50%; display: block !important; opacity: 1 !important; position: fixed; top: 15px; right: 15px; width: 35px; height: 35px; font-size: 22px; padding: 0; line-height: 35px; text-align: center; cursor: pointer; }
+    </style>
+    
+    <script src="/meta-pixel-config.js" defer></script>
+    <noscript>
+        <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1">
+    </noscript>
+
+</head>
+
+<body>
+    <div id="toast-container"></div>
+    <div class="header-wrapper">
+        <header class="main-header">
+            <div class="container header-content">
+                <div class="store-logo">
+                    <a href="/" id="store-logo-link" aria-label="Sundorica Homepage"></a>
+                </div>
+                <nav class="main-nav" id="main-nav"></nav>
+                <div class="header-icons">
+                    <button type="button" id="desktop-search-trigger" aria-label="Open search bar"><i class="fas fa-search"></i></button>
+                    <button type="button" id="mobile-search-icon" aria-label="Open search bar"><i class="fas fa-search"></i></button>
+                    <a href="/cart/" class="cart-icon-link" aria-label="View shopping cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-item-count">0</span>
+                    </a>
+                    <button type="button" class="mobile-menu-toggle" aria-label="Open menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="container desktop-search-header">
+                <i class="fas fa-search search-icon"></i>
+                <label for="desktopSearchInput" class="visually-hidden">Search products</label>
+                <input id="desktopSearchInput" placeholder="Search products...">
+                <button type="button" class="close-desktop-search-btn" aria-label="Close search bar">&times;</button>
+            </div>
+            <div class="container mobile-search-header">
+                <i class="fas fa-search search-icon"></i>
+                <label for="mobileSearchInput" class="visually-hidden">Search products</label>
+                <input id="mobileSearchInput" placeholder="Search products...">
+                <button type="button" class="close-search-btn" aria-label="Close search bar">&times;</button>
+            </div>
+        </header>
+    </div>
+
+    <div id="mobile-nav-panel" class="mobile-nav-panel">
+        <div class="mobile-nav-header">
+            <h3>Menu</h3>
+            <button type="button" class="close-mobile-nav" aria-label="Close menu">&times;</button>
+        </div>
+        <div id="mobile-nav-links"></div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+
+    <main>
+        <section class="container">
+            <div id="product-details-container">
+                <noscript>
+                    <h1>Product Details</h1>
+                    <p>To view product details, please enable JavaScript in your browser.</p>
+                    <p>Our products are loaded dynamically to give you the best experience.</p>
+                </noscript>
+                </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="social-links" id="social-links"></div>
+            <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
+        </div>
+    </footer>
+    
+    <div class="modal-overlay" id="size-chart-modal" role="dialog" aria-modal="true" aria-labelledby="size-chart-title">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="modal-close-btn" aria-label="Close size chart">&times;</button>
+            <div id="size-chart-content">
+                </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/zoom/lg-zoom.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/thumbnail/lg-thumbnail.min.js" defer></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
+            authDomain: "nasir-9102c.firebaseapp.com",
+            projectId: "nasir-9102c",
+            storageBucket: "nasir-9102c.appspot.com",
+            messagingSenderId: "182224792140",
+            appId: "1:182224792140:web:42348e8b24f94cdf07e2e9",
+            measurementId: "G-8R5J241MJM"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ### NEW HELPER FUNCTION START ###
+        /**
+         * Removes HTML tags from a string to create a plain text version.
+         * @param {string} html The HTML string to clean.
+         * @returns {string} The plain text string.
+         */
+        function stripHtml(html) {
+            if (!html) return "";
+            try {
+                let doc = new DOMParser().parseFromString(html, 'text/html');
+                return doc.body.textContent || "";
+            } catch (e) {
+                console.error("Could not parse HTML string", e);
+                return "";
+            }
+        }
+        // ### NEW HELPER FUNCTION END ###
+
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toast-container");
+            if (!container) return;
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            const iconClass = type === "success" ? "fa-check-circle" : "fa-exclamation-circle";
+            toast.innerHTML = `<i class="fas ${iconClass}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove() }, 4000);
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const totalItems = cart.reduce(((sum, item) => sum + item.quantity), 0);
+            const countElement = document.querySelector(".cart-item-count");
+            if (countElement) {
+                countElement.textContent = totalItems;
+                countElement.style.display = totalItems > 0 ? "block" : "none";
+            }
+        }
+        
+        function createMenuItems(items, parentUl, slugMap) {
+            items.forEach(item => {
+                const li = document.createElement("li");
+                let finalLink = item.link || "#";
+                if (item.type === "collection" && slugMap.has(item.name)) {
+                    finalLink = `/collections/${slugMap.get(item.name)}`;
+                }
+                
+                let linkHTML = `<a href="${finalLink}">${item.name}`;
+                if (item.children && item.children.length > 0) {
+                    li.classList.add("has-submenu");
+                    linkHTML += ` <i class="fas fa-chevron-down"></i>`;
+                }
+                linkHTML += `</a>`; 
+                li.innerHTML = linkHTML;
+
+                if (item.children && item.children.length > 0) {
+                    const subUl = document.createElement("ul");
+                    subUl.className = "submenu";
+                    createMenuItems(item.children, subUl, slugMap);
+                    li.appendChild(subUl);
+                }
+                parentUl.appendChild(li);
+            });
+        }
+
+        function renderSocialLinks(links) {
+            const container = document.getElementById("social-links");
+            if (!links || !container) return;
+            let html = "";
+            if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`;
+            if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`;
+            if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`;
+            if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>`;
+            container.innerHTML = html;
+        }
+
+        async function loadSharedComponents() {
+            const [storeDetailsSnap, navigationSnap, allCollectionsSnap] = await Promise.all([getDoc(doc(db, "settings", "store_details")), getDoc(doc(db, "navigation", "main-menu")), getDocs(collection(db, "collections"))]);
+            if (storeDetailsSnap.exists()) {
+                const data = storeDetailsSnap.data();
+                const logoLink = document.getElementById("store-logo-link");
+                if (data.logoUrl) {
+                    logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || "Store Logo"}">`
+                } else if (data.storeName) {
+                    logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`
+                }
+                document.getElementById("footer-store-name").textContent = data.storeName || "Sundorica";
+                renderSocialLinks(data.socialLinks);
+            }
+            const collectionSlugMap = new Map;
+            if (!allCollectionsSnap.empty) {
+                allCollectionsSnap.forEach((doc => {
+                    const data = doc.data();
+                    if (data.name && data.slug) collectionSlugMap.set(data.name, data.slug);
+                }))
+            }
+            if (navigationSnap.exists()) {
+                const menuData = navigationSnap.data();
+                if (menuData.items) {
+                    const navContainer = document.getElementById("main-nav");
+                    const mobileNavContainer = document.getElementById("mobile-nav-links");
+                    const ul = document.createElement("ul");
+                    const mobileUl = document.createElement("ul");
+                    createMenuItems(menuData.items, ul, collectionSlugMap);
+                    navContainer.innerHTML = "";
+                    navContainer.appendChild(ul);
+                    createMenuItems(menuData.items, mobileUl, collectionSlugMap);
+                    mobileNavContainer.innerHTML = "";
+                    mobileNavContainer.appendChild(mobileUl);
+                }
+            }
+        }
+        
+        let currentSelections = {};
+
+        function formatPrice(productData) {
+            if (!productData || typeof productData.price === 'undefined') return "";
+            let priceHTML = `<span class="current-price">Tk ${productData.price}</span>`;
+            if (productData.comparePrice && productData.comparePrice > productData.price) {
+                priceHTML += `<span class="compare-at-price">Tk ${productData.comparePrice}</span>`;
+            }
+            return priceHTML;
+        }
+
+        // ### UPDATED FUNCTION START ###
+        function addProductSchema(product, productPath) {
+            const oldSchema = document.getElementById('product-schema-script');
+            if (oldSchema) oldSchema.remove();
+            
+            if (!product) return;
+            const fullUrl = `https://www.sundorica.com${productPath}`;
+
+            // ### MODIFIED LINE ###
+            // Use the stripHtml helper to get clean text for the description.
+            const plainTextDescription = stripHtml(product.description);
+
+            const schema = {
+                "@context": "https://schema.org/",
+                "@graph": [
+                    {
+                        "@type": "Product",
+                        "name": product.name,
+                        "image": product.imageUrls || [],
+                        // ### MODIFIED LINE ###
+                        // Use the clean plain text description here.
+                        "description": plainTextDescription || `Discover ${product.name} at Sundorica.`,
+                        "sku": product.id,
+                        "brand": {
+                            "@type": "Brand",
+                            "name": "Sundorica"
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "url": fullUrl,
+                            "priceCurrency": "BDT",
+                            "price": product.price,
+                            "availability": (product.quantity > 0 || (product.variants && product.variants.some(v => v.quantity > 0))) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                            "seller": {
+                                "@type": "Organization",
+                                "name": "Sundorica"
+                            }
+                        }
+                    },
+                    {
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "Home",
+                                "item": "https://www.sundorica.com/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": product.name
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const script = document.createElement("script");
+            script.type = "application/ld+json";
+            script.id = 'product-schema-script';
+            script.textContent = JSON.stringify(schema);
+            document.head.appendChild(script);
+        }
+        // ### UPDATED FUNCTION END ###
+
+        // ### UPDATED FUNCTION START ###
+        function renderProductDetails(product, productPath) {
+            const container = document.getElementById("product-details-container");
+            if (!product || product.status !== "active") {
+                container.innerHTML = "<h2>Product Not Found</h2><p>This product might be out of stock or no longer available.</p>";
+                document.title = "Product Not Found - Sundorica";
+                return;
+            }
+
+            // Set dynamic page title
+            document.title = `${product.name || "Product"} - Sundorica`;
+            
+            // Set dynamic canonical URL
+            const oldCanonical = document.querySelector("link[rel='canonical']");
+            if (oldCanonical) oldCanonical.remove();
+            const newCanonical = document.createElement('link');
+            newCanonical.rel = 'canonical';
+            newCanonical.href = `https://www.sundorica.com${productPath}`;
+            document.head.appendChild(newCanonical);
+            
+            // ### MODIFIED BLOCK START ###
+            // Set dynamic meta description using the clean, plain text
+            let metaDescTag = document.querySelector('meta[name="description"]');
+            if (!metaDescTag) {
+                metaDescTag = document.createElement('meta');
+                metaDescTag.name = 'description';
+                document.head.appendChild(metaDescTag);
+            }
+            const plainTextDescription = stripHtml(product.description);
+            metaDescTag.content = plainTextDescription ? plainTextDescription.substring(0, 160) : `Buy ${product.name} from Sundorica. High quality and great prices.`;
+            // ### MODIFIED BLOCK END ###
+
+            // Add the JSON-LD Product Schema
+            addProductSchema(product, productPath);
+
+            // Facebook Pixel Event
+            if (typeof fbq === 'function') {
+                fbq("track", "ViewContent", {
+                    content_name: product.name,
+                    content_ids: [product.id],
+                    content_type: "product",
+                    content_category: product.collections ? product.collections.join(", ") : "",
+                    value: product.price,
+                    currency: "BDT"
+                });
+            }
+
+            const availableVariants = (product.variants || []).filter(v => v.quantity > 0);
+            const hasVariants = product.variants && product.variants.length > 0;
+            if (hasVariants && availableVariants.length === 0) {
+                container.innerHTML = "<h2>Product Out of Stock</h2><p>This product is currently unavailable.</p>";
+                return;
+            }
+            
+            let mainImageHTML = "";
+            let thumbnailsHTML = "";
+            const fallbackImage = "https://placehold.co/800x1000/eee/ccc?text=No+Image";
+
+            if (product.imageUrls && product.imageUrls.length > 0) {
+                mainImageHTML = `<a id="main-image-link" href="${product.imageUrls[0]}"><img src="${product.imageUrls[0]}" alt="${product.name || "Product Image"}" id="main-product-image"></a>`;
+                if (product.imageUrls.length > 1) {
+                    thumbnailsHTML = product.imageUrls.map(((url, index) => `<a href="${url}" class="thumbnail-link ${index === 0 ? "active" : ""}"><img src="${url}" alt="Product thumbnail ${index + 1}" loading="lazy"></a>`)).join("");
+                }
+            } else {
+                mainImageHTML = `<img src="${fallbackImage}" alt="No Image">`;
+            }
+
+            let variantsHTML = "";
+            if (hasVariants) {
+                const variantTypes = Object.keys(product.variants[0]).filter(key => !["price", "comparePrice", "id", "quantity", "sku"].includes(key));
+                variantsHTML = variantTypes.map(type => {
+                    const options = [...new Set(product.variants.map(v => v[type]))].map(value => `<button class="variant-btn" data-option-name="${type}" data-option-value="${value}">${value}</button>`).join("");
+                    const label = type.charAt(0).toUpperCase() + type.slice(1);
+                    return `<div class="variant-selector" data-variant-group="${type}"><span class="variant-label">${label}:</span><div class="variant-options">${options}</div></div>`;
+                }).join("");
+            }
+            
+            let sizeChartHTML = product.sizeChartContent ? '<span class="size-chart-link" id="open-size-chart"><i class="fas fa-ruler-horizontal"></i> Size Chart</span>' : "";
+            
+            container.innerHTML = `
+                <div class="product-details-layout">
+                    <div class="product-gallery">
+                        <div class="main-image">${mainImageHTML}</div>
+                        <div class="thumbnail-images">${thumbnailsHTML}</div>
+                    </div>
+                    <div class="product-info-details">
+                        <h1 class="product-name">${product.name || "No Name"}</h1>
+                        <div class="product-price">${formatPrice(product)}</div>
+                        <div id="variant-container">${variantsHTML}</div>
+                        ${sizeChartHTML}
+                        <div class="action-buttons">
+                             <button class="add-to-cart-btn">Add to Cart</button>
+                             <button class="buy-now-btn">Buy It Now</button>
+                        </div>
+                        <div class="product-description">
+                            <h3>Description</h3>
+                            <div>${product.description || "No description available."}</div>
+                        </div>
+                    </div>
+                </div>`;
+                
+            addProductDetailsEventListeners(product);
+        }
+        // ### UPDATED FUNCTION END ###
+
+        function addProductDetailsEventListeners(product) {
+            const hasVariants = product.variants && product.variants.length > 0;
+            const availableVariants = hasVariants ? product.variants.filter(v => v.quantity > 0) : [];
+            const variantTypes = hasVariants && availableVariants.length > 0 ? Object.keys(product.variants[0]).filter(key => !["price", "comparePrice", "id", "quantity", "sku"].includes(key)) : [];
+            
+            currentSelections = {};
+            variantTypes.forEach(type => currentSelections[type] = null);
+
+            const addToCartBtn = document.querySelector(".add-to-cart-btn");
+            const buyNowBtn = document.querySelector(".buy-now-btn");
+
+            function updateButtonStates() {
+                if (!addToCartBtn || !buyNowBtn) return;
+                let isReady = false;
+                if (hasVariants) {
+                    if (variantTypes.every(type => currentSelections[type])) {
+                        const variantExists = availableVariants.find(v => variantTypes.every(type => v[type] === currentSelections[type]));
+                        if (variantExists) isReady = true;
+                    }
+                } else if (product.quantity > 0) {
+                    isReady = true;
+                }
+                addToCartBtn.disabled = !isReady;
+                buyNowBtn.disabled = !isReady;
+            }
+
+            function updateAvailableOptions() {
+                let tempAvailableVariants = [...availableVariants];
+                for (let i = 0; i < variantTypes.length; i++) {
+                    const type = variantTypes[i];
+                    const groupEl = document.querySelector(`.variant-selector[data-variant-group="${type}"]`);
+                    if (!groupEl) continue;
+                    
+                    const availableOptions = [...new Set(tempAvailableVariants.map(v => v[type]))];
+                    
+                    if (i > 0 && !currentSelections[variantTypes[i - 1]]) {
+                        groupEl.classList.add("hidden");
+                        continue;
+                    }
+                    
+                    groupEl.classList.remove("hidden");
+                    groupEl.querySelectorAll(".variant-btn").forEach(btn => btn.classList.toggle("hidden", !availableOptions.includes(btn.dataset.optionValue)));
+                    
+                    if (currentSelections[type]) {
+                        tempAvailableVariants = tempAvailableVariants.filter(v => v[type] === currentSelections[type]);
+                    }
+                }
+            }
+
+            document.querySelectorAll(".variant-btn").forEach(button => {
+                button.addEventListener("click", (e => {
+                    const clickedBtn = e.target;
+                    const optionName = clickedBtn.dataset.optionName;
+                    const optionValue = clickedBtn.dataset.optionValue;
+                    const typeIndex = variantTypes.indexOf(optionName);
+
+                    if (clickedBtn.classList.contains("active")) {
+                        clickedBtn.classList.remove("active");
+                        currentSelections[optionName] = null;
+                    } else {
+                        clickedBtn.closest(".variant-options").querySelectorAll(".variant-btn").forEach(btn => btn.classList.remove("active"));
+                        clickedBtn.classList.add("active");
+                        currentSelections[optionName] = optionValue;
+                    }
+                    
+                    for (let i = typeIndex + 1; i < variantTypes.length; i++) {
+                        const subsequentType = variantTypes[i];
+                        currentSelections[subsequentType] = null;
+                        document.querySelector(`.variant-selector[data-variant-group="${subsequentType}"]`)?.querySelectorAll(".variant-btn").forEach(btn => btn.classList.remove("active"));
+                    }
+                    
+                    updateAvailableOptions();
+                    updateButtonStates();
+
+                    if (variantTypes.every(type => currentSelections[type])) {
+                        const selectedVariant = availableVariants.find(v => variantTypes.every(type => v[type] === currentSelections[type]));
+                        if (selectedVariant) {
+                            document.querySelector(".product-price").innerHTML = formatPrice(selectedVariant);
+                        }
+                    } else {
+                         document.querySelector(".product-price").innerHTML = formatPrice(product);
+                    }
+                }))
+            });
+
+            document.querySelectorAll(".thumbnail-link").forEach(link => {
+                link.addEventListener("click", (e => {
+                    e.preventDefault();
+                    const newSrc = link.href;
+                    document.getElementById("main-product-image").src = newSrc;
+                    document.getElementById("main-image-link").href = newSrc;
+                    document.querySelectorAll(".thumbnail-link").forEach(l => l.classList.remove("active"));
+                    link.classList.add("active");
+                }))
+            });
+
+            const mainImageLink = document.getElementById("main-image-link");
+            if (mainImageLink && product.imageUrls && product.imageUrls.length > 0 && typeof lightGallery !== 'undefined') {
+                mainImageLink.addEventListener("click", (e => {
+                    e.preventDefault();
+                    const galleryItems = product.imageUrls.map(url => ({ src: url, thumb: url }));
+                    const currentIndex = product.imageUrls.indexOf(mainImageLink.href);
+                    const gallery = lightGallery(e.currentTarget, {
+                        dynamic: true,
+                        dynamicEl: galleryItems,
+                        index: currentIndex > -1 ? currentIndex : 0,
+                        plugins: [lgZoom, lgThumbnail],
+                        licenseKey: "0000-0000-000-0000",
+                        download: false,
+                        mobileSettings: { controls: true, showCloseIcon: true }
+                    });
+                    gallery.openGallery();
+                }));
+            }
+            
+            const sizeChartLink = document.getElementById("open-size-chart");
+            if (sizeChartLink) {
+                const modal = document.getElementById("size-chart-modal");
+                const closeBtn = document.getElementById("modal-close-btn");
+                sizeChartLink.addEventListener("click", (() => {
+                    document.getElementById("size-chart-content").innerHTML = `<h2 id="size-chart-title">Size Chart</h2>${product.sizeChartContent}`;
+                    modal.classList.add("active")
+                }));
+                closeBtn.addEventListener("click", (() => modal.classList.remove("active")));
+                modal.addEventListener("click", (e => { if (e.target === modal) modal.classList.remove("active") }));
+            }
+
+            function getSelectedProduct() {
+                let itemToAdd = null;
+                const productPagePath = `/product-details/${product.name.toLowerCase().replace(/\s+/g,"-").replace(/[^\w-]+/g,"")}/${product.id}`;
+                
+                if (hasVariants) {
+                    if (!variantTypes.every(type => currentSelections[type])) {
+                        showToast("Please select all options", "error");
+                        return null;
+                    }
+                    const selectedVariant = availableVariants.find(v => variantTypes.every(type => v[type] === currentSelections[type]));
+                    if (!selectedVariant) {
+                        showToast("This product combination is out of stock.", "error");
+                        return null;
+                    }
+                    const variantIdString = variantTypes.map(type => currentSelections[type]).join("-");
+                    itemToAdd = {
+                        id: `${product.id}-${variantIdString}`,
+                        productId: product.id,
+                        name: product.name,
+                        price: selectedVariant.price,
+                        image: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : "",
+                        variantDetails: { ...currentSelections },
+                        quantity: 1,
+                        productPage: productPagePath
+                    };
+                } else {
+                    if (!(product.quantity > 0)) {
+                        showToast("This product is out of stock.", "error");
+                        return null;
+                    }
+                    itemToAdd = {
+                        id: product.id,
+                        productId: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : "",
+                        quantity: 1,
+                        productPage: productPagePath
+                    };
+                }
+                return itemToAdd;
+            }
+
+            if (addToCartBtn) addToCartBtn.addEventListener("click", (() => {
+                const item = getSelectedProduct();
+                if (!item) return;
+                const cart = JSON.parse(localStorage.getItem("cart")) || [];
+                const existingItemIndex = cart.findIndex(cartItem => cartItem.id === item.id);
+                if (existingItemIndex > -1) {
+                    cart[existingItemIndex].quantity++;
+                } else {
+                    cart.push(item);
+                }
+                localStorage.setItem("cart", JSON.stringify(cart));
+                showToast(`'${item.name}' has been added to cart`);
+                if (typeof fbq === 'function') fbq("track", "AddToCart", { content_name: item.name, content_ids: [item.productId], content_type: "product", value: item.price, currency: "BDT" });
+                updateCartCount();
+            }));
+
+            if (buyNowBtn) buyNowBtn.addEventListener("click", (() => {
+                const item = getSelectedProduct();
+                if (!item) return;
+                const cart = JSON.parse(localStorage.getItem("cart")) || [];
+                const existingItemIndex = cart.findIndex(cartItem => cartItem.id === item.id);
+                if (existingItemIndex === -1) {
+                    cart.push(item);
+                } else {
+                    cart[existingItemIndex].quantity++;
+                }
+                localStorage.setItem("cart", JSON.stringify(cart));
+                if (typeof fbq === 'function') fbq("track", "AddToCart", { content_name: item.name, content_ids: [item.productId], content_type: "product", value: item.price, currency: "BDT" });
+                window.location.href = "/cart/";
+            }));
+            
+            updateAvailableOptions();
+            updateButtonStates();
+        }
+
+        async function loadProductDetails() {
+            try {
+                const path = window.location.pathname;
+                
+                const pathSegments = path.split("/");
+                const productId = pathSegments[pathSegments.length - 1];
+                if (!productId) throw new Error("Product ID not found in URL.");
+                
+                const productDoc = await getDoc(doc(db, "products", productId));
+                let productData = null;
+                if (productDoc.exists()) {
+                    productData = { id: productDoc.id, ...productDoc.data() };
+                    if (productData.sizeChartId) {
+                        const sizeChartDoc = await getDoc(doc(db, "pages", productData.sizeChartId));
+                        if (sizeChartDoc.exists()) {
+                            productData.sizeChartContent = sizeChartDoc.data().content;
+                        }
+                    }
+                }
+                renderProductDetails(productData, path);
+                
+                window.history.replaceState(null, "", path);
+
+            } catch (error) {
+                console.error("Error loading product details:", error);
+                renderProductDetails(null);
+            }
+        }
+        
+        function addMenuEventListeners() {
+            document.querySelectorAll(".main-nav .has-submenu > a, .mobile-nav-panel .has-submenu > a").forEach(menu => {
+                menu.addEventListener("click", (function(e) {
+                    e.preventDefault();
+                    this.parentElement.classList.toggle("active");
+                }))
+            })
+        }
+
+        function setupEventListeners() {
+            const handleSearch = () => {
+                const desktopValue = document.getElementById("desktopSearchInput").value;
+                const mobileValue = document.getElementById("mobileSearchInput").value;
+                const searchTerm = desktopValue || mobileValue;
+                if (searchTerm) {
+                    window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`;
+                }
+            };
+            document.getElementById("desktopSearchInput").addEventListener("keydown", (e => { if (e.key === "Enter") handleSearch() }));
+            document.getElementById("mobileSearchInput").addEventListener("keydown", (e => { if (e.key === "Enter") handleSearch() }));
+            
+            document.getElementById("desktop-search-trigger").addEventListener("click", (e => {
+                e.preventDefault();
+                document.body.classList.add("desktop-search-active");
+                document.getElementById("desktopSearchInput").focus();
+            }));
+            document.querySelector(".close-desktop-search-btn").addEventListener("click", (() => document.body.classList.remove("desktop-search-active")));
+            
+            document.getElementById("mobile-search-icon").addEventListener("click", (e => {
+                e.preventDefault();
+                document.body.classList.add("search-active");
+                document.getElementById("mobileSearchInput").focus();
+            }));
+            document.querySelector(".close-search-btn").addEventListener("click", (() => document.body.classList.remove("search-active")));
+            
+            const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
+            const mobileNavPanel = document.getElementById("mobile-nav-panel");
+            const closeMobileNav = document.querySelector(".close-mobile-nav");
+            const overlay = document.getElementById("overlay");
+            
+            const closeMenu = () => {
+                mobileNavPanel.classList.remove("active");
+                overlay.classList.remove("active");
+            };
+
+            mobileMenuToggle.addEventListener("click", (() => {
+                mobileNavPanel.classList.add("active");
+                overlay.classList.add("active");
+            }));
+            closeMobileNav.addEventListener("click", closeMenu);
+            overlay.addEventListener("click", closeMenu);
+        }
+
+        document.addEventListener("DOMContentLoaded", (async () => {
+            document.getElementById("copyright-year").textContent = (new Date).getFullYear();
+            await loadSharedComponents();
+            await loadProductDetails();
+            document.querySelector(".main-footer").style.display = "block";
+            addMenuEventListeners();
+            setupEventListeners();
+            updateCartCount();
+        }))
+    </script>
+</body>
+</html>

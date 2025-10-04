@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang=en>
+<head>
+    <meta charset=UTF-8>
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <title>edit-product</title>
+    <link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+    <link rel=stylesheet href=style.css>
+    <link href=https://cdn.quilljs.com/1.3.6/quill.snow.css rel=stylesheet>
+    <link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
+    <script src=https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js></script>
+    <style>
+        .sidebar .menu-list .logout-button {
+            width: 100%;
+            display: block;
+            padding: 12px 20px;
+            background-color: #d32f2f;
+            color: #fff;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 15px;
+            transition: background-color .3s
+        }
+        .sidebar .menu-list .logout-button:hover {
+            background-color: #b71c1c
+        }
+        .sidebar .menu-list .logout-button i {
+            margin-right: 10px
+        }
+        
+        /* --- Mobile Responsive Styles Start --- */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            z-index: 1001;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 260px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                z-index: 1000;
+                box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                flex-wrap: wrap; /* Allow items to wrap */
+                gap: 15px;
+            }
+            .header h1 {
+                font-size: 24px;
+                width: 100%; /* Take full width on top */
+            }
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 25px;
+                right: 20px;
+            }
+            .form-container {
+                grid-template-columns: 1fr; /* Stack main and sidebar columns */
+            }
+            .form-grid-2 {
+                grid-template-columns: 1fr; /* Stack two-column form groups */
+            }
+        }
+        /* --- Mobile Responsive Styles End --- */
+    </style>
+</head>
+<body>
+    <div class=container>
+        <div class=sidebar>
+            <h2>Admin Panel</h2>
+            <ul class=menu-list>
+                <li><a href=index.html>Dashboard</a></li>
+                <li><a href=orders.html>Orders</a></li>
+                <li class=active><a href=products.html>Products</a></li>
+                <li><a href=collections.html>Collections</a></li>
+                <li><a href=navigation.html>Navigation</a></li>
+                <li><a href=announcements.html>Announcements</a></li>
+                <li><a href=shipping-zones.html>Shipping Zones</a></li>
+                <li><a href=store-details.html>Store Details</a></li>
+                <li><a href=hero-slider.html>Hero Slider</a></li>
+                <li><a href=pages.html>Pages</a></li>
+                <li>
+                    <button id=logout-button class=logout-button>
+                        <i class="fas fa-sign-out-alt"></i>Logout
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class=main-content>
+            <div class=header>
+                <h1>Edit Product</h1>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <button class="btn" id="duplicateBtn">Duplicate</button>
+                    <a href=products.html class=btn>Cancel</a>
+                    <button class="btn btn-primary" id=updateBtn>Update Product</button>
+                </div>
+            </div>
+            <div id=loader class=content-card style=text-align:center>Loading product data...</div>
+            <div class=form-container id=productForm style=display:none>
+                <div class=form-main>
+                    <div class=content-card>
+                        <label for=productName>Product Name</label>
+                        <input id=productName>
+                    </div>
+                    <div class=content-card>
+                        <label>Description</label>
+                        <div id=descriptionEditor style=height:200px></div>
+                    </div>
+                    <div class=content-card>
+                        <label>Media</label>
+                        <div id=imagePreviewContainer class=image-preview-container></div>
+                        <div id=mediaDropzone class=dropzone>
+                            <p>Drag & drop new images to add</p>
+                        </div>
+                        <button class=btn id=uploadMediaBtn style=margin-top:10px;display:none>Upload New Media</button>
+                    </div>
+                    <div class=content-card id=pricing-card>
+                        <label>Pricing</label>
+                        <div class=form-grid-2>
+                            <div><label for=price>Price</label><input type=number id=price></div>
+                            <div><label for=comparePrice>Compare-at price</label><input type=number id=comparePrice></div>
+                        </div>
+                    </div>
+                    <div class=content-card id=inventory-card>
+                        <label>Inventory</label>
+                        <div class=form-grid-2>
+                            <div><label for=sku>SKU</label><input id=sku readonly></div>
+                            <div><label for=quantity>Quantity</label><input type=number id=quantity></div>
+                        </div>
+                    </div>
+                    <div class=content-card>
+                        <label>Variants</label>
+                        <div id=variants-container></div>
+                        <div class=add-variant-wrapper>
+                            <button class=btn id=add-variant-option-btn>+ Add options like size or color</button>
+                            <div class=variant-options-popup id=variant-options-popup>
+                                <div data-option=Size>Size</div>
+                                <div data-option=Color>Color</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class=form-sidebar>
+                    <div class=content-card>
+                        <label for=status>Status</label>
+                        <select id=status>
+                            <option value=active>Active</option>
+                            <option value=draft>Draft</option>
+                        </select>
+                    </div>
+                    <div class=content-card>
+                        <label>Product Organization</label>
+                        <div class=form-group>
+                            <label for=collectionSearch class=form-label>Collections</label>
+                            <div class=multiselect-container>
+                                <div class=selected-items id=selectedCollections></div>
+                                <input id=collectionSearch class=form-control placeholder="Search collections">
+                                <div class=dropdown-list id=collectionDropdown></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=content-card>
+                        <label for=sizeChartSearch>Size Chart Page</label>
+                        <div class=searchable-select-container>
+                            <div id=selectedSizeChart class=selected-item-display>
+                                <span id=selectedSizeChartName>None</span>
+                                <button id=clearSizeChart class=clear-btn style=display:none>&times;</button>
+                            </div>
+                            <div class=dropdown-list id=sizeChartDropdown>
+                                <input id=sizeChartSearch placeholder="Search pages...">
+                                <div id=sizeChartOptions></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id=uploadCompleteModal class=modal>
+        <div class=modal-dialog>
+            <div class=modal-header>
+                <h3>Upload Complete</h3>
+            </div>
+            <div class=modal-body>
+                <p>All new images have been uploaded.</p>
+            </div>
+            <div class=modal-footer><button class="btn btn-primary" onclick='this.closest(".modal").style.display="none"'>OK</button></div>
+        </div>
+    </div>
+    <div id="duplicateModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Duplicate Product</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Deselect any of the following details you don't want to be duplicated.</p>
+                <div class="duplicate-options">
+                    <label><input type="checkbox" value="images" checked> Images</label>
+                    <label><input type="checkbox" value="sku" checked> SKU</label>
+                    <label><input type="checkbox" value="inventory" checked> Inventory quantities</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="cancelDuplicateBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmDuplicateBtn">Duplicate</button>
+            </div>
+        </div>
+    </div>
+    <div id=toast-notification class=toast></div>
+    <script src=https://cdn.quilljs.com/1.3.6/quill.js></script>
+    <script type=module>
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            doc,
+            getDoc,
+            getDocs,
+            updateDoc,
+            arrayUnion,
+            setDoc
+        } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
+            authDomain: "nasir-9102c.firebaseapp.com",
+            projectId: "nasir-9102c",
+            storageBucket: "nasir-9102c.firebasestorage.app",
+            messagingSenderId: "182224792140",
+            appId: "1:182224792140:web:42348e8b24f94cdf07e2e9",
+            measurementId: "G-8R5J241MJM"
+        };
+        const cloudinaryConfig = {
+            cloudName: "daybjvuot",
+            unsignedPreset: "sundorica_preset"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const getLoginUrl = () => {
+            const path = window.location.pathname;
+            return path.substring(0, path.lastIndexOf('/')) + '/login.html';
+        };
+
+        // --- Mobile Menu JavaScript Start ---
+        function initializeMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            if (mobileMenuBtn && sidebar) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                });
+                document.addEventListener('click', (event) => {
+                    const isClickInsideSidebar = sidebar.contains(event.target);
+                    const isClickOnMenuButton = mobileMenuBtn.contains(event.target);
+                    if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('open')) {
+                        sidebar.classList.remove('open');
+                    }
+                }, true);
+            }
+        }
+        // --- Mobile Menu JavaScript End ---
+
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                signOut(auth).then(() => {
+                    window.location.href = getLoginUrl();
+                }).catch(error => console.error('Sign out error', error));
+            });
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                initializePage();
+                initializeMobileMenu();
+            } else {
+                window.location.href = getLoginUrl();
+            }
+        });
+
+        async function initializePage() {
+            const quill = new Quill('#descriptionEditor', {
+                theme: 'snow'
+            });
+
+            let allSizes = [],
+                allColors = [],
+                allCollections = [],
+                allPages = [];
+            let selectedCollections = [],
+                selectedSizeChartId = null,
+                variantOptions = {},
+                filesToUpload = [],
+                uploadedImageUrls = [];
+            let currentProductData = null; 
+
+            const loader = document.getElementById('loader');
+            const productForm = document.getElementById('productForm');
+            const updateBtn = document.getElementById('updateBtn');
+            const productId = new URLSearchParams(window.location.search).get("id");
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            const mediaDropzone = document.getElementById('mediaDropzone');
+            const uploadMediaBtn = document.getElementById('uploadMediaBtn');
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.multiple = true;
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            mediaDropzone.appendChild(fileInput);
+
+            const toast = document.getElementById('toast-notification');
+            const collectionSearch = document.getElementById('collectionSearch');
+            const collectionDropdown = document.getElementById('collectionDropdown');
+            const selectedCollectionsDiv = document.getElementById('selectedCollections');
+            const sizeChartDropdown = document.getElementById('sizeChartDropdown');
+            const sizeChartSearch = document.getElementById('sizeChartSearch');
+            const sizeChartOptions = document.getElementById('sizeChartOptions');
+            const selectedSizeChartName = document.getElementById('selectedSizeChartName');
+            const clearSizeChartBtn = document.getElementById('clearSizeChart');
+            const selectedSizeChartDiv = document.getElementById('selectedSizeChart');
+            const addVariantOptionBtn = document.getElementById('add-variant-option-btn');
+            const variantOptionsPopup = document.getElementById('variant-options-popup');
+            const variantsContainer = document.getElementById('variants-container');
+            
+            const duplicateBtn = document.getElementById('duplicateBtn');
+            const duplicateModal = document.getElementById('duplicateModal');
+            const confirmDuplicateBtn = document.getElementById('confirmDuplicateBtn');
+            const cancelDuplicateBtn = document.getElementById('cancelDuplicateBtn');
+            const closeModalSpan = duplicateModal.querySelector('.close-modal');
+
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            function handleFiles(files) {
+                for (const file of files) {
+                    if (file.type.startsWith('image/') && !filesToUpload.some(f => f.name === file.name)) {
+                        filesToUpload.push(file);
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const preview = createPreviewElement(e.target.result, file, false);
+                            imagePreviewContainer.appendChild(preview);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+                if (filesToUpload.length > 0) {
+                    uploadMediaBtn.style.display = 'inline-block';
+                }
+            }
+
+            function createPreviewElement(src, file, isUploaded = false) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-preview-wrapper';
+                wrapper.dataset.fileName = file.name;
+                const img = document.createElement('img');
+                img.src = src;
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'remove-image';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.onclick = () => {
+                    if (isUploaded) {
+                        uploadedImageUrls = uploadedImageUrls.filter(url => url !== src);
+                    } else {
+                        filesToUpload = filesToUpload.filter(f => f.name !== file.name);
+                    }
+                    wrapper.remove();
+                };
+                wrapper.appendChild(img);
+                wrapper.appendChild(removeBtn);
+                return wrapper;
+            }
+
+            function renderCollectionsDropdown() {
+                const searchTerm = collectionSearch.value.toLowerCase();
+                const available = allCollections.filter(c => !selectedCollections.includes(c.name));
+                const filtered = available.filter(c => c.name.toLowerCase().includes(searchTerm));
+                collectionDropdown.innerHTML = '';
+                if (filtered.length > 0) {
+                    filtered.forEach(c => {
+                        const item = document.createElement('div');
+                        item.className = 'dropdown-item';
+                        item.textContent = c.name;
+                        item.addEventListener('click', () => selectCollection(c.name));
+                        collectionDropdown.appendChild(item);
+                    });
+                    collectionDropdown.style.display = 'block';
+                } else {
+                    collectionDropdown.style.display = 'none';
+                }
+            }
+
+            function selectCollection(name) {
+                selectedCollections.push(name);
+                renderSelectedCollections();
+                collectionSearch.value = '';
+                collectionDropdown.style.display = 'none';
+            }
+
+            function renderSelectedCollections() {
+                selectedCollectionsDiv.innerHTML = '';
+                selectedCollections.forEach(name => {
+                    const tag = document.createElement('span');
+                    tag.className = 'tag';
+                    tag.innerHTML = `${name} <span class="tag-close">&times;</span>`;
+                    tag.querySelector('.tag-close').addEventListener('click', () => {
+                        selectedCollections = selectedCollections.filter(c => c !== name);
+                        renderSelectedCollections();
+                    });
+                    selectedCollectionsDiv.appendChild(tag);
+                });
+            }
+
+            function renderPages(searchTerm = '') {
+                const filtered = allPages.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()));
+                sizeChartOptions.innerHTML = '';
+                filtered.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.textContent = p.title;
+                    item.addEventListener('click', () => selectPage(p.id, p.title));
+                    sizeChartOptions.appendChild(item);
+                });
+            }
+
+            function selectPage(id, title) {
+                selectedSizeChartId = id;
+                selectedSizeChartName.textContent = title;
+                clearSizeChartBtn.style.display = 'inline-block';
+                sizeChartDropdown.style.display = 'none';
+            }
+
+            function addVariantGroup(optionName) {
+                if (variantOptions[optionName]) return;
+                variantOptions[optionName] = [];
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'variant-group';
+                groupDiv.innerHTML = `<div class="variant-group-header"><label>${optionName}</label><button class="remove-variant-group-btn">&times;</button></div><div class="multiselect-container"><div class="selected-items"></div><input type="text" class="form-control variant-input" placeholder="Add ${optionName.toLowerCase()}"><div class="dropdown-list variant-dropdown"></div></div>`;
+                variantsContainer.appendChild(groupDiv);
+                groupDiv.querySelector('.remove-variant-group-btn').onclick = () => {
+                    delete variantOptions[optionName];
+                    groupDiv.remove();
+                    generateVariantTable();
+                };
+                const input = groupDiv.querySelector('.variant-input');
+                input.oninput = () => renderVariantDropdown(optionName, input);
+                input.onfocus = () => renderVariantDropdown(optionName, input);
+                input.onkeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        selectVariantValue(optionName, input.value.trim());
+                    }
+                };
+            }
+            
+            function renderVariantDropdown(optionName, input) {
+                const dropdown = input.nextElementSibling;
+                const searchTerm = input.value.toLowerCase();
+                const masterList = optionName === 'Size' ? allSizes : allColors;
+                const availableOptions = masterList.filter(val => !variantOptions[optionName].includes(val)).filter(val => val.toLowerCase().includes(searchTerm));
+                
+                dropdown.innerHTML = '';
+
+                if (availableOptions.length > 0 || searchTerm) {
+                    if (searchTerm && !masterList.some(item => item.toLowerCase() === searchTerm)) {
+                        const newItem = document.createElement('div');
+                        newItem.className = 'dropdown-item';
+                        newItem.innerHTML = `Add "<strong>${searchTerm}</strong>"`;
+                        newItem.addEventListener('mousedown', e => e.preventDefault());
+                        newItem.onclick = () => selectVariantValue(optionName, searchTerm);
+                        dropdown.appendChild(newItem);
+                    }
+                    availableOptions.forEach(val => {
+                        const item = document.createElement('div');
+                        item.className = 'dropdown-item';
+                        item.textContent = val;
+                        item.addEventListener('mousedown', e => e.preventDefault());
+                        item.onclick = () => selectVariantValue(optionName, val);
+                        dropdown.appendChild(item);
+                    });
+                    dropdown.style.display = 'block';
+                } else {
+                    dropdown.style.display = 'none';
+                }
+            }
+
+            function selectVariantValue(optionName, value) {
+                if (!value || variantOptions[optionName].includes(value)) return;
+                variantOptions[optionName].push(value);
+                let groupDiv = null;
+                document.querySelectorAll('.variant-group .variant-group-header label').forEach(label => {
+                    if (label.textContent === optionName) groupDiv = label.closest('.variant-group');
+                });
+                if (!groupDiv) return;
+                const selectedDiv = groupDiv.querySelector('.selected-items');
+                const input = groupDiv.querySelector('.variant-input');
+                const tag = document.createElement('span');
+                tag.className = 'tag';
+                tag.innerHTML = `${value} <span class="tag-close">&times;</span>`;
+                tag.querySelector('.tag-close').onclick = () => {
+                    variantOptions[optionName] = variantOptions[optionName].filter(v => v !== value);
+                    tag.remove();
+                    generateVariantTable();
+                };
+                selectedDiv.appendChild(tag);
+                input.value = '';
+                input.focus();
+                generateVariantTable();
+            }
+
+            function generateVariantTable() {
+                const combinations = ((arrays) => {
+                    if (!arrays || arrays.length === 0) return [];
+                    return arrays.reduce((acc, current) => {
+                        if (acc.length === 0) return current.map(item => [item]);
+                        return acc.flatMap(a => current.map(c => [...a, c]));
+                    }, []);
+                })(Object.values(variantOptions));
+                let tableContainer = document.querySelector('.variant-table-container');
+                if (!tableContainer) {
+                    tableContainer = document.createElement('div');
+                    tableContainer.className = 'variant-table-container content-card';
+                    const variantsCard = document.getElementById('variants-container').closest('.content-card');
+                    if (variantsCard) variantsCard.after(tableContainer);
+                }
+                if (combinations.length === 0) {
+                    if (tableContainer) tableContainer.remove();
+                    document.getElementById('pricing-card').style.display = 'block';
+                    document.getElementById('inventory-card').style.display = 'block';
+                    return;
+                }
+                document.getElementById('pricing-card').style.display = 'none';
+                document.getElementById('inventory-card').style.display = 'none';
+                let tableHTML = `<table class="variant-table"><thead><tr>${Object.keys(variantOptions).map(h => `<th>${h}</th>`).join('')}<th>Price</th><th>Quantity</th><th>SKU</th></tr></thead><tbody>`;
+                const mainPrice = document.getElementById('price').value || '';
+                const mainSku = document.getElementById('sku').value || '';
+                combinations.forEach(combo => {
+                    const comboSku = mainSku ? `${mainSku}-${combo.map(c => c.replace(/\s+/g, '-')).join('-')}` : '';
+                    tableHTML += `<tr>${combo.map(c => `<td>${c}</td>`).join('')}<td><input type="number" class="form-control variant-price" value="${mainPrice}"></td><td><input type="number" class="form-control variant-quantity" placeholder="0"></td><td><input type="text" class="form-control variant-sku" value="${comboSku}"></td></tr>`;
+                });
+                tableHTML += '</tbody></table>';
+                tableContainer.innerHTML = tableHTML;
+            }
+            async function saveNewOptions(optionType, values) {
+                if (!values || values.length === 0) return;
+                const masterList = optionType === 'sizes' ? allSizes : allColors;
+                const newValues = values.filter(v => !masterList.includes(v));
+                if (newValues.length > 0) {
+                    const docRef = doc(db, "product_options", optionType);
+                    await setDoc(docRef, {
+                        values: arrayUnion(...newValues)
+                    }, {
+                        merge: true
+                    });
+                }
+            }
+            
+            async function duplicateProduct() {
+                if (!currentProductData) return showToast("Product data not loaded yet.");
+
+                confirmDuplicateBtn.disabled = true;
+                confirmDuplicateBtn.textContent = "Duplicating...";
+
+                try {
+                    const newData = JSON.parse(JSON.stringify(currentProductData));
+
+                    newData.name = `Copy of ${currentProductData.name}`;
+                    
+                    const duplicateImages = document.querySelector('#duplicateModal input[value="images"]').checked;
+                    const duplicateSku = document.querySelector('#duplicateModal input[value="sku"]').checked;
+                    const duplicateInventory = document.querySelector('#duplicateModal input[value="inventory"]').checked;
+
+                    if (!duplicateImages) newData.imageUrls = [];
+                    
+                    if (!duplicateInventory) {
+                        newData.quantity = 0;
+                        if (newData.variants && newData.variants.length > 0) {
+                            newData.variants.forEach(v => v.quantity = 0);
+                        }
+                    }
+
+                    if (!duplicateSku) {
+                        const querySnapshot = await getDocs(collection(db, "products"));
+                        const newSkuBase = 1001 + querySnapshot.size;
+                        newData.sku = `${newSkuBase}`;
+                        if (newData.variants && newData.variants.length > 0) {
+                             newData.variants.forEach(v => {
+                                const optionValues = Object.keys(v)
+                                    .filter(k => !['price', 'quantity', 'sku'].includes(k))
+                                    .map(k => v[k].replace(/\s+/g, '-'))
+                                    .join('-');
+                                v.sku = `${newSkuBase}-${optionValues}`;
+                            });
+                        }
+                    }
+                    
+                    sessionStorage.setItem('duplicatedProductData', JSON.stringify(newData));
+                    window.location.href = 'add-product.html';
+
+                } catch (error) {
+                    console.error("Error preparing duplication: ", error);
+                    showToast("Error: Could not prepare product for duplication.");
+                    confirmDuplicateBtn.disabled = false;
+                    confirmDuplicateBtn.textContent = "Duplicate";
+                }
+            }
+
+            mediaDropzone.addEventListener("click", () => fileInput.click());
+            mediaDropzone.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                mediaDropzone.classList.add("dragging");
+            });
+            mediaDropzone.addEventListener("dragleave", () => mediaDropzone.classList.remove("dragging"));
+            mediaDropzone.addEventListener("drop", (e) => {
+                e.preventDefault();
+                mediaDropzone.classList.remove("dragging");
+                handleFiles(e.dataTransfer.files);
+            });
+            fileInput.addEventListener("change", (e) => handleFiles(e.target.files));
+            Sortable.create(imagePreviewContainer, {
+                animation: 150
+            });
+            uploadMediaBtn.addEventListener("click", async () => {
+                uploadMediaBtn.disabled = true;
+                uploadMediaBtn.textContent = "Uploading...";
+                const newUrls = [];
+                const uploadPromises = filesToUpload.map(file => {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    formData.append("upload_preset", cloudinaryConfig.unsignedPreset);
+                    return fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`, {
+                        method: "POST",
+                        body: formData
+                    }).then(res => res.json()).then(data => {
+                        if (data.secure_url) newUrls.push(data.secure_url);
+                    });
+                });
+                await Promise.all(uploadPromises);
+                uploadedImageUrls.push(...newUrls);
+                filesToUpload = [];
+                uploadMediaBtn.textContent = "Upload New Media";
+                uploadMediaBtn.disabled = false;
+                uploadMediaBtn.style.display = "none";
+                document.getElementById('uploadCompleteModal').style.display = 'flex';
+            });
+            collectionSearch.addEventListener("input", renderCollectionsDropdown);
+            collectionSearch.addEventListener("focus", renderCollectionsDropdown);
+            selectedSizeChartDiv.addEventListener("click", () => {
+                sizeChartDropdown.style.display = sizeChartDropdown.style.display === "block" ? "none" : "block";
+            });
+            clearSizeChartBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                selectedSizeChartId = null;
+                selectedSizeChartName.textContent = "None";
+                clearSizeChartBtn.style.display = "none";
+            });
+            sizeChartSearch.addEventListener("input", () => renderPages(sizeChartSearch.value));
+            
+            document.addEventListener("click", (e => {
+                !e.target.closest('.multiselect-container') && (collectionDropdown.style.display = "none");
+                !e.target.closest('.searchable-select-container') && (sizeChartDropdown.style.display = "none");
+                !e.target.closest('.add-variant-wrapper') && (variantOptionsPopup.style.display = "none");
+
+                document.querySelectorAll('.variant-group').forEach(group => {
+                    if (!group.contains(e.target)) {
+                        const dropdown = group.querySelector('.variant-dropdown');
+                        if (dropdown) {
+                            dropdown.style.display = 'none';
+                        }
+                    }
+                });
+            }));
+
+            addVariantOptionBtn.addEventListener("click", () => variantOptionsPopup.style.display = "block");
+            variantOptionsPopup.addEventListener("click", (e => {
+                if (e.target.dataset.option) {
+                    addVariantGroup(e.target.dataset.option);
+                    variantOptionsPopup.style.display = "none";
+                    if (Object.keys(variantOptions).length >= 2) addVariantOptionBtn.style.display = "none";
+                }
+            }));
+            
+            duplicateBtn.addEventListener('click', () => duplicateModal.style.display = 'flex');
+            cancelDuplicateBtn.addEventListener('click', () => duplicateModal.style.display = 'none');
+            closeModalSpan.addEventListener('click', () => duplicateModal.style.display = 'none');
+            confirmDuplicateBtn.addEventListener('click', duplicateProduct);
+            
+            updateBtn.addEventListener("click", async () => {
+                if (!document.getElementById("productName").value) return alert("Product Name is required.");
+                if (filesToUpload.length > 0) return alert("Please upload new media before saving.");
+                updateBtn.disabled = true;
+                updateBtn.textContent = "Updating...";
+                const variantsData = [];
+                const variantTableRows = document.querySelectorAll(".variant-table tbody tr");
+                if (variantTableRows.length > 0) {
+                    const headers = Array.from(document.querySelectorAll(".variant-table thead th")).map(th => th.textContent);
+                    variantTableRows.forEach(row => {
+                        const variant = {};
+                        const cells = row.querySelectorAll("td");
+                        headers.forEach((header, index) => {
+                            if (index < headers.length - 3) variant[header.toLowerCase()] = cells[index].textContent;
+                        });
+                        variant.price = parseFloat(cells[headers.length - 3].querySelector('input').value) || 0;
+                        variant.quantity = parseInt(cells[headers.length - 2].querySelector('input').value) || 0;
+                        variant.sku = cells[headers.length - 1].querySelector('input').value;
+                        variantsData.push(variant);
+                    });
+                }
+                const updatedData = {
+                    name: document.getElementById('productName').value,
+                    description: quill.root.innerHTML,
+                    price: parseFloat(document.getElementById('price').value) || 0,
+                    comparePrice: parseFloat(document.getElementById('comparePrice').value) || 0,
+                    sku: document.getElementById('sku').value,
+                    quantity: parseInt(document.getElementById('quantity').value) || 0,
+                    status: document.getElementById('status').value,
+                    collections: selectedCollections,
+                    sizeChartId: selectedSizeChartId,
+                    imageUrls: uploadedImageUrls,
+                    variants: variantsData,
+                    hasVariants: variantsData.length > 0
+                };
+                await saveNewOptions('sizes', variantOptions.Size || []);
+                await saveNewOptions('colors', variantOptions.Color || []);
+                try {
+                    const productRef = doc(db, "products", productId);
+                    await updateDoc(productRef, updatedData);
+                    showToast("Product updated successfully!");
+                    setTimeout(() => window.location.href = "products.html", 1500);
+                } catch (error) {
+                    console.error("Error updating product: ", error);
+                    showToast("Error: Could not update product.");
+                    updateBtn.disabled = false;
+                    updateBtn.textContent = "Update Product";
+                }
+            });
+            await (async function() {
+                const sizeDoc = await getDoc(doc(db, "product_options", "sizes"));
+                if (sizeDoc.exists()) allSizes = sizeDoc.data().values || [];
+                const colorDoc = await getDoc(doc(db, "product_options", "colors"));
+                if (colorDoc.exists()) allColors = colorDoc.data().values || [];
+                const collectionsSnapshot = await getDocs(collection(db, "collections"));
+                allCollections = collectionsSnapshot.docs.map(e => ({ id: e.id, name: e.data().name }));
+                const pagesSnapshot = await getDocs(collection(db, "pages"));
+                allPages = pagesSnapshot.docs.map(e => ({ id: e.id, title: e.data().title }));
+                renderPages();
+            })();
+            await (async function() {
+                if (productId) {
+                    try {
+                        const productRef = doc(db, "products", productId);
+                        const productSnap = await getDoc(productRef);
+                        if (productSnap.exists()) {
+                            currentProductData = productSnap.data();
+                            const data = currentProductData;
+                            document.getElementById('productName').value = data.name || '';
+                            quill.root.innerHTML = data.description || '';
+                            document.getElementById('price').value = data.price || 0;
+                            document.getElementById('comparePrice').value = data.comparePrice || 0;
+                            document.getElementById('sku').value = data.sku || '';
+                            document.getElementById('quantity').value = data.quantity || 0;
+                            document.getElementById('status').value = data.status || 'active';
+                            selectedCollections = data.collections || [];
+                            renderSelectedCollections();
+                            selectedSizeChartId = data.sizeChartId || null;
+                            if (selectedSizeChartId) {
+                                const page = allPages.find(p => p.id === selectedSizeChartId);
+                                if (page) selectPage(page.id, page.title);
+                            }
+                            uploadedImageUrls = data.imageUrls || [];
+                            imagePreviewContainer.innerHTML = "";
+                            uploadedImageUrls.forEach(url => {
+                                const preview = createPreviewElement(url, { name: url }, true);
+                                imagePreviewContainer.appendChild(preview);
+                            });
+                            if (data.hasVariants && data.variants) {
+                                const uniqueOptions = {};
+                                data.variants.forEach(variant => {
+                                    if (variant.size && !uniqueOptions.Size) uniqueOptions.Size = [];
+                                    if (variant.color && !uniqueOptions.Color) uniqueOptions.Color = [];
+                                });
+                                Object.keys(uniqueOptions).forEach(optionName => {
+                                    addVariantGroup(optionName);
+                                    const values = [...new Set(data.variants.map(v => v[optionName.toLowerCase()]))];
+                                    values.forEach(value => selectVariantValue(optionName, value));
+                                });
+                                setTimeout(() => {
+                                    document.querySelectorAll(".variant-table tbody tr").forEach(row => {
+                                        const sizeCell = row.querySelector("td:nth-child(1)");
+                                        const colorCell = Object.keys(variantOptions).length > 1 ? row.querySelector("td:nth-child(2)") : null;
+                                        const matchingVariant = data.variants.find(v => {
+                                            const sizeMatch = v.size === sizeCell.textContent;
+                                            const colorMatch = !colorCell || v.color === colorCell.textContent;
+                                            return sizeMatch && colorMatch;
+                                        });
+                                        if (matchingVariant) {
+                                            row.querySelector(".variant-price").value = matchingVariant.price;
+                                            row.querySelector(".variant-quantity").value = matchingVariant.quantity;
+                                            row.querySelector(".variant-sku").value = matchingVariant.sku;
+                                        }
+                                    });
+                                }, 100);
+                            }
+                            loader.style.display = "none";
+                            productForm.style.display = "grid";
+                        } else {
+                            loader.textContent = "Error: Product not found.";
+                        }
+                    } catch (error) {
+                        console.error("Error loading product data: ", error);
+                        loader.textContent = "Error loading data.";
+                    }
+                } else {
+                    loader.textContent = "Error: No Product ID provided.";
+                }
+            })();
+        }
+    </script>
+</body>
+</html>

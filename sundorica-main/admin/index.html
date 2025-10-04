@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Sundorica-Admin Panel</title>
+<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<link rel=stylesheet href=style.css>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
+<style>
+    .sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}
+    .sidebar .menu-list .logout-button:hover{background-color:#b71c1c}
+    .sidebar .menu-list .logout-button i{margin-right:10px}
+
+    /* --- Mobile Responsive Styles Start --- */
+    
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        z-index: 1001;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 260px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .main-content {
+            width: 100%;
+            margin-left: 0;
+        }
+        
+        /* --- FINAL UPDATED HEADER STYLES --- */
+        .header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        #user-email {
+            font-size: 12px !important;
+            color: #555;
+        }
+
+        .mobile-menu-btn {
+            display: block;
+            padding-top: 5px;
+            margin-left: auto; /* This is the key change to fix positioning */
+            flex-shrink: 0; /* Prevents the button from shrinking */
+        }
+        /* --- END OF HEADER STYLES --- */
+        
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+    }
+    /* --- Mobile Responsive Styles End --- */
+
+</style>
+</head>
+<body>
+<div class=container>
+    <div class=sidebar>
+        <h2>Admin Panel</h2>
+        <ul class=menu-list>
+        <li class=active><a href=index.html>Dashboard</a></li>
+        <li><a href=orders.html>Orders</a></li>
+        <li><a href=products.html>Products</a></li>
+        <li><a href=collections.html>Collections</a></li>
+        <li><a href=navigation.html>Navigation</a></li>
+        <li><a href=announcements.html>Announcements</a></li>
+        <li><a href=shipping-zones.html>Shipping Zones</a></li>
+        <li><a href=store-details.html>Store Details</a></li>
+        <li><a href=hero-slider.html>Hero Slider</a></li>
+        <li><a href=pages.html>Pages</a></li>
+        <li>
+        <button id=logout-button class=logout-button>
+        <i class="fas fa-sign-out-alt"></i>Logout
+        </button>
+        </li>
+        </ul>
+    </div>
+    <div class=main-content>
+        <div class=header>
+            <div class="header-info">
+                <h1>Dashboard</h1>
+                <span id="user-email"></span>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="dashboard-grid summary-grid">
+            <div class=summary-card>
+            <div class=icon-bg style=background-color:#e6f7ff><i class="fas fa-dollar-sign" style=color:#1890ff></i></div>
+            <div class=text-content>
+            <span class=title>Today's Sales</span>
+            <span class=value id=todaySales>৳0</span>
+            </div>
+            </div>
+            <div class=summary-card>
+            <div class=icon-bg style=background-color:#f6ffed><i class="fas fa-calendar-week" style=color:#52c41a></i></div>
+            <div class=text-content>
+            <span class=title>This Week's Sales</span>
+            <span class=value id=weekSales>৳0</span>
+            </div>
+            </div>
+            <div class=summary-card>
+            <div class=icon-bg style=background-color:#fffbe6><i class="fas fa-chart-line" style=color:#faad14></i></div>
+            <div class=text-content>
+            <span class=title>This Month's Sales</span>
+            <span class=value id=monthSales>৳0</span>
+            </div>
+            </div>
+            <div class=summary-card>
+            <div class=icon-bg style=background-color:#fff1f0><i class="fas fa-box" style=color:#f5222d></i></div>
+            <div class=text-content>
+            <span class=title>New Orders</span>
+            <span class=value id=newOrders>0</span>
+            </div>
+            </div>
+        </div>
+        <div class="dashboard-grid main-grid">
+            <div class="content-card list-card">
+                <h3>Recent Orders</h3>
+                <div class=dashboard-table-container>
+                    <table class=dashboard-table>
+                    <thead>
+                    <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody id=recentOrdersList>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="content-card list-card">
+                <h3>Low Stock Products</h3>
+                <div id=lowStockList>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type=module>
+    import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import{getFirestore,collection,getDocs,query,orderBy}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    
+    const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9",measurementId:"G-8R5J241MJM"};
+    const app=initializeApp(firebaseConfig);
+    const db=getFirestore(app);
+    const auth=getAuth(app);
+    
+    function initializeMobileMenu() {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+            document.addEventListener('click', (event) => {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnMenuButton = mobileMenuBtn.contains(event.target);
+                if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            }, true);
+        }
+    }
+
+    onAuthStateChanged(auth,(t=>{
+        if(t){
+            document.getElementById("user-email").textContent=`Logged in as: ${t.email}`;
+            loadDashboardData();
+            initializeMobileMenu();
+        } else {
+            window.location.href="login.html";
+        }
+    }));
+
+    const logoutButton=document.getElementById("logout-button");
+    
+    async function loadDashboardData(){
+        const[t,e]=await Promise.all([getDocs(query(collection(db,"orders"),orderBy("orderDate","desc"))),getDocs(collection(db,"products"))]);
+        const n=t.docs.map((t=>({id:t.id,...t.data()})));
+        const s=e.docs.map((t=>({id:t.id,...t.data()})));
+        processSalesAndOrders(n);
+        processProducts(s);
+    }
+    
+    function processSalesAndOrders(t){
+        let e=0,n=0,s=0,o=0;
+        const a=new Date,r=new Date(a.getFullYear(),a.getMonth(),a.getDate()),i=new Date(a);
+        i.setDate(a.getDate()-a.getDay());
+        const c=new Date(i.getFullYear(),i.getMonth(),i.getDate()),d=new Date(a.getFullYear(),a.getMonth(),1);
+        t.forEach((t=>{
+            if(t.orderDate&&t.orderDate.seconds){
+                const a=new Date(1e3*t.orderDate.seconds),i=t.summary?.total||0;a>=r&&(e+=i),a>=c&&(n+=i),a>=d&&(s+=i);
+                if ("Pending" === t.status) o++; // UPDATED LINE
+            }
+        }));
+        document.getElementById("todaySales").textContent=`৳${e.toLocaleString()}`;
+        document.getElementById("weekSales").textContent=`৳${n.toLocaleString()}`;
+        document.getElementById("monthSales").textContent=`৳${s.toLocaleString()}`;
+        document.getElementById("newOrders").textContent=o;
+        const l=document.getElementById("recentOrdersList");
+        l.innerHTML="";
+        const g=t.slice(0,5);
+        0===g.length?l.innerHTML='<tr><td colspan="4" class="empty-message">No recent orders.</td></tr>':g.forEach((t=>{
+            l.innerHTML+=`
+                <tr>
+                    <td><a href="view-order.html?id=${t.id}">#${t.orderId}</a></td>
+                    <td>${t.customerDetails?.name||"N/A"}</td>
+                    <td>৳${t.summary?.total||0}</td>
+                    <td><span class="status-badge status-${t.status?.toLowerCase()||"unknown"}">${t.status||"Unknown"}</span></td>
+                </tr>
+            `
+        }));
+    }
+    
+    function processProducts(t){
+        const e=t.filter((t=>(t.quantity||0)<10&&!t.hasVariants)).slice(0,5);
+        const n=document.getElementById("lowStockList");
+        n.innerHTML="";
+        0===e.length?n.innerHTML='<p class="empty-message">No products with low stock.</p>':e.forEach((t=>{
+            n.innerHTML+=`
+                <div class="list-item">
+                    <div class="list-item-info">
+                        <span class="list-item-title">${t.name}</span>
+                        <span class="list-item-subtitle">Stock: ${t.quantity}</span>
+                    </div>
+                    <a href="edit-product.html?id=${t.id}" class="btn btn-sm">Manage</a>
+                </div>
+            `
+        }));
+    }
+    
+    logoutButton.addEventListener("click",(()=>{
+        signOut(auth).then((()=>{
+            window.location.href="login.html";
+        })).catch((t=>{console.error("Sign out error",t)}))
+    }));
+</script>
+</body>
+</html>

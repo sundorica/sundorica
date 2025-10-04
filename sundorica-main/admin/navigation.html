@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>navigation</title>
+    <link rel="icon" href="https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <style>
+        .sidebar .menu-list .logout-button {
+            width: 100%; display: block; padding: 12px 20px;
+            background-color: #d32f2f; color: white; border: none;
+            text-align: left; cursor: pointer; font-size: 16px;
+            border-radius: 5px; margin-top: 15px; transition: background-color 0.3s;
+        }
+        .sidebar .menu-list .logout-button:hover { background-color: #b71c1c; }
+        .sidebar .menu-list .logout-button i { margin-right: 10px; }
+        #itemLink:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        /* --- Mobile Responsive Styles Start --- */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            z-index: 1001;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 260px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                z-index: 1000;
+                box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+            .header {
+                display: flex;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .header h1 {
+                font-size: 24px;
+                margin-bottom: 15px; /* Space between title and button */
+            }
+            .mobile-menu-btn {
+                display: block;
+                padding-top: 5px;
+                margin-left: auto; /* Pushes menu to the far right */
+                flex-shrink: 0; /* Prevents button from shrinking */
+            }
+            #saveMenuBtnDesktop {
+                display: none; /* Hide desktop button on mobile */
+            }
+        }
+        
+        @media (min-width: 769px) {
+            #saveMenuBtnMobile {
+                display: none; /* Hide mobile button on desktop */
+            }
+        }
+        /* --- Mobile Responsive Styles End --- */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <ul class="menu-list">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="collections.html">Collections</a></li>
+                <li class="active"><a href="navigation.html">Navigation</a></li>
+                <li><a href="announcements.html">Announcements</a></li>
+                <li><a href="shipping-zones.html">Shipping Zones</a></li>
+                <li><a href="store-details.html">Store Details</a></li>
+                <li><a href="hero-slider.html">Hero Slider</a></li>
+                <li><a href="pages.html">Pages</a></li>
+                <li>
+                    <button id="logout-button" class="logout-button">
+                        <i class="fas fa-sign-out-alt"></i>Logout
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-main">
+                    <h1>Navigation</h1>
+                    <button class="btn btn-primary" id="saveMenuBtnMobile">Save Menu</button>
+                </div>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button class="btn btn-primary" id="saveMenuBtnDesktop">Save Menu</button>
+            </div>
+            
+            <div class="content-card">
+                <h3>Main Menu</h3>
+                <div id="menu-list-container" class="menu-list-container">
+                    <p class="empty-message">Loading menu...</p>
+                </div>
+                <button class="btn" id="addMenuItemBtn" style="margin-top: 20px;">Add menu item</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="menuItemModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add menu item</h3>
+                <span class="close-modal" onclick="closeModal('menuItemModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="itemName" class="form-label">Name</label>
+                    <input type="text" id="itemName" class="form-control" placeholder="e.g. Home">
+                </div>
+                <div class="form-group">
+                    <label for="itemLink" class="form-label">Link</label>
+                    <div class="searchable-select-container">
+                        <input type="text" id="itemLink" class="form-control" placeholder="Search for collections/pages or type a link">
+                        <div class="dropdown-list" id="linkSuggestions"></div>
+                    </div>
+                </div>
+                <input type="hidden" id="itemId">
+                <input type="hidden" id="itemType">
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="removeItemBtn" style="float: left; color: var(--danger-color); display: none;">Remove</button>
+                <button class="btn" onclick="closeModal('menuItemModal')">Cancel</button>
+                <button class="btn btn-primary" id="applyChangesBtn">Apply changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast-notification" class="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
+            authDomain: "nasir-9102c.firebaseapp.com",
+            projectId: "nasir-9102c",
+            storageBucket: "nasir-9102c.firebasestorage.app",
+            messagingSenderId: "182224792140",
+            appId: "1:182224792140:web:42348e8b24f94cdf07e2e9",
+            measurementId: "G-8R5J241MJM"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const getLoginUrl = () => {
+            const path = window.location.pathname;
+            const newPath = path.substring(0, path.lastIndexOf('/')) + '/login.html';
+            return newPath;
+        };
+
+        function initializeMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            if (mobileMenuBtn && sidebar) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                });
+                document.addEventListener('click', (event) => {
+                    const isClickInsideSidebar = sidebar.contains(event.target);
+                    const isClickOnMenuButton = mobileMenuBtn.contains(event.target);
+                    if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('open')) {
+                        sidebar.classList.remove('open');
+                    }
+                }, true);
+            }
+        }
+
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                signOut(auth).then(() => {
+                    window.location.href = getLoginUrl();
+                }).catch(error => console.error('Sign out error', error));
+            });
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                initializePage();
+                initializeMobileMenu();
+            } else {
+                window.location.href = getLoginUrl();
+            }
+        });
+
+        async function initializePage() {
+            let linkSuggestions = [];
+            const menuContainer = document.getElementById('menu-list-container');
+            const addBtn = document.getElementById('addMenuItemBtn');
+            const saveBtnMobile = document.getElementById('saveMenuBtnMobile');
+            const saveBtnDesktop = document.getElementById('saveMenuBtnDesktop');
+            const modal = document.getElementById('menuItemModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const itemNameInput = document.getElementById('itemName');
+            const itemLinkInput = document.getElementById('itemLink');
+            const itemIdInput = document.getElementById('itemId');
+            const itemTypeInput = document.getElementById('itemType');
+            const applyBtn = document.getElementById('applyChangesBtn');
+            const removeBtn = document.getElementById('removeItemBtn');
+            const linkSuggestionsDiv = document.getElementById('linkSuggestions');
+            const toast = document.getElementById('toast-notification');
+
+            async function loadLinkSuggestions() {
+                linkSuggestions = [{ suggestionName: 'Home Page', displayName: 'Home', type: 'page', link: '/' }];
+                
+                const pagesSnapshot = await getDocs(collection(db, "pages"));
+                pagesSnapshot.forEach(doc => {
+                    linkSuggestions.push({ 
+                        suggestionName: `Page: ${doc.data().title}`, 
+                        displayName: doc.data().title,
+                        type: 'page',
+                        link: `/pages/${doc.id}` 
+                    });
+                });
+                
+                const collectionsSnapshot = await getDocs(collection(db, "collections"));
+                collectionsSnapshot.forEach(doc => {
+                    linkSuggestions.push({ 
+                        suggestionName: `Collection: ${doc.data().name}`,
+                        displayName: doc.data().name,
+                        type: 'collection'
+                    });
+                });
+            }
+
+            function renderMenu(items, container) {
+                container.innerHTML = '';
+                items.forEach(item => {
+                    const itemEl = createMenuItemElement(item);
+                    
+                    if (item.children && item.children.length > 0) {
+                        const childrenContainer = itemEl.querySelector('.menu-item-children');
+                        renderMenu(item.children, childrenContainer);
+                    }
+                    container.appendChild(itemEl);
+                });
+            }
+
+            function createMenuItemElement(item) {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'menu-item';
+                itemEl.dataset.id = item.id || Date.now();
+                itemEl.dataset.name = item.name;
+                itemEl.dataset.type = item.type || 'custom';
+                if (item.link) {
+                    itemEl.dataset.link = item.link;
+                }
+
+                itemEl.innerHTML = `
+                    <div class="menu-item-content">
+                        <i class="fas fa-grip-vertical drag-handle"></i>
+                        <span>${item.name}</span>
+                    </div>
+                    <div class="menu-item-children"></div>
+                `;
+                return itemEl;
+            }
+
+            async function loadMenu() {
+                const menuRef = doc(db, "navigation", "main-menu");
+                const docSnap = await getDoc(menuRef);
+                if (docSnap.exists() && docSnap.data().items) {
+                    renderMenu(docSnap.data().items, menuContainer);
+                } else {
+                    menuContainer.innerHTML = '<p class="empty-message">No menu items yet. Add one to get started!</p>';
+                }
+                initSortable();
+            }
+
+            function initSortable() {
+                const lists = document.querySelectorAll('.menu-list-container, .menu-item-children');
+                lists.forEach(list => {
+                    new Sortable(list, {
+                        group: 'nested',
+                        animation: 150,
+                        handle: '.drag-handle',
+                        fallbackOnBody: true,
+                        swapThreshold: 0.65
+                    });
+                });
+            }
+
+            function openModal(mode, element = null) {
+                itemLinkInput.disabled = false;
+                itemTypeInput.value = 'custom';
+                itemIdInput.value = Date.now();
+                itemNameInput.value = '';
+                itemLinkInput.value = '';
+
+                if (mode === 'add') {
+                    modalTitle.textContent = 'Add menu item';
+                    removeBtn.style.display = 'none';
+                } else { // 'edit'
+                    modalTitle.textContent = 'Edit menu item';
+                    itemIdInput.value = element.dataset.id;
+                    itemNameInput.value = element.dataset.name;
+                    itemTypeInput.value = element.dataset.type || 'custom';
+                    
+                    if (itemTypeInput.value === 'collection' || itemTypeInput.value === 'page') {
+                        itemLinkInput.value = `Automatic link for ${itemTypeInput.value}`;
+                        itemLinkInput.disabled = true;
+                    } else {
+                        itemLinkInput.value = element.dataset.link || '';
+                    }
+                    removeBtn.style.display = 'block';
+                }
+                modal.style.display = 'flex';
+            }
+
+            addBtn.addEventListener('click', () => openModal('add'));
+            menuContainer.addEventListener('click', (e) => {
+                const item = e.target.closest('.menu-item-content');
+                if (item && !e.target.classList.contains('drag-handle')) {
+                    openModal('edit', item.closest('.menu-item'));
+                }
+            });
+
+            applyBtn.addEventListener('click', () => {
+                const id = itemIdInput.value;
+                const name = itemNameInput.value.trim();
+                const link = itemLinkInput.value.trim();
+                const type = itemTypeInput.value;
+
+                if (!name) return alert("Name is required.");
+                if (type === 'custom' && !link) return alert("Link is required for custom items.");
+
+                let itemEl = document.querySelector(`.menu-item[data-id="${id}"]`);
+                if (itemEl) { // Editing existing
+                    itemEl.dataset.name = name;
+                    itemEl.dataset.type = type;
+                    itemEl.dataset.link = (type === 'custom') ? link : '';
+                    itemEl.querySelector('.menu-item-content span').textContent = name;
+                } else { // Adding new
+                    if (menuContainer.querySelector('.empty-message')) {
+                        menuContainer.innerHTML = '';
+                    }
+                    const newItemData = { id, name, type };
+                    if (type === 'custom') {
+                        newItemData.link = link;
+                    }
+                    itemEl = createMenuItemElement(newItemData);
+                    menuContainer.appendChild(itemEl);
+                    initSortable();
+                }
+                closeModal('menuItemModal');
+            });
+            
+            removeBtn.addEventListener('click', () => {
+                const id = itemIdInput.value;
+                const itemEl = document.querySelector(`.menu-item[data-id="${id}"]`);
+                if(itemEl && confirm('Are you sure you want to remove this menu item?')) {
+                    itemEl.remove();
+                    closeModal('menuItemModal');
+                }
+            });
+
+            itemLinkInput.addEventListener('input', () => {
+                itemTypeInput.value = 'custom';
+                const term = itemLinkInput.value.toLowerCase();
+                const filtered = linkSuggestions.filter(s => s.suggestionName.toLowerCase().includes(term));
+                linkSuggestionsDiv.innerHTML = '';
+                if(filtered.length > 0 && term) {
+                    filtered.forEach(s => {
+                        const item = document.createElement('div');
+                        item.className = 'dropdown-item';
+                        item.textContent = s.suggestionName;
+                        item.onclick = () => {
+                            itemNameInput.value = s.displayName;
+                            itemTypeInput.value = s.type;
+                            if (s.type === 'collection' || s.type === 'page') {
+                                itemLinkInput.value = `Automatic link for ${s.type}`;
+                                itemLinkInput.disabled = true;
+                            } else {
+                                itemLinkInput.value = s.link;
+                                itemLinkInput.disabled = false;
+                            }
+                            linkSuggestionsDiv.style.display = 'none';
+                        };
+                        linkSuggestionsDiv.appendChild(item);
+});
+                    linkSuggestionsDiv.style.display = 'block';
+                } else {
+                    linkSuggestionsDiv.style.display = 'none';
+                }
+            });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.searchable-select-container')) {
+                    linkSuggestionsDiv.style.display = 'none';
+                }
+            });
+
+            function domToJs(container) {
+                const items = [];
+                const childNodes = Array.from(container.children).filter(node => node.matches('.menu-item'));
+                
+                childNodes.forEach(node => {
+                    const item = {
+                        id: node.dataset.id,
+                        name: node.dataset.name,
+                        type: node.dataset.type,
+                        children: []
+                    };
+                    if (item.type === 'custom') {
+                        item.link = node.dataset.link;
+                    }
+                    const childrenContainer = node.querySelector('.menu-item-children');
+
+                    if (childrenContainer && childrenContainer.children.length > 0) {
+                        item.children = domToJs(childrenContainer);
+                    }
+                    items.push(item);
+                });
+                return items;
+            }
+
+            async function saveMenu() {
+                saveBtnMobile.disabled = true;
+                saveBtnDesktop.disabled = true;
+                saveBtnMobile.textContent = 'Saving...';
+                saveBtnDesktop.textContent = 'Saving...';
+                
+                const menuData = { items: domToJs(menuContainer) };
+                try {
+                    await setDoc(doc(db, "navigation", "main-menu"), menuData);
+                    showToast("Menu saved successfully!");
+                } catch (error) {
+                    console.error("Error saving menu: ", error);
+                    showToast("Error: Could not save menu.");
+                } finally {
+                    saveBtnMobile.disabled = false;
+                    saveBtnDesktop.disabled = false;
+                    saveBtnMobile.textContent = 'Save Menu';
+                    saveBtnDesktop.textContent = 'Save Menu';
+                }
+            }
+
+            saveBtnMobile.addEventListener('click', saveMenu);
+            saveBtnDesktop.addEventListener('click', saveMenu);
+
+            window.closeModal = (modalId) => document.getElementById(modalId).style.display = 'none';
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            }
+
+            await loadLinkSuggestions();
+            await loadMenu();
+        }
+    </script>
+</body>
+</html>

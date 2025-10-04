@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script>
+  (function() {
+    const redirectPath = sessionStorage.getItem('redirectPath');
+    if (redirectPath && redirectPath !== window.location.pathname) {
+      sessionStorage.removeItem('redirectPath');
+      window.history.replaceState(null, '', redirectPath);
+    }
+  })();
+</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Sundorica</title>
+    <meta name="description" content="Learn more about Sundorica, where timeless skincare meets graceful fashion. Discover our mission to empower every woman to feel beautiful — inside and out.">
+    
+    <link rel="canonical" href="https://www.sundorica.com/about/">
+
+    <link rel="icon" type="image/png" href="https://www.sundorica.com/favicon.png">
+    <link rel="shortcut icon" href="https://www.sundorica.com/favicon.png">
+    <link rel="apple-touch-icon" href="https://www.sundorica.com/favicon.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com">
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com">
+
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript>
+    
+    <script src="/meta-pixel-config.js" defer></script>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+             src="https://www.facebook.com/tr?id=1475283116725734&ev=PageView&noscript=1"
+        />
+    </noscript>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Sundorica",
+      "url": "https://www.sundorica.com/",
+      "logo": "https://www.sundorica.com/favicon.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+8801617970053",
+        "contactType": "Customer Service",
+        "email": "sundorica@gmail.com"
+      }
+    }
+    </script>
+    
+    <style>
+        /* All CSS from index.html is copied here for consistent styling */
+        :root{--primary-color:#1a1a1a;--secondary-color:#666666;--accent-color:#007bff;--background-color:#ffffff;--surface-color:#f8f9fa;--border-color:#e9ecef;--danger-color:#dc3545;}.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0;}body{font-family:'Inter', sans-serif;margin:0;background-color:var(--background-color);color:var(--primary-color);line-height:1.6;min-height:100vh;display:flex;flex-direction:column;}.container{width:100%;max-width:100%;margin:0 auto;padding-left:20px;padding-right:20px;box-sizing:border-box;}section{padding:40px 0;}.header-wrapper{position:sticky;top:0;z-index:100;background-color:var(--background-color);box-shadow:0 2px 4px rgba(0,0,0,0.05);}.announcement-bar{padding:10px;text-align:center;font-weight:500;font-size:14px;}.main-header{padding:15px 0;}.header-content{display:flex;justify-content:space-between;align-items:center;}.store-logo a{text-decoration:none;color:var(--primary-color);}.store-logo img{max-height:45px;display:block;}.store-logo .store-name{font-family:'Orbitron', sans-serif;font-size:22px;font-weight:700;}.main-nav{display:none;}@media (min-width: 992px){.main-nav{display:block;}}.main-nav ul{margin:0;padding:0;list-style:none;display:flex;gap:25px;}.main-nav li{position:relative;}.main-nav a{text-decoration:none;color:var(--primary-color);font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer;}.has-submenu > a i{font-size:0.7em;transition:transform 0.3s ease;}.has-submenu.active > a i{transform:rotate(180deg);}.submenu{display:none;position:absolute;top:100%;left:0;background-color:white;list-style:none;padding:10px 0;margin-top:10px;min-width:200px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.1);border:1px solid var(--border-color);opacity:0;transform:translateY(10px);transition:opacity 0.3s ease, transform 0.3s ease;pointer-events:none;z-index:10;}.main-nav .has-submenu.active > .submenu{display:block;opacity:1;transform:translateY(0);pointer-events:auto;}.submenu li{padding:0 15px;}.submenu a{padding:8px 0;width:100%;}.header-icons{display:flex;align-items:center;gap:15px;font-size:20px;}.header-icons a, .header-icons button{color:var(--primary-color);background:none;border:none;cursor:pointer;padding:0;}.cart-icon-link{position:relative;display:inline-block;}.cart-item-count{position:absolute;top:-8px;right:-12px;background-color:var(--danger-color);color:white;border-radius:50%;padding:2px 6px;font-size:10px;font-weight:bold;line-height:1;display:none;}.mobile-menu-toggle{display:none;font-size:24px;}.mobile-search-header, .desktop-search-header{display:none;align-items:center;padding:15px 0;width:100%;}.mobile-search-header .search-icon, .desktop-search-header .search-icon{padding:0 10px;font-size:20px;color:var(--secondary-color);}.mobile-search-header input, .desktop-search-header input{flex-grow:1;border:none;outline:none;font-size:16px;}.mobile-search-header .close-search-btn, .desktop-search-header .close-desktop-search-btn{background:none;border:none;font-size:24px;cursor:pointer;padding:0 10px;}body.search-active .header-content, body.desktop-search-active .header-content{display:none;}body.search-active .mobile-search-header{display:flex;}@media (min-width: 992px){#mobile-search-icon, .mobile-menu-toggle{display:none;}#desktop-search-trigger{display:inline-block;}body.desktop-search-active .desktop-search-header{display:flex;}}@media (max-width: 991px){.main-nav{display:none;}.mobile-menu-toggle{display:block;}#desktop-search-trigger{display:none;}}.main-footer{background-color:var(--surface-color);padding:5px 0;border-top:.5px solid var(--border-color);display:none;flex-shrink:0;}.main-footer .container{position:relative;display:flex;justify-content:center;align-items:center;min-height:50px;}.footer-center-content{text-align:center;}.social-links{margin-bottom:10px;}.social-links a{font-size:12px;color:var(--secondary-color);margin:0 6px;}.copyright{font-size:8px;color:var(--secondary-color);margin:0;}.footer-left-links{position:absolute;left:20px;top:50%;transform:translateY(-50%);display:flex;gap:15px;}.footer-left-links a{font-size:12px;color:var(--secondary-color);text-decoration:none;cursor:pointer;}.footer-left-links a:hover{color:var(--primary-color);}@media (max-width: 768px){.footer-left-links{flex-direction:column;align-items:flex-start;gap:5px;}.footer-left-links a{font-size:11px;}}.mobile-nav-panel{position:fixed;top:0;right:-100%;width:80%;max-width:300px;height:100%;background-color:white;z-index:102;transition:right 0.4s ease-in-out;padding:20px;box-sizing:border-box;box-shadow:-2px 0 10px rgba(0,0,0,0.1);overflow-y:auto;}.mobile-nav-panel.active{right:0;}.mobile-nav-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:15px;border-bottom:1px solid var(--border-color);}.mobile-nav-header h3{margin:0;}.close-mobile-nav{font-size:24px;cursor:pointer;background:none;border:none;}.mobile-nav-panel ul{list-style:none;padding:0;margin:20px 0 0 0;}.mobile-nav-panel li{border-bottom:1px solid var(--border-color);}.mobile-nav-panel a{display:flex;justify-content:space-between;align-items:center;padding:15px 0;text-decoration:none;color:var(--primary-color);font-weight:500;}.mobile-nav-panel .submenu{display:block;position:static;opacity:1;transform:none;pointer-events:auto;box-shadow:none;border:none;margin:0;min-width:unset;background-color:transparent;list-style:none;padding-left:20px;padding-top:0;padding-bottom:0;max-height:0;overflow:hidden;transition:max-height 0.4s ease-in-out;}.mobile-nav-panel .has-submenu.active > .submenu{max-height:500px;}.mobile-nav-panel .has-submenu > a i{transition:transform 0.3s ease;}.mobile-nav-panel .has-submenu.active > a i{transform:rotate(180deg);}.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:101;display:none;}.overlay.active{display:block;}.messenger-chat-icon{position:fixed;bottom:25px;right:25px;z-index:1000;cursor:pointer;}.messenger-chat-icon i{font-size:50px;color:#00B2FF;transition:transform 0.2s ease-in-out;}.messenger-chat-icon:hover i{transform:scale(1.1);}@media (max-width: 768px){.messenger-chat-icon{bottom:20px;right:20px;}.messenger-chat-icon i{font-size:40px;}}
+        /* Styles for Static Pages */
+        main { flex: 1 0 auto; }
+        .static-page-content { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .static-page-content h1 { font-size: 28px; margin-bottom: 20px; }
+        .static-page-content p, .static-page-content li { font-size: 16px; line-height: 1.8; color: var(--secondary-color); margin-bottom: 1.5em; }
+        .static-page-content h4 { font-size: 18px; margin-top: 30px; margin-bottom: 15px; color: var(--primary-color); }
+        .static-page-content ul { padding-left: 25px; }
+    </style>
+</head>
+<body>
+    
+    <div class="header-wrapper">
+        <div id="announcement-bar" class="announcement-bar" style="display: none;">
+            <span id="announcement-text"></span>
+        </div>
+        <header class="main-header">
+            <div class="container header-content">
+                <div class="store-logo">
+                    <a href="/" id="store-logo-link" aria-label="Sundorica Homepage"></a>
+                </div>
+                <nav class="main-nav" id="main-nav"></nav>
+                <div class="header-icons">
+                    <button id="desktop-search-trigger" aria-label="Open search bar"><i class="fas fa-search"></i></button>
+                    <button id="mobile-search-icon" aria-label="Open search bar"><i class="fas fa-search"></i></button>
+                    <a href="/cart/" class="cart-icon-link" aria-label="View your shopping cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-item-count">0</span>
+                    </a>
+                    <button class="mobile-menu-toggle" aria-label="Open menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="container desktop-search-header">
+                <i class="fas fa-search search-icon"></i>
+                <label for="desktopSearchInput" class="visually-hidden">Search our store</label>
+                <input type="text" id="desktopSearchInput" placeholder="Search our store">
+                <button class="close-desktop-search-btn" aria-label="Close search bar">&times;</button>
+            </div>
+            <div class="container mobile-search-header">
+                <i class="fas fa-search search-icon"></i>
+                <label for="mobileSearchInput" class="visually-hidden">Search our store</label>
+                <input type="text" id="mobileSearchInput" placeholder="Search our store">
+                <button class="close-search-btn" aria-label="Close search bar">&times;</button>
+            </div>
+        </header>
+    </div>
+
+    <div id="mobile-nav-panel" class="mobile-nav-panel">
+        <div class="mobile-nav-header">
+            <h3>Menu</h3>
+            <button class="close-mobile-nav" aria-label="Close menu">&times;</button>
+        </div>
+        <div id="mobile-nav-links"></div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+
+    <main>
+        <section class="container">
+            <div class="static-page-content">
+                <h1>About Us</h1>
+                <p>Sundorica is a celebration of feminine elegance — where timeless skincare meets graceful fashion. Our brand blends the essence of natural beauty with style, offering premium skincare products designed for radiant, healthy skin, alongside modern clothing crafted for confidence and comfort.</p>
+                <p>From nourishing serums to breathable fabrics, Sundorica empowers every woman to feel beautiful — inside and out. Rooted in purity, luxury, and purpose, we believe beauty is not just what you wear, but how you care for yourself.</p>
+                <p><strong>Sundorica – Where Beauty Meets Style.</strong></p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-left-links">
+                <a href="/about/">About</a>
+                <a href="/contact/">Contact</a>
+                <a href="/privacy-policy/">Privacy Policy</a>
+            </div>
+            <div class="footer-center-content">
+                <div class="social-links" id="social-links"></div>
+                <p class="copyright">&copy; <span id="copyright-year"></span> <span id="footer-store-name"></span>. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://m.me/670864642785681" class="messenger-chat-icon" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on Messenger">
+        <i class="fab fa-facebook-messenger"></i>
+    </a>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const firebaseConfig = {
+                apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",
+                authDomain: "nasir-9102c.firebaseapp.com",
+                projectId: "nasir-9102c",
+                storageBucket: "nasir-9102c.appspot.com",
+                messagingSenderId: "182224792140",
+                appId: "1:182224792140:web:42348e8b24f94cdf07e2e9",
+                measurementId: "G-8R5J241MJM"
+            };
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            function updateCartCount() { const cart = JSON.parse(localStorage.getItem('cart')) || []; const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0); const countElement = document.querySelector('.cart-item-count'); if (countElement) { countElement.textContent = totalItems; countElement.style.display = totalItems > 0 ? 'block' : 'none'; } }
+            
+            async function loadSharedData() {
+                const [ announcementSnap, storeDetailsSnap, navigationSnap, allCollectionsSnap ] = await Promise.all([ 
+                    getDoc(doc(db, "settings", "announcementBar")), 
+                    getDoc(doc(db, "settings", "store_details")), 
+                    getDoc(doc(db, "navigation", "main-menu")),
+                    getDocs(collection(db, "collections"))
+                ]); 
+
+                if (announcementSnap.exists()) { const data = announcementSnap.data(); const bar = document.getElementById('announcement-bar'); const textEl = document.getElementById('announcement-text'); if (bar && textEl && data.texts && data.texts.length > 0) { bar.style.backgroundColor = data.isTransparent ? 'transparent' : data.backgroundColor; bar.style.color = data.textColor; bar.style.fontSize = `${data.fontSize}px`; bar.style.display = 'block'; let currentIndex = 0; textEl.textContent = data.texts[currentIndex]; if (data.texts.length > 1) { setInterval(() => { currentIndex = (currentIndex + 1) % data.texts.length; textEl.textContent = data.texts[currentIndex]; }, 3000); } } } 
+                if (storeDetailsSnap.exists()) { const data = storeDetailsSnap.data(); const logoLink = document.getElementById('store-logo-link'); if (data.logoUrl) { logoLink.innerHTML = `<img src="${data.logoUrl}" alt="${data.storeName || 'Store Logo'}">`; } else if (data.storeName) { logoLink.innerHTML = `<span class="store-name">${data.storeName}</span>`; } document.getElementById('footer-store-name').textContent = data.storeName || 'sundorica'; renderSocialLinks(data.socialLinks); } else { document.getElementById('footer-store-name').textContent = 'sundorica'; } 
+
+                const collectionSlugMap = new Map();
+                if (!allCollectionsSnap.empty) {
+                    allCollectionsSnap.forEach(doc => {
+                        const data = doc.data();
+                        if (data.name && data.slug) {
+                            collectionSlugMap.set(data.name, data.slug);
+                        }
+                    });
+                }
+                
+                if (navigationSnap.exists()) { 
+                    const menuData = navigationSnap.data(); 
+                    if (menuData.items) { 
+                        const navContainer = document.getElementById('main-nav'); 
+                        const mobileNavContainer = document.getElementById('mobile-nav-links'); 
+                        const ul = document.createElement('ul'); 
+                        const mobileUl = document.createElement('ul'); 
+                        createMenuItems(menuData.items, ul, collectionSlugMap); 
+                        createMenuItems(menuData.items, mobileUl, collectionSlugMap, true); 
+                        navContainer.appendChild(ul); 
+                        mobileNavContainer.appendChild(mobileUl); 
+                        addMenuEventListeners(); 
+                    } 
+                }
+                document.querySelector('.main-footer').style.display = 'block';
+            }
+
+            function createMenuItems(items, parentUl, slugMap, isMobile = false) { 
+                items.forEach(item => { 
+                    const li = document.createElement('li'); 
+                    let finalLink = item.link || '#';
+                    if (item.type === 'collection' && slugMap.has(item.name)) {
+                        finalLink = `/collections/${slugMap.get(item.name)}`;
+                    }
+                    let linkHTML = `<a href="${finalLink}">${item.name}`; 
+                    if (item.children && item.children.length > 0) { li.classList.add('has-submenu'); linkHTML += ` <i class="fas fa-chevron-down"></i>`; } 
+                    linkHTML += `</a>`; li.innerHTML = linkHTML; 
+                    if (item.children && item.children.length > 0) { const subUl = document.createElement('ul'); subUl.className = 'submenu'; createMenuItems(item.children, subUl, slugMap, isMobile); li.appendChild(subUl); } 
+                    parentUl.appendChild(li); 
+                }); 
+            }
+
+            function addMenuEventListeners() { document.querySelectorAll('.main-nav .has-submenu > a').forEach(menu => { menu.addEventListener('click', function(event) { event.preventDefault(); this.parentElement.classList.toggle('active'); }); }); document.addEventListener('click', (e) => { if (!e.target.closest('.main-nav')) { document.querySelectorAll('.main-nav .has-submenu').forEach(item => item.classList.remove('active')); } }); document.querySelectorAll('.mobile-nav-panel .has-submenu > a').forEach(menu => { menu.addEventListener('click', function(event) { event.preventDefault(); this.parentElement.classList.toggle('active'); }); }); }
+            function renderSocialLinks(links) { const container = document.getElementById('social-links'); if (!links) return; let html = ''; if (links.facebook) html += `<a href="${links.facebook}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`; if (links.instagram) html += `<a href="${links.instagram}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`; if (links.twitter) html += `<a href="${links.twitter}" target="_blank" rel="noopener" aria-label="Twitter"><i class="fab fa-twitter"></i></a>`; if (links.youtube) html += `<a href="${links.youtube}" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>`; container.innerHTML = html; }
+            function setCopyrightYear() { document.getElementById('copyright-year').textContent = new Date().getFullYear(); }
+            function setupEventListeners() { 
+                const handleSearch = () => { const desktopValue = document.getElementById('desktopSearchInput').value; const mobileValue = document.getElementById('mobileSearchInput').value; const searchTerm = (desktopValue || mobileValue).trim(); if (searchTerm) { if (typeof fbq === 'function') { fbq('track', 'Search', { search_string: searchTerm }); } window.location.href = `/all-products/?search=${encodeURIComponent(searchTerm)}`; } }; const desktopSearchInput = document.getElementById('desktopSearchInput'); const mobileSearchInput = document.getElementById('mobileSearchInput'); if (desktopSearchInput) { desktopSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } if (mobileSearchInput) { mobileSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSearch(); }); } const desktopSearchTrigger = document.getElementById('desktop-search-trigger'); const closeDesktopSearchBtn = document.querySelector('.close-desktop-search-btn'); if (desktopSearchTrigger) { desktopSearchTrigger.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('desktop-search-active'); desktopSearchInput.focus(); }); } if (closeDesktopSearchBtn) { closeDesktopSearchBtn.addEventListener('click', () => { document.body.classList.remove('desktop-search-active'); }); } const mobileSearchIcon = document.getElementById('mobile-search-icon'); const closeSearchBtn = document.querySelector('.close-search-btn'); if(mobileSearchIcon) { mobileSearchIcon.addEventListener('click', (e) => { e.preventDefault(); document.body.classList.add('search-active'); mobileSearchInput.focus(); }); } if(closeSearchBtn) { closeSearchBtn.addEventListener('click', () => { document.body.classList.remove('search-active'); }); } const mobileMenuToggle = document.querySelector('.mobile-menu-toggle'); const mobileNavPanel = document.getElementById('mobile-nav-panel'); const closeMobileNav = document.querySelector('.close-mobile-nav'); const overlay = document.getElementById('overlay'); const closeMenu = () => { mobileNavPanel.classList.remove('active'); overlay.classList.remove('active'); }; if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', () => { mobileNavPanel.classList.add('active'); overlay.classList.add('active'); }); if (closeMobileNav) closeMobileNav.addEventListener('click', closeMenu); if (overlay) overlay.addEventListener('click', closeMenu); 
+            }
+
+            setCopyrightYear();
+            await loadSharedData();
+            setupEventListeners();
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>

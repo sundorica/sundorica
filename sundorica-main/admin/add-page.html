@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>add-page</title>
+<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<link rel=stylesheet href=style.css>
+<link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
+<style>
+    .sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}
+    .sidebar .menu-list .logout-button:hover{background-color:#b71c1c}
+    .sidebar .menu-list .logout-button i{margin-right:10px}
+
+    /* --- Mobile Responsive Styles Start --- */
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        z-index: 1001;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 260px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .main-content {
+            width: 100%;
+            margin-left: 0;
+        }
+        .header {
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header h1 {
+            font-size: 24px;
+            width: 100%; /* Make title take full width */
+        }
+        .mobile-menu-btn {
+            display: block;
+            position: absolute;
+            top: 25px;
+            right: 20px;
+        }
+    }
+    /* --- Mobile Responsive Styles End --- */
+</style>
+</head>
+<body>
+<div class=container>
+<div class=sidebar>
+<h2>Admin Panel</h2>
+<ul class=menu-list>
+<li><a href=index.html>Dashboard</a></li>
+<li><a href=orders.html>Orders</a></li>
+<li><a href=products.html>Products</a></li>
+<li><a href=collections.html>Collections</a></li>
+<li><a href=navigation.html>Navigation</a></li>
+<li><a href=announcements.html>Announcements</a></li>
+<li><a href=shipping-zones.html>Shipping Zones</a></li>
+<li><a href=store-details.html>Store Details</a></li>
+<li><a href=hero-slider.html>Hero Slider</a></li>
+<li class=active><a href=pages.html>Pages</a></li>
+<li>
+<button id=logout-button class=logout-button>
+<i class="fas fa-sign-out-alt"></i>Logout
+</button>
+</li>
+</ul>
+</div>
+<div class=main-content>
+<div class=header>
+<h1>Add New Page</h1>
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+    <i class="fas fa-bars"></i>
+</button>
+<div>
+<a href=pages.html class=btn>Cancel</a>
+<button class="btn btn-primary" id=savePageBtn>Save Page</button>
+</div>
+</div>
+<div class=content-card>
+<div class=form-group>
+<label for=pageTitle class=form-label>Title</label>
+<input id=pageTitle class=form-control placeholder="e.g. about us, sizing chart, FAQ">
+</div>
+<div class=form-group>
+<label class=form-label>Content</label>
+<div class=rich-text-editor-container>
+<div class=rich-text-editor>
+<div class=toolbar>
+<button id=insertImageBtn class=toolbar-btn title="Insert Image">
+<svg viewBox="0 0 20 20"><path d=M11.41,4.59,7.5,8.5,9,10l4-4L11.41,4.59ZM18,4a2,2,0,0,0-2-2H4A2,2,0,0,0,2,4V16a2,2,0,0,0,2,2H16a2,2,0,0,0,2-2ZM4,16.01V4H16l.01,12.01Z></path><path d=M6.5,11.5a1.5,1.5,0,1,0-1.5,1.5A1.5,1.5,0,0,0,6.5,11.5Z></path></svg>
+</button>
+<input type=file id=imageUpload accept=image/* style=display:none>
+</div>
+<div id=contentArea class=content-area contenteditable=true></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id=successModal class=modal>
+<div class=modal-dialog>
+<div class=modal-header><h3>Success!</h3></div>
+<div class=modal-body><p>Page saved successfully.</p></div>
+<div class=modal-footer>
+<a href=pages.html class="btn btn-primary">OK</a>
+</div>
+</div>
+</div>
+<script type=module>
+    import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import{getFirestore,collection,addDoc}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    
+    const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9"};
+    const app=initializeApp(firebaseConfig);
+    const db=getFirestore(app);
+    const auth=getAuth(app);
+    
+    const getLoginUrl=()=>{const e=window.location.pathname;return e.substring(0,e.lastIndexOf("/"))+"/login.html"};
+    
+    function initializeMobileMenu() {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
+        if (mobileMenuBtn && sidebar) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
+            document.addEventListener('click', (event) => {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnMenuButton = mobileMenuBtn.contains(event.target);
+                if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            }, true);
+        }
+    }
+    
+    onAuthStateChanged(auth,(e=>{
+        if(e) {
+            console.log("User is authenticated:",e.email);
+            initializeMobileMenu();
+        } else {
+            console.log("User is not authenticated. Redirecting to login...");
+            window.location.href=getLoginUrl();
+        }
+    }));
+    
+    const logoutButton=document.getElementById("logout-button");
+    logoutButton.addEventListener("click",(()=>{signOut(auth).then((()=>{console.log("User signed out successfully."),window.location.href=getLoginUrl()})).catch((e=>{console.error("Sign out error",e)}))}));
+    
+    const insertImageBtn=document.getElementById("insertImageBtn"),imageUpload=document.getElementById("imageUpload"),contentArea=document.getElementById("contentArea"),savePageBtn=document.getElementById("savePageBtn"),successModal=document.getElementById("successModal");
+    insertImageBtn.addEventListener("click",(()=>imageUpload.click()));
+    imageUpload.addEventListener("change",(e=>{
+        const t=e.target.files[0];
+        if(t){
+            const e=new FileReader;
+            e.onload=e=>{
+                const t=document.createElement("img");
+                t.src=e.target.result,contentArea.appendChild(t)
+            };
+            e.readAsDataURL(t)
+        }
+        e.target.value=null
+    }));
+    
+    savePageBtn.addEventListener("click",(async()=>{
+        const e=document.getElementById("pageTitle").value.trim(),t=contentArea.innerHTML;
+        if(e){
+            savePageBtn.disabled=!0,savePageBtn.textContent="Saving...";
+            try{
+                await addDoc(collection(db,"pages"),{title:e,content:t,createdAt:new Date});
+                successModal.style.display="flex"
+            }catch(e){
+                console.error("Error saving page: ",e);
+                alert("Could not save the page. Please try again.");
+                savePageBtn.disabled=!1;
+                savePageBtn.textContent="Save Page";
+            }
+        }else alert("Page title is required.");
+    }));
+</script>
+</body>
+</html>
