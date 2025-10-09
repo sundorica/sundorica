@@ -392,6 +392,16 @@
       }
 
       function setupEventListeners() {
+          // --- NEW: Set default dates for sales report to today ---
+          const today = new Date();
+          const yyyy = today.getFullYear();
+          const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, add 1
+          const dd = String(today.getDate()).padStart(2, '0');
+          const formattedToday = `${yyyy}-${mm}-${dd}`;
+          document.getElementById('sales-from-date').value = formattedToday;
+          document.getElementById('sales-to-date').value = formattedToday;
+          // --- END NEW CODE ---
+          
           document.getElementById('add-product-form').addEventListener('submit', handleAddProduct);
           document.getElementById('product-search').addEventListener('input', function(e) { populateProductTable(filterData(ALL_PRODUCTS, e.target.value, [0, 1])); });
           document.getElementById('stock-search').addEventListener('input', function(e) { populateStockTable(filterData(ALL_PRODUCTS, e.target.value, [0, 1])); });
