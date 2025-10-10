@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit Report - SUNDORICA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        #loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.8); z-index: 10002; display: flex; justify-content: center; align-items: center;
+        }
+        .loader {
+            border: 8px solid #f3f3f3; border-top: 8px solid #4f46e5; border-radius: 50%;
+            width: 60px; height: 60px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div id="loader-overlay" style="display: none;"><div class="loader"></div></div>
+
+    <div id="login-screen" class="fixed inset-0 bg-gray-200 flex items-center justify-center z-[10003]">
+        <div class="w-full max-w-sm p-8 space-y-6 bg-white rounded-lg shadow-xl">
+            <div>
+                <h2 class="text-3xl font-extrabold text-center text-gray-900">Profit Report Login</h2>
+                <p class="text-center text-gray-500">Access to this page is restricted.</p>
+            </div>
+            <form id="login-form" class="space-y-6">
+                <div><label for="username" class="block text-sm font-medium text-gray-700">Username</label><input id="username" name="username" type="text" required class="block w-full px-3 py-2 mt-1 border rounded-md"></div>
+                <div><label for="password" class="block text-sm font-medium text-gray-700">Password</label><input id="password" name="password" type="password" required class="block w-full px-3 py-2 mt-1 border rounded-md"></div>
+                <div id="login-error" class="text-sm text-red-600 text-center h-4"></div>
+                <div><button type="submit" id="login-btn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Login</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-report" class="container mx-auto p-6 hidden">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-4xl font-bold text-gray-700">Profit Report</h1>
+            <div class="text-lg font-bold text-indigo-600">SUNDORICA</div>
+        </header>
+
+        <div class="bg-white p-4 rounded-lg shadow-md mb-6 flex flex-wrap items-end gap-4">
+            <div>
+                <label for="from-date" class="block text-sm font-medium text-gray-700">From Date</label>
+                <input type="date" id="from-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+            </div>
+            <div>
+                <label for="to-date" class="block text-sm font-medium text-gray-700">To Date</label>
+                <input type="date" id="to-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
+            </div>
+            <div class="flex items-center gap-2 pt-6">
+                 <button id="show-report-btn" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 font-semibold">Show Report</button>
+            </div>
+            <div class="flex items-center gap-2 pt-6 border-l pl-4">
+                <button id="today-btn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 font-medium">Today</button>
+                <button id="month-btn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 font-medium">This Month</button>
+                <button id="all-time-btn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 font-medium">All Time</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="card md:col-span-2 lg:col-span-4 bg-indigo-600 text-white text-center">
+                <h2 class="text-2xl font-semibold text-indigo-200">Net Profit</h2>
+                <p id="net-profit" class="text-5xl font-extrabold mt-2">৳ 0.00</p>
+            </div>
+            
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-500 flex items-center"><span class="material-icons mr-2 text-green-500">trending_up</span>Total Revenue</h2>
+                <p id="total-revenue" class="text-3xl font-bold mt-2">৳ 0.00</p>
+            </div>
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-500 flex items-center"><span class="material-icons mr-2 text-orange-500">shopping_cart</span>Cost of Goods</h2>
+                <p id="total-cost" class="text-3xl font-bold mt-2">৳ 0.00</p>
+            </div>
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-500 flex items-center"><span class="material-icons mr-2 text-red-500">trending_down</span>Profit Lost (Returns)</h2>
+                <p id="profit-lost" class="text-3xl font-bold mt-2">৳ 0.00</p>
+            </div>
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-500 flex items-center"><span class="material-icons mr-2 text-blue-500">pie_chart</span>Profit Margin</h2>
+                <p id="profit-margin" class="text-3xl font-bold mt-2">0.00 %</p>
+            </div>
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-500 flex items-center"><span class="material-icons mr-2 text-purple-500">receipt_long</span>Total Bills</h2>
+                <p id="total-bills" class="text-3xl font-bold mt-2">0</p>
+            </div>
+             <div class="card">
+                <h2 class="text-lg font-semibold text-gray-500 flex items-center"><span class="material-icons mr-2 text-yellow-500">local_offer</span>Total Discount</h2>
+                <p id="total-discount" class="text-3xl font-bold mt-2">৳ 0.00</p>
+            </div>
+             <div class="card">
+                <h2 class="text-lg font-semibold text-gray-500 flex items-center"><span class="material-icons mr-2 text-teal-500">local_shipping</span>Total Charges</h2>
+                <p id="total-shipping" class="text-3xl font-bold mt-2">৳ 0.00</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzOj1fMjodE9eQflDPOmkaYY7S3kEjl7qxZE7ZHWvWlRK5v0RZk7Xi04lpQfz0M72E/exec'; // আপনার Web App URL
+        const loader = document.getElementById('loader-overlay');
+
+        function showLoader() { loader.style.display = 'flex'; }
+        function hideLoader() { loader.style.display = 'none'; }
+        
+        async function callAppsScript(action, payload) {
+            showLoader();
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action, payload }),
+                    redirect: 'follow'
+                });
+                if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                const result = await response.json();
+                hideLoader();
+                return result;
+            } catch (error) {
+                hideLoader();
+                alert(`Network or server call failed: ${error.message}`);
+                throw error;
+            }
+        }
+        
+        async function fetchAndDisplayProfit(startDate = null, endDate = null) {
+            const payload = { startDate, endDate };
+            const result = await callAppsScript('calculateProfit', payload);
+            
+            if (result.success) {
+                document.getElementById('total-revenue').textContent = `৳ ${result.totalRevenue.toFixed(2)}`;
+                document.getElementById('total-cost').textContent = `৳ ${result.totalCost.toFixed(2)}`;
+                document.getElementById('profit-lost').textContent = `৳ ${result.totalProfitLost.toFixed(2)}`;
+                document.getElementById('net-profit').textContent = `৳ ${result.netProfit.toFixed(2)}`;
+                document.getElementById('profit-margin').textContent = `${result.profitMargin} %`;
+                // New elements
+                document.getElementById('total-bills').textContent = result.totalBills;
+                document.getElementById('total-discount').textContent = `৳ ${result.totalDiscount.toFixed(2)}`;
+                document.getElementById('total-shipping').textContent = `৳ ${result.totalShipping.toFixed(2)}`;
+            } else {
+                alert(`Error: ${result.message}`);
+            }
+        }
+
+        functioninitializeApp() {
+            const fromDateEl = document.getElementById('from-date');
+            const toDateEl = document.getElementById('to-date');
+
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const formattedToday = `${yyyy}-${mm}-${dd}`;
+            
+            toDateEl.value = formattedToday;
+
+            document.getElementById('show-report-btn').addEventListener('click', () => {
+                const from = fromDateEl.value;
+                const to = toDateEl.value;
+                if (from && to && new Date(from) > new Date(to)) {
+                    alert('From date cannot be after To date.');
+                    return;
+                }
+                fetchAndDisplayProfit(from, to);
+            });
+
+            document.getElementById('today-btn').addEventListener('click', () => {
+                fromDateEl.value = formattedToday;
+                toDateEl.value = formattedToday;
+                fetchAndDisplayProfit(formattedToday, formattedToday);
+            });
+            
+            document.getElementById('month-btn').addEventListener('click', () => {
+                const firstDayOfMonth = `${yyyy}-${mm}-01`;
+                fromDateEl.value = firstDayOfMonth;
+                toDateEl.value = formattedToday;
+                fetchAndDisplayProfit(firstDayOfMonth, formattedToday);
+            });
+
+            document.getElementById('all-time-btn').addEventListener('click', () => {
+                fromDateEl.value = '';
+                toDateEl.value = '';
+                fetchAndDisplayProfit(null, null);
+            });
+
+            document.getElementById('month-btn').click();
+        }
+
+        async function handleLogin(e) { 
+            e.preventDefault();
+            const loginBtn = document.getElementById('login-btn');
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.textContent = '';
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Processing...';
+
+            const credentials = { 
+                username: document.getElementById('username').value, 
+                password: document.getElementById('password').value 
+            };
+
+            // Using callAppsScript but without its internal loader for login
+            showLoader();
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'checkProfitLogin', payload: credentials }),
+                });
+                const result = await response.json();
+                hideLoader();
+                
+                if (result.success) { 
+                    sessionStorage.setItem('isProfitReportLoggedIn', 'true');
+                    document.getElementById('login-screen').style.display = 'none'; 
+                    document.getElementById('main-report').classList.remove('hidden'); 
+                    initializeApp();
+                } else { 
+                    errorDiv.textContent = result.message || 'Login failed.'; 
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Login';
+                } 
+            } catch(error) {
+                hideLoader();
+                errorDiv.textContent = 'Network error. Please try again.';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isProfitReportLoggedIn') === 'true') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-report').classList.remove('hidden');
+                initializeApp();
+            } else {
+                document.getElementById('login-form').addEventListener('submit', handleLogin);
+            }
+        });
+    </script>
+</body>
+</html>
