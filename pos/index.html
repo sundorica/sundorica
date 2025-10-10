@@ -139,6 +139,7 @@
                 <a href="#barcode" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">qr_code_2</span> Barcode Print</a>
                 <a href="#brands" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">loyalty</span> Brand</a>
                 <a href="#top-customers" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">star</span> Top Customer</a>
+                <a href="#history" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">history</span> History</a>
             </nav>
         </div>
         <main class="flex-1 ml-64 p-6 overflow-y-auto">
@@ -208,7 +209,7 @@
                 </div>
             </div>
 
-            <div id="return" class="page"><h1 class="text-3xl font-bold mb-6">Process Return</h1><div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto"><label for="return-invoice-id" class="block text-sm font-medium">Enter Invoice NO</label><div class="flex items-center gap-2 mt-1"><input type="text" id="return-invoice-id" class="block w-full rounded-md p-2"><button id="check-invoice-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Check</button></div><div id="return-products-container" class="mt-6 hidden"><h3 class="font-bold text-lg">Invoice Details <span id="return-invoice-display"></span></h3><div id="return-summary" class="text-sm text-gray-600 mb-4"></div><div id="return-product-list" class="mt-4 space-y-3"></div><div id="return-list-container" class="mt-6 hidden"><h3 class="font-bold text-lg">Items to Return</h3><ul id="return-queue-list" class="space-y-2 my-2"></ul><button id="process-return-list-btn" class="w-full bg-red-600 text-white py-2 rounded-md font-bold">Return All From List</button></div></div></div></div>
+            <div id="return" class="page"><h1 class="text-3xl font-bold mb-6">Process Return</h1><div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto"><label for="return-invoice-id" class="block text-sm font-medium">Enter Invoice NO</label><div class="flex items-center gap-2 mt-1"><input type="text" id="return-invoice-id" class="block w-full rounded-md p-2"><button id="check-invoice-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Check</button></div><div id="return-products-container" class="mt-6 hidden"><h3 class="font-bold text-lg">Invoice Details <span id="return-invoice-display"></span></h3><p id="return-customer-info" class="font-medium mt-2 text-gray-600 dark:text-gray-300"></p><div id="return-product-list" class="mt-4 space-y-3"></div><div id="return-list-container" class="mt-6 hidden"><h3 class="font-bold text-lg">Items to Return</h3><ul id="return-queue-list" class="space-y-2 my-2"></ul><button id="process-return-list-btn" class="w-full bg-red-600 text-white py-2 rounded-md font-bold">Return All From List</button></div></div></div></div>
             
             <div id="barcode" class="page"><h1 class="text-3xl font-bold mb-6">Print Barcodes</h1><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add Products to Print Queue</h2><div class="flex items-end gap-4"><div class="flex-1"><label for="barcode-sku" class="block text-sm font-medium">Enter SKU</label><input type="text" id="barcode-sku" class="mt-1 block w-full rounded-md p-2"></div><div class="w-24"><label for="barcode-qty" class="block text-sm font-medium">Quantity</label><input type="number" id="barcode-qty" placeholder=" " class="mt-1 block w-full rounded-md p-2"></div><button id="add-to-print-btn" class="bg-blue-600 text-white py-2 px-4 rounded-md">Add to Print</button></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Print Queue</h2><ul id="barcode-print-list" class="space-y-2 mb-4 h-48 overflow-y-auto"></ul><button id="generate-barcode-btn" class="w-full bg-indigo-600 text-white py-3 rounded-md font-bold">Generate Barcode PDF</button></div></div></div>
             
@@ -232,6 +233,29 @@
                     </div>
                 </div>
             </div>
+
+            <div id="history" class="page">
+                <h1 class="text-3xl font-bold mb-6">Customer History</h1>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                     <div class="flex justify-between items-center mb-4">
+                        <input type="text" id="history-search" placeholder="Search by Name or Phone..." class="block w-1/2 rounded-md shadow-sm p-2">
+                    </div>
+                    <div class="overflow-auto h-[70vh]">
+                        <table id="history-list-table" class="min-w-full divide-y">
+                            <thead class="bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">Customer Name</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Phone Number</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Purchased Quantity</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Return Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-list-body" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -301,7 +325,8 @@
           }
       }
 
-      var ALL_PRODUCTS = [], ALL_CUSTOMERS = [], ALL_SALES = [], ALL_BRANDS = [], SALE_LIST_ITEMS = [], BARCODE_PRINT_LIST = [], RETURN_QUEUE = [], LATEST_RECEIPT_DATA = null;
+      var ALL_PRODUCTS = [], ALL_CUSTOMERS = [], ALL_SALES = [], ALL_BRANDS = [], ALL_HISTORY = [], SALE_LIST_ITEMS = [], BARCODE_PRINT_LIST = [], RETURN_QUEUE = [], LATEST_RECEIPT_DATA = null;
+      var CURRENT_RETURN_CUSTOMER = null;
       var loader = document.getElementById('loader-overlay'), pages = document.querySelectorAll('.page'), sidebarItems = document.querySelectorAll('.sidebar-item');
       
       document.addEventListener('DOMContentLoaded', function() { 
@@ -369,7 +394,8 @@
           ALL_PRODUCTS = data.stock || [];
           ALL_CUSTOMERS = data.customers || []; 
           ALL_SALES = data.sales || []; 
-          ALL_BRANDS = data.brands || []; 
+          ALL_BRANDS = data.brands || [];
+          ALL_HISTORY = data.history || [];
           populateAllData(); 
           updateDashboard(data.dashboard); 
           hideLoader();
@@ -380,7 +406,8 @@
           populateStockTable(ALL_PRODUCTS); 
           populateCustomerTable(ALL_CUSTOMERS); 
           populateSalesTable(ALL_SALES); 
-          populateBrandTable(ALL_BRANDS); 
+          populateBrandTable(ALL_BRANDS);
+          populateHistoryTable(ALL_HISTORY);
       }
 
       async function navigateTo(pageId) { 
@@ -398,6 +425,17 @@
                   const result = await callAppsScript('getTopCustomers');
                   if (result.success) {
                       populateTopCustomersTable(result.topCustomers);
+                  } else {
+                      onFailure(result);
+                  }
+              } catch(error) {}
+          }
+           if (pageId === 'history') {
+              try {
+                  const result = await callAppsScript('getCustomerHistory');
+                  if (result.success) {
+                      ALL_HISTORY = result.history;
+                      populateHistoryTable(ALL_HISTORY);
                   } else {
                       onFailure(result);
                   }
@@ -431,9 +469,17 @@
           document.getElementById('sales-to-date').value = formattedToday;
           
           document.getElementById('add-product-form').addEventListener('submit', handleAddProduct);
-          document.getElementById('product-search').addEventListener('input', function(e) { populateProductTable(filterData(ALL_PRODUCTS, e.target.value, [0, 1])); });
-          document.getElementById('stock-search').addEventListener('input', function(e) { populateStockTable(filterData(ALL_PRODUCTS, e.target.value, [0, 1])); });
-          document.getElementById('customer-search').addEventListener('input', function(e) { populateCustomerTable(filterData(ALL_CUSTOMERS, e.target.value, [0, 1])); });
+          document.getElementById('product-search').addEventListener('input', function(e) { populateProductTable(filterData(ALL_PRODUCTS, e.target.value, ['name', 'sku'])); });
+          document.getElementById('stock-search').addEventListener('input', function(e) { populateStockTable(filterData(ALL_PRODUCTS, e.target.value, ['name', 'sku'])); });
+          document.getElementById('customer-search').addEventListener('input', function(e) { populateCustomerTable(filterData(ALL_CUSTOMERS, e.target.value, ['name', 'phone'])); });
+          document.getElementById('history-search').addEventListener('input', function(e) { 
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredHistory = ALL_HISTORY.filter(item => 
+                    item.name.toLowerCase().includes(searchTerm) || 
+                    item.phone.toLowerCase().includes(searchTerm)
+                );
+                populateHistoryTable(filteredHistory);
+            });
           document.getElementById('show-report-btn').addEventListener('click', handleShowSalesReport);
           document.getElementById('sales-search').addEventListener('input', handleShowSalesReport);
           document.getElementById('bill-sku').addEventListener('keydown', handleSkuEnter);
@@ -620,6 +666,22 @@
                         <td class="px-3 py-2 text-sm">${c.name}</td>
                         <td class="px-3 py-2 text-sm">${c.phone}</td>
                         <td class="px-3 py-2 text-sm">${c.purchaseAmount.toFixed(2)}</td>
+                    </tr>`; 
+        }).join('');
+      }
+
+      function populateHistoryTable(history) {
+        var tbody = document.getElementById('history-list-body');
+        if (!history || history.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">No customer history available.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = history.map(function(h) { 
+            return `<tr>
+                        <td class="py-2 pl-4 pr-3 text-sm">${h.name}</td>
+                        <td class="px-3 py-2 text-sm">${h.phone}</td>
+                        <td class="px-3 py-2 text-sm">${h.purchasedQty}</td>
+                        <td class="px-3 py-2 text-sm">${h.returnedQty}</td>
                     </tr>`; 
         }).join('');
       }
@@ -906,20 +968,29 @@
       async function handleFindInvoiceForReturn() { 
           var id = document.getElementById('return-invoice-id').value;
           if (!id) return; 
-          RETURN_QUEUE = []; 
+          
+          RETURN_QUEUE = [];
+          CURRENT_RETURN_CUSTOMER = null;
+          document.getElementById('return-customer-info').textContent = '';
           renderReturnQueue(); 
           document.getElementById('return-list-container').style.display = 'none'; 
+          
           try { 
               const res = await callAppsScript('getReturnableInvoiceDetails', id);
-              if (res.success) { 
-                  document.getElementById('return-invoice-display').textContent = '#' + res.invoiceId; 
+              if (res.success) {
+                  CURRENT_RETURN_CUSTOMER = res.customer;
+                  document.getElementById('return-invoice-display').textContent = '#' + res.invoiceId;
+                  document.getElementById('return-customer-info').textContent = `Customer: ${res.customer.name} (${res.customer.phone})`;
+                  
                   var list = document.getElementById('return-product-list');
                   list.innerHTML = res.products.map(function(p) { 
                       var statusClass = p.returnableQty > 0 ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-400 cursor-not-allowed'; 
                       var statusText = p.returnableQty > 0 ? 'Return' : 'Returned'; 
                       return `<div class="flex justify-between items-center bg-gray-100 p-3 rounded-md"><div><p class="font-semibold">${p.name}</p><p class="text-sm text-gray-500">SKU: ${p.sku} | Sold: ${p.soldQty} | Returned: ${p.returnedQty}</p></div><button class="text-white px-3 py-1 rounded-md open-return-modal-btn ${statusClass}" data-sku="${p.sku}" data-name="${p.name}" data-invoiceid="${res.invoiceId}" data-max-return="${p.returnableQty}" ${p.returnableQty <= 0 ? 'disabled' : ''}>${statusText}</button></div>`; 
                   }).join('');
+                  
                   document.getElementById('return-products-container').style.display = 'block'; 
+                  
                   list.querySelectorAll('.open-return-modal-btn').forEach(function(b) { 
                       b.addEventListener('click', function() { 
                           var max = this.dataset.maxReturn; 
@@ -971,14 +1042,22 @@
       }
 
       async function handleProcessReturnList() { 
-          if (RETURN_QUEUE.length === 0) { return showToast('No items in the return list.', 'error'); } 
+          if (RETURN_QUEUE.length === 0) { return showToast('No items in the return list.', 'error'); }
+          if (!CURRENT_RETURN_CUSTOMER) { return showToast('Customer details not found. Please check the invoice again.', 'error');}
+          
+          var payload = {
+            items: RETURN_QUEUE,
+            customer: CURRENT_RETURN_CUSTOMER
+          };
+
           try { 
-              const r = await callAppsScript('processReturn', RETURN_QUEUE); 
+              const r = await callAppsScript('processReturn', payload); 
               if(r.success) { 
                   showToast(r.message, 'success'); 
                   document.getElementById('return-invoice-id').value = ''; 
                   document.getElementById('return-products-container').style.display = 'none';
-                  RETURN_QUEUE = []; 
+                  RETURN_QUEUE = [];
+                  CURRENT_RETURN_CUSTOMER = null;
                   renderReturnQueue(); 
               } else { 
                   onFailure(r); 
@@ -1141,15 +1220,21 @@
           }, 4000);
       }
 
-      function filterData(dataArray, searchTerm, columnsToSearch) { 
-          var term = searchTerm.toLowerCase(); 
+      function filterData(dataArray, searchTerm, columnsToSearch) {
+          const term = searchTerm.toLowerCase();
           if (!term) return dataArray;
-          return dataArray.filter(function(row) { 
-              return columnsToSearch.some(function(colIndex) { 
-                  return row[colIndex] && row[colIndex].toString().toLowerCase().includes(term); 
-              }); 
+          return dataArray.filter(row => {
+              if (Array.isArray(row)) { 
+                return columnsToSearch.some(colIndex => 
+                    row[colIndex] && row[colIndex].toString().toLowerCase().includes(term)
+                );
+              }
+              return columnsToSearch.some(key =>
+                row[key] && row[key].toString().toLowerCase().includes(term)
+              );
           });
       }
+
 
       async function handleCustomerImport(event) {
           const file = event.target.files[0];
@@ -1224,7 +1309,6 @@
                       onFailure(result);
                   }
               } catch (error) {
-                  // Already handled
               } finally {
                   fileInput.value = '';
               }
