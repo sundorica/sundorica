@@ -136,6 +136,7 @@
                 <a href="#stock" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">inventory</span> Stock</a>
                 <a href="#customers" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">people</span> Customer List</a>
                 <a href="#return" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">assignment_return</span> Return</a>
+                <a href="#return-list" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">list_alt</span> Return List</a>
                 <a href="#barcode" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">qr_code_2</span> Barcode Print</a>
                 <a href="#brands" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">loyalty</span> Brand</a>
                 <a href="#top-customers" class="sidebar-item group flex items-center px-4 py-2 text-base rounded-md"><span class="material-icons mr-3">star</span> Top Customer</a>
@@ -147,7 +148,9 @@
             
             <div id="dashboard" class="page"><h1 class="text-3xl font-bold mb-6">Dashboard</h1><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-lg font-semibold text-gray-500">Today's Sales</h2><p id="today-sales" class="text-3xl font-bold mt-2">0.00</p></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-lg font-semibold text-gray-500">This Month's Sales</h2><p id="month-sales" class="text-3xl font-bold mt-2">0.00</p></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-lg font-semibold text-gray-500">Today's Sale Quantity</h2><p id="today-qty" class="text-3xl font-bold mt-2">0</p></div></div></div>
             
-            <div id="bill" class="page"><h1 class="text-3xl font-bold mb-6">Create Bill</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Billing Items</h2><div class="grid grid-cols-5 gap-4 items-end mb-4"><div class="col-span-2"><label for="bill-sku" class="block text-sm font-medium text-gray-700">Enter SKU</label><input type="text" id="bill-sku" class="mt-1 block w-full rounded-md shadow-sm p-2"></div><div><label for="bill-pname" class="block text-sm font-medium text-gray-700">Product Name</label><input type="text" id="bill-pname" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-avail-qty" class="block text-sm font-medium text-gray-700">Available Qty</label><input type="text" id="bill-avail-qty" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-sale-qty" class="block text-sm font-medium text-gray-700">Sale Quantity</label><input type="number" id="bill-sale-qty" class="mt-1 block w-full rounded-md shadow-sm p-2"></div></div><div class="mt-6 flow-root"><div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8"><div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8"><table id="sale-items-table" class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-0">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Quantity</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Total</th><th class="relative py-3.5 pl-3 pr-4 sm:pr-0"><span class="sr-only">Remove</span></th></tr></thead><tbody id="sale-list-body" class="divide-y"></tbody></table></div></div></div></div><div class="bg-white p-6 rounded-lg shadow-md"><div class="mb-6"><h3 class="text-lg font-bold mb-4">Bill To</h3><div><label for="cust-phone" class="block text-sm font-medium text-gray-700">Customer Phone</label><input type="text" id="cust-phone" class="mt-1 block w-full rounded-md shadow-sm p-2" maxlength="11" placeholder="Enter 11 digit number"></div><div class="mt-4"><label for="cust-name" class="block text-sm font-medium text-gray-700">Customer Name</label><input type="text" id="cust-name" class="mt-1 block w-full rounded-md p-2" readonly></div><div class="mt-4"><label for="cust-address" class="block text-sm font-medium text-gray-700">Customer Address</label><textarea id="cust-address" rows="2" class="mt-1 block w-full rounded-md p-2" readonly></textarea></div></div><div class="border-t pt-4"><h3 class="text-lg font-bold mb-4">Billing Summary</h3><div class="space-y-3 text-sm"><div class="flex justify-between"><span>Subtotal</span><span id="summary-subtotal">0.00</span></div><div class="flex items-center justify-between"><span>Discount</span><div class="flex items-center gap-2"><input type="number" id="discount-value" placeholder="0" class="w-20 rounded-md text-right p-1"><select id="discount-type" class="rounded-md p-1"><option value="amount">Amount</option><option value="percent">%</option></select></div></div><div class="flex justify-between"><span>Shipping Charges</span><input type="number" id="shipping-charges" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between font-medium"><span>Payment</span><input type="number" id="payment-amount" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Due Amount</span><span id="summary-due-amount">0.00</span></div></div><button id="bill-now-btn" class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-md font-bold hover:bg-indigo-700 transition">Bill Now</button></div></div></div></div>
+            <div id="bill" class="page"><h1 class="text-3xl font-bold mb-6">Create Bill</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Billing Items</h2><div class="grid grid-cols-5 gap-4 items-end mb-4"><div class="col-span-2"><label for="bill-sku" class="block text-sm font-medium text-gray-700">Enter SKU</label><input type="text" id="bill-sku" class="mt-1 block w-full rounded-md shadow-sm p-2"></div><div><label for="bill-pname" class="block text-sm font-medium text-gray-700">Product Name</label><input type="text" id="bill-pname" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-avail-qty" class="block text-sm font-medium text-gray-700">Available Qty</label><input type="text" id="bill-avail-qty" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-sale-qty" class="block text-sm font-medium text-gray-700">Sale Quantity</label><input type="number" id="bill-sale-qty" class="mt-1 block w-full rounded-md shadow-sm p-2"></div></div><div class="mt-6 flow-root"><div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8"><div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8"><table id="sale-items-table" class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-0">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Quantity</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Total</th><th class="relative py-3.5 pl-3 pr-4 sm:pr-0"><span class="sr-only">Remove</span></th></tr></thead><tbody id="sale-list-body" class="divide-y"></tbody></table></div></div></div></div><div class="bg-white p-6 rounded-lg shadow-md"><div class="mb-6"><h3 class="text-lg font-bold mb-4">Bill To</h3><div><label for="cust-phone" class="block text-sm font-medium text-gray-700">Customer Phone</label><input type="text" id="cust-phone" class="mt-1 block w-full rounded-md shadow-sm p-2" maxlength="11" placeholder="Enter 11 digit number"></div>
+            <div id="customer-history-display" class="text-sm mt-2 h-4"></div>
+            <div class="mt-2"><label for="cust-name" class="block text-sm font-medium text-gray-700">Customer Name</label><input type="text" id="cust-name" class="mt-1 block w-full rounded-md p-2" readonly></div><div class="mt-4"><label for="cust-address" class="block text-sm font-medium text-gray-700">Customer Address</label><textarea id="cust-address" rows="2" class="mt-1 block w-full rounded-md p-2" readonly></textarea></div></div><div class="border-t pt-4"><h3 class="text-lg font-bold mb-4">Billing Summary</h3><div class="space-y-3 text-sm"><div class="flex justify-between"><span>Subtotal</span><span id="summary-subtotal">0.00</span></div><div class="flex items-center justify-between"><span>Discount</span><div class="flex items-center gap-2"><input type="number" id="discount-value" placeholder="0" class="w-20 rounded-md text-right p-1"><select id="discount-type" class="rounded-md p-1"><option value="amount">Amount</option><option value="percent">%</option></select></div></div><div class="flex justify-between"><span>Shipping Charges</span><input type="number" id="shipping-charges" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between font-medium"><span>Payment</span><input type="number" id="payment-amount" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Due Amount</span><span id="summary-due-amount">0.00</span></div></div><button id="bill-now-btn" class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-md font-bold hover:bg-indigo-700 transition">Bill Now</button></div></div></div></div>
             
             <div id="products" class="page"><h1 class="text-3xl font-bold mb-6">Manage Products</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Product List</h2><input type="text" id="product-search" placeholder="Search by SKU or Name..." class="block w-1/2 rounded-md shadow-sm p-2"></div><div class="overflow-auto h-96"><table class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">SKU</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Brand</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Purchase Price</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Actions</th></tr></thead><tbody id="product-list-body" class="divide-y"></tbody></table></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add New Product</h2><form id="add-product-form" class="space-y-4"><div><label for="new-pname" class="block text-sm font-medium">Product Name</label><input type="text" id="new-pname" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pprice" class="block text-sm font-medium">Purchase Price</label><input type="number" id="new-pprice" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-mrp" class="block text-sm font-medium">MRP</label><input type="number" id="new-mrp" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pqty" class="block text-sm font-medium">Purchase Quantity</label><input type="number" id="new-pqty" required class="mt-1 block w-full rounded-md p-2"></div><div class="relative"><label for="new-pbrand" class="block text-sm font-medium">Brand Name</label><input type="text" id="new-pbrand" autocomplete="off" class="mt-1 block w-full rounded-md p-2"><div id="brand-suggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 hidden max-h-40 overflow-y-auto"></div></div><button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md font-bold hover:bg-indigo-700">Save Product</button></form></div></div></div>
             
@@ -170,6 +173,7 @@
                                     <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">SKU</th>
                                     <th class="px-3 py-3.5 text-left text-sm font-semibold">Product Name</th>
                                     <th class="px-3 py-3.5 text-left text-sm font-semibold">Brand</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Purchase Price</th>
                                     <th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th>
                                     <th class="px-3 py-3.5 text-left text-sm font-semibold">Purchased Qty</th>
                                     <th class="px-3 py-3.5 text-left text-sm font-semibold">Available Qty</th>
@@ -211,6 +215,31 @@
 
             <div id="return" class="page"><h1 class="text-3xl font-bold mb-6">Process Return</h1><div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto"><label for="return-invoice-id" class="block text-sm font-medium">Enter Invoice NO</label><div class="flex items-center gap-2 mt-1"><input type="text" id="return-invoice-id" class="block w-full rounded-md p-2"><button id="check-invoice-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Check</button></div><div id="return-products-container" class="mt-6 hidden"><h3 class="font-bold text-lg">Invoice Details <span id="return-invoice-display"></span></h3><p id="return-customer-info" class="font-medium mt-2 text-gray-600 dark:text-gray-300"></p><div id="return-product-list" class="mt-4 space-y-3"></div><div id="return-list-container" class="mt-6 hidden"><h3 class="font-bold text-lg">Items to Return</h3><ul id="return-queue-list" class="space-y-2 my-2"></ul><button id="process-return-list-btn" class="w-full bg-red-600 text-white py-2 rounded-md font-bold">Return All From List</button></div></div></div></div>
             
+            <div id="return-list" class="page">
+                <h1 class="text-3xl font-bold mb-6">Return List</h1>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <input type="text" id="return-list-search" placeholder="Search by Name, Phone, or Invoice NO..." class="block w-1/2 rounded-md shadow-sm p-2">
+                    </div>
+                    <div class="overflow-auto h-[70vh]">
+                        <table id="return-list-table" class="min-w-full divide-y">
+                            <thead class="bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">Return Date</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Customer Name</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Phone Number</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Invoice NO</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Product SKU</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Product Name</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Return Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody id="return-list-body" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div id="barcode" class="page"><h1 class="text-3xl font-bold mb-6">Print Barcodes</h1><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add Products to Print Queue</h2><div class="flex items-end gap-4"><div class="flex-1"><label for="barcode-sku" class="block text-sm font-medium">Enter SKU</label><input type="text" id="barcode-sku" class="mt-1 block w-full rounded-md p-2"></div><div class="w-24"><label for="barcode-qty" class="block text-sm font-medium">Quantity</label><input type="number" id="barcode-qty" placeholder=" " class="mt-1 block w-full rounded-md p-2"></div><button id="add-to-print-btn" class="bg-blue-600 text-white py-2 px-4 rounded-md">Add to Print</button></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Print Queue</h2><ul id="barcode-print-list" class="space-y-2 mb-4 h-48 overflow-y-auto"></ul><button id="generate-barcode-btn" class="w-full bg-indigo-600 text-white py-3 rounded-md font-bold">Generate Barcode PDF</button></div></div></div>
             
             <div id="brands" class="page"><h1 class="text-3xl font-bold mb-6">Manage Brands</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Brand List</h2><input type="text" id="brand-search" placeholder="Search brand..." class="block w-1/2 rounded-md shadow-sm p-2"></div><div class="overflow-auto h-96"><table class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">Brand Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Actions</th></tr></thead><tbody id="brand-list-body" class="divide-y"></tbody></table></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add New Brand</h2><form id="add-brand-form" class="space-y-4"><div><label for="new-brand-name" class="block text-sm font-medium">Brand Name</label><input type="text" id="new-brand-name" required class="mt-1 block w-full rounded-md p-2"></div><button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md font-bold hover:bg-indigo-700">Save Brand</button></form></div></div></div>
@@ -325,7 +354,7 @@
           }
       }
 
-      var ALL_PRODUCTS = [], ALL_CUSTOMERS = [], ALL_SALES = [], ALL_BRANDS = [], ALL_HISTORY = [], SALE_LIST_ITEMS = [], BARCODE_PRINT_LIST = [], RETURN_QUEUE = [], LATEST_RECEIPT_DATA = null;
+      var ALL_PRODUCTS = [], ALL_CUSTOMERS = [], ALL_SALES = [], ALL_BRANDS = [], ALL_HISTORY = [], FULLY_RETURNED_IDS = [], ALL_RETURNS = [], SALE_LIST_ITEMS = [], BARCODE_PRINT_LIST = [], RETURN_QUEUE = [], LATEST_RECEIPT_DATA = null;
       var CURRENT_RETURN_CUSTOMER = null;
       var loader = document.getElementById('loader-overlay'), pages = document.querySelectorAll('.page'), sidebarItems = document.querySelectorAll('.sidebar-item');
       
@@ -396,6 +425,11 @@
           ALL_SALES = data.sales || []; 
           ALL_BRANDS = data.brands || [];
           ALL_HISTORY = data.history || [];
+          FULLY_RETURNED_IDS = data.fullyReturnedIds || [];
+          
+          // Filter ALL_SALES to remove the fully returned ones immediately
+          ALL_SALES = ALL_SALES.filter(s => !FULLY_RETURNED_IDS.includes(s[0].toString()));
+          
           populateAllData(); 
           updateDashboard(data.dashboard); 
           hideLoader();
@@ -436,6 +470,17 @@
                   if (result.success) {
                       ALL_HISTORY = result.history;
                       populateHistoryTable(ALL_HISTORY);
+                  } else {
+                      onFailure(result);
+                  }
+              } catch(error) {}
+          }
+           if (pageId === 'return-list') {
+              try {
+                  const result = await callAppsScript('getReturnListData');
+                  if (result.success) {
+                      ALL_RETURNS = result.returnList;
+                      populateReturnListTable(ALL_RETURNS);
                   } else {
                       onFailure(result);
                   }
@@ -485,7 +530,14 @@
           document.getElementById('bill-sku').addEventListener('keydown', handleSkuEnter);
           document.getElementById('bill-sale-qty').addEventListener('keydown', handleSaleQtyEnter);
           
-          document.getElementById('cust-phone').addEventListener('input', function(e) { e.target.value = e.target.value.replace(/[^0-9]/g, ''); });
+          document.getElementById('cust-phone').addEventListener('input', function(e) {
+              e.target.value = e.target.value.replace(/[^0-9]/g, '');
+              if (e.target.value.length < 11) {
+                  document.getElementById('cust-name').value = '';
+                  document.getElementById('cust-address').value = '';
+                  document.getElementById('customer-history-display').innerHTML = '';
+              }
+          });
           document.getElementById('cust-phone').addEventListener('keydown', handleCustomerPhoneEnter);
           
           document.getElementById('discount-value').addEventListener('input', updateBillingSummary);
@@ -510,6 +562,7 @@
           document.getElementById('confirm-print-no').addEventListener('click', function() { document.getElementById('print-invoice-modal').style.display = 'none'; });
           document.getElementById('add-brand-form').addEventListener('submit', handleAddBrand);
           document.getElementById('brand-search').addEventListener('input', function(e) { populateBrandTable(ALL_BRANDS.filter(function(b){ return b.toLowerCase().includes(e.target.value.toLowerCase()); })); });
+          document.getElementById('return-list-search').addEventListener('input', handleReturnListSearch);
           
           var brandInput = document.getElementById('new-pbrand');
           var suggestionsContainer = document.getElementById('brand-suggestions');
@@ -634,7 +687,16 @@
           var tbody = document.getElementById('stock-list-body');
           tbody.innerHTML = products.map(function(p) { 
               var qtyClass = parseInt(p[5]) <= 5 ? 'text-red-600 font-bold' : ''; 
-              return `<tr><td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td><td class="px-3 py-2 text-sm">${p[1]}</td><td class="px-3 py-2 text-sm">${p[7] || ''}</td><td class="px-3 py-2 text-sm">${p[3]}</td><td class="px-3 py-2 text-sm">${p[4]}</td><td class="px-3 py-2 text-sm ${qtyClass}">${p[5]}</td><td class="px-3 py-2 text-sm">${p[6]}</td></tr>`; 
+              return `<tr>
+                          <td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td>
+                          <td class="px-3 py-2 text-sm">${p[1]}</td>
+                          <td class="px-3 py-2 text-sm">${p[7] || ''}</td>
+                          <td class="px-3 py-2 text-sm">${p[2]}</td>
+                          <td class="px-3 py-2 text-sm">${p[3]}</td>
+                          <td class="px-3 py-2 text-sm">${p[4]}</td>
+                          <td class="px-3 py-2 text-sm ${qtyClass}">${p[5]}</td>
+                          <td class="px-3 py-2 text-sm">${p[6]}</td>
+                      </tr>`; 
           }).join('');
       }
 
@@ -685,6 +747,25 @@
                     </tr>`; 
         }).join('');
       }
+
+        function populateReturnListTable(returns) {
+            var tbody = document.getElementById('return-list-body');
+            if (!returns || returns.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4">No return data available.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = returns.map(function(r) {
+                return `<tr>
+                            <td class="py-2 pl-4 pr-3 text-sm">${r[0]}</td>
+                            <td class="px-3 py-2 text-sm">${r[1]}</td>
+                            <td class="px-3 py-2 text-sm">${r[2]}</td>
+                            <td class="px-3 py-2 text-sm">${r[3]}</td>
+                            <td class="px-3 py-2 text-sm">${r[4]}</td>
+                            <td class="px-3 py-2 text-sm">${r[5]}</td>
+                            <td class="px-3 py-2 text-sm">${r[6]}</td>
+                        </tr>`;
+            }).join('');
+        }
 
       function populateBrandTable(brands) { 
           var tbody = document.getElementById('brand-list-body');
@@ -761,6 +842,7 @@
           if (e.key === 'Enter') {
               e.preventDefault();
               var phone = e.target.value;
+              var historyDisplay = document.getElementById('customer-history-display');
               if (!/^\d{11}$/.test(phone)) {
                   showToast('Phone number must be exactly 11 digits.', 'error');
                   return;
@@ -769,7 +851,22 @@
               if (c) {
                   document.getElementById('cust-name').value = c[0];
                   document.getElementById('cust-address').value = c[2];
+                  
+                  const history = ALL_HISTORY.find(h => h.phone === phone);
+                  if (history) {
+                      historyDisplay.innerHTML = `
+                          <span class="text-green-600 font-medium">Purchased Qty: ${history.purchasedQty}</span> | 
+                          <span class="text-red-600 font-medium">Return Qty: ${history.returnedQty}</span>
+                      `;
+                  } else {
+                       historyDisplay.innerHTML = `
+                          <span class="text-green-600 font-medium">Purchased Qty: 0</span> | 
+                          <span class="text-red-600 font-medium">Return Qty: 0</span>
+                      `;
+                  }
+
               } else {
+                  historyDisplay.innerHTML = `<span class="text-green-600 font-bold">New Customer</span>`;
                   document.getElementById('new-cust-modal-phone').textContent = phone;
                   document.getElementById('add-customer-modal').style.display = 'flex';
                   document.getElementById('new-cust-modal-name').focus();
@@ -955,6 +1052,21 @@
           });
           populateSalesTable(f); 
       }
+
+       function handleReturnListSearch(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            if (!searchTerm) {
+                populateReturnListTable(ALL_RETURNS);
+                return;
+            }
+            const filteredData = ALL_RETURNS.filter(r => {
+                const customerName = (r[1] || '').toLowerCase();
+                const phone = (r[2] || '').toLowerCase();
+                const invoiceNo = (r[3] || '').toString().toLowerCase();
+                return customerName.includes(searchTerm) || phone.includes(searchTerm) || invoiceNo.includes(searchTerm);
+            });
+            populateReturnListTable(filteredData);
+        }
 
       async function handleReprint() { 
           var id = document.getElementById('reprint-invoice-id').value;
@@ -1194,7 +1306,8 @@
           document.getElementById('bill-sale-qty').value = ''; 
           document.getElementById('cust-phone').value = ''; 
           document.getElementById('cust-name').value = ''; 
-          document.getElementById('cust-address').value = ''; 
+          document.getElementById('cust-address').value = '';
+          document.getElementById('customer-history-display').innerHTML = '';
           document.getElementById('discount-value').value = '';
           document.getElementById('shipping-charges').value = ''; 
           document.getElementById('payment-amount').value = ''; 
@@ -1392,7 +1505,7 @@
       
       function printInvoice(data) { 
           var itemsHtml = data.items.map(function(i) { return `<tr><td>${i.name}</td><td>${i.quantity}</td><td>${(typeof i.mrp === 'number' ? i.mrp.toFixed(2) : i.mrp)}</td><td>${(typeof i.total === 'number' ? i.total.toFixed(2) : i.total)}</td></tr>`; }).join('');
-          var receiptContent = `<div class="invoice"><div class="center bold">SUNDORICA</div><div class="center">House-15,Road-2,Block-Ka,Section-6 West Senpara Porbota Mirpur Dhaka-1216</div><div class="center">Phone: 01617970053</div><hr><div>Date: ${data.saleDate}</div><div>Invoice #: ${data.invoiceId}</div><div style="margin-top:10px;"><div class="bold">To,</div><div>${data.customer.name}</div><div>Phone: ${data.customer.phone}</div><div>${data.customer.address || ''}</div></div><div class="section-title">Product Details</div><table><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>${itemsHtml}</tbody></table><div class="totals"><div>Subtotal: ${data.subtotal.toFixed(2)} BDT</div><div>Discount: ${(parseFloat(data.discount) || 0).toFixed(2)} BDT</div><div>Shipping Charges: ${(parseFloat(data.shipping) || 0).toFixed(2)} BDT</div><div>Paid Amount: ${(parseFloat(data.payment) || 0).toFixed(2)} BDT</div><div><strong>Due Amount:</strong> ${(parseFloat(data.due) || 0).toFixed(2)} BDT</div></div><div class="footer">--- Thank you for choosing SUNDORICA. Stay elegant, stay confident. ---</div></div>`; 
+          var receiptContent = `<div class="invoice"><div class="center bold">SUNDORICA</div><div class="center">House-15,Road-2,Block-Ka,Section-6 West Senpara Porbota Mirpur Dhaka-1216</div><div class="center">Phone: 01617970053</div><hr><div>Date: ${data.saleDate}</div><div>Invoice #: ${data.invoiceId}</div><div style="margin-top:10px;"><div class="bold">To,</div><div>${data.customer.name}</div><div>Phone: ${data.customer.phone}</div><div>${data.customer.address || ''}</div></div><div class="section-title">Product Details</div><table><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>${itemsHtml}</tbody></table><div class="totals"><div>Subtotal: ${data.subtotal.toFixed(2)} BDT</div><div>Discount: ${(parseFloat(data.discount) || 0).toFixed(2)} BDT</div><div>Shipping Charges: ${(parseFloat(data.shipping) || 0).toFixed(2)} BDT</div><div>Paid Amount: ${(parseFloat(data.payment) || 0).toFixed(2)} BDT</div><div><strong>Due Amount:</strong> ${(parseFloat(data.due) || 0).toFixed(2)} BDT</div></div><div class="footer">Please Check While Receving</div></div>`; 
           var styles = `@page { size: 58mm auto; margin: 0; } body { font-family: 'Arial',sans-serif; width: 88mm; margin: 0; padding: 0; font-size: 14px; } .invoice { padding: 3mm; box-sizing: border-box; } .center { text-align: center; } .bold { font-weight: bold; } hr { border: none; border-top: 1px dashed #000; margin: 5px 0; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } th, td { text-align: left; padding: 2px 0; } .section-title { margin-top: 10px; font-weight: bold; text-decoration: underline; } .totals { margin-top: 5px; border-top: 1px dashed #000; padding-top: 0px; } .totals div { padding: 1px 0; } .footer { margin-top: 10px; text-align: center; font-size: 10px; }`;
           var iframe = document.createElement('iframe'); 
           iframe.style.position = 'absolute'; 
