@@ -52,7 +52,13 @@
     <div id="main-report" class="container mx-auto p-6 hidden">
         <header class="flex justify-between items-center mb-6">
             <h1 class="text-4xl font-bold text-gray-700">Profit Report</h1>
-            <div class="text-lg font-bold text-indigo-600">SUNDORICA</div>
+            <div class="flex items-center gap-4">
+                 <div class="text-lg font-bold text-indigo-600">SUNDORICA</div>
+                 <button id="logout-btn" class="flex items-center bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 font-semibold">
+                     <span class="material-icons mr-1 text-sm">logout</span>
+                     Logout
+                 </button>
+            </div>
         </header>
 
         <div class="bg-white p-4 rounded-lg shadow-md mb-6 flex flex-wrap items-end gap-4">
@@ -119,7 +125,9 @@
         function hideLoader() { loader.style.display = 'none'; }
         
         async function callAppsScript(action, payload) {
-            showLoader();
+            if (action !== 'checkProfitLogin') {
+                showLoader();
+            }
             try {
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
@@ -129,10 +137,14 @@
                 });
                 if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
                 const result = await response.json();
-                hideLoader();
+                if (action !== 'checkProfitLogin') {
+                    hideLoader();
+                }
                 return result;
             } catch (error) {
-                hideLoader();
+                if (action !== 'checkProfitLogin') {
+                    hideLoader();
+                }
                 alert(`Network or server call failed: ${error.message}`);
                 throw error;
             }
@@ -148,7 +160,6 @@
                 document.getElementById('profit-lost').textContent = `৳ ${result.totalProfitLost.toFixed(2)}`;
                 document.getElementById('net-profit').textContent = `৳ ${result.netProfit.toFixed(2)}`;
                 document.getElementById('profit-margin').textContent = `${result.profitMargin} %`;
-                // New elements
                 document.getElementById('total-bills').textContent = result.totalBills;
                 document.getElementById('total-discount').textContent = `৳ ${result.totalDiscount.toFixed(2)}`;
                 document.getElementById('total-shipping').textContent = `৳ ${result.totalShipping.toFixed(2)}`;
@@ -157,7 +168,7 @@
             }
         }
 
-        functioninitializeApp() {
+        function initializeApp() {
             const fromDateEl = document.getElementById('from-date');
             const toDateEl = document.getElementById('to-date');
 
@@ -198,6 +209,12 @@
                 fetchAndDisplayProfit(null, null);
             });
 
+            // Logout Button Event Listener Added Here
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                sessionStorage.removeItem('isProfitReportLoggedIn');
+                location.reload();
+            });
+
             document.getElementById('month-btn').click();
         }
 
@@ -205,6 +222,8 @@
             e.preventDefault();
             const loginBtn = document.getElementById('login-btn');
             const errorDiv = document.getElementById('login-error');
+            const originalBtnHTML = loginBtn.innerHTML;
+
             errorDiv.textContent = '';
             loginBtn.disabled = true;
             loginBtn.textContent = 'Processing...';
@@ -213,18 +232,12 @@
                 username: document.getElementById('username').value, 
                 password: document.getElementById('password').value 
             };
-
-            // Using callAppsScript but without its internal loader for login
+            
             showLoader();
             try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'checkProfitLogin', payload: credentials }),
-                });
-                const result = await response.json();
+                const result = await callAppsScript('checkProfitLogin', credentials);
                 hideLoader();
-                
+
                 if (result.success) { 
                     sessionStorage.setItem('isProfitReportLoggedIn', 'true');
                     document.getElementById('login-screen').style.display = 'none'; 
@@ -233,13 +246,13 @@
                 } else { 
                     errorDiv.textContent = result.message || 'Login failed.'; 
                     loginBtn.disabled = false;
-                    loginBtn.textContent = 'Login';
+                    loginBtn.innerHTML = originalBtnHTML;
                 } 
             } catch(error) {
                 hideLoader();
                 errorDiv.textContent = 'Network error. Please try again.';
                 loginBtn.disabled = false;
-                loginBtn.textContent = 'Login';
+                loginBtn.innerHTML = originalBtnHTML;
             }
         }
 
