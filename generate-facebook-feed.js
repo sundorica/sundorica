@@ -65,9 +65,9 @@ async function generateFacebookFeed() {
       const productLink = `${BASE_URL}/product-details/${productNameSlug}/${productId}`;
 
       // === বিবরণ (Description) ঠিক করার জন্য এই অংশটি পরিবর্তন করা হয়েছে ===
-      // Raw description থেকে HTML ট্যাগ মুছে ফেলা হচ্ছে
+      // Raw description থেকে HTML ট্যাগ এবং &nbsp; মুছে ফেলা হচ্ছে
       const rawDescription = productData.description || "No description available";
-      const cleanDescription = rawDescription.replace(/<[^>]*>/g, '').trim();
+      const cleanDescription = rawDescription.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
 
       const item = rss.ele("item");
       item.ele("g:id").txt(productId).up();
