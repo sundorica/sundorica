@@ -1,5 +1,4 @@
 // generate-facebook-feed.js
-
 const { initializeApp } = require("firebase/app");
 const { getFirestore, collection, getDocs } = require("firebase/firestore");
 const { create } = require("xmlbuilder2");
