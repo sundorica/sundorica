@@ -2,6 +2,7 @@ const { initializeApp } = require("firebase/app");
 const { getFirestore, collection, getDocs, doc, getDoc } = require("firebase/firestore");
 const cloudinary = require("cloudinary").v2;
 
+
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,
