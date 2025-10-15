@@ -5,6 +5,7 @@ const { getFirestore, collection, getDocs } = require("firebase/firestore");
 const { create } = require("xmlbuilder2");
 const fs = require("fs");
 
+
 // Helper function to convert text to a URL-friendly slug
 function slugify(text) {
   if (typeof text !== 'string') return '';
