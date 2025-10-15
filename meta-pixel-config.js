@@ -1,7 +1,6 @@
 // Filename: meta-pixel-config.js
 
 const META_PIXEL_ID = '1475283116725734';
-
 // Meta Pixel Base Code
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
