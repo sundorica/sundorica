@@ -1,6 +1,0 @@
-# Firebase environment variables
-.env
-
-# Other common files to ignore
-node_modules/
-dist/
