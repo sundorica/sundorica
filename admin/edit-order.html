@@ -3,7 +3,7 @@
 <head>
 <meta charset=UTF-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
-<title>edit-order</title>
+<title>Edit Order</title>
 <link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
 <link rel=stylesheet href=style.css>
 <link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
@@ -11,6 +11,36 @@
     .sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}
     .sidebar .menu-list .logout-button:hover{background-color:#b71c1c}
     .sidebar .menu-list .logout-button i{margin-right:10px}
+
+    /* --- Custom Edit Order Styles --- */
+    .product-variants-edit {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .form-group-inline {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .form-group-inline label {
+        white-space: nowrap;
+        font-size: 13px;
+        font-weight: 500;
+        min-width: 40px; /* Label width */
+    }
+    .form-group-inline .form-control {
+        min-width: 100px;
+        max-width: 150px;
+        padding: 4px 8px;
+    }
+    .product-info .text-secondary {
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+    }
+    /* --- End Custom Styles --- */
 
     /* --- Mobile Responsive Styles Start --- */
     .mobile-menu-btn {
@@ -111,7 +141,7 @@
 </div>
 <div class=summary-totals>
 <div class=summary-row><span>Subtotal</span><span id=subtotal></span></div>
-<div class=summary-row><span>Shipping</span><span id=shipping></span></div>
+<div class_row><span>Shipping</span><span id=shipping></span></div>
 <div class="summary-row total"><span>Total</span><span id=total></span></div>
 </div>
 </div>
@@ -139,16 +169,19 @@
 </div>
 <div id=toast-notification class=toast></div>
 <script type=module>
-    import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import{getFirestore,doc,getDoc,updateDoc,runTransaction}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
-    import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
     
-    const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9"};
-    const app=initializeApp(firebaseConfig);
-    const db=getFirestore(app);
-    const auth=getAuth(app);
+    const firebaseConfig = { apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc", authDomain: "nasir-9102c.firebaseapp.com", projectId: "nasir-9102c", storageBucket: "nasir-9102c.firebasestorage.app", messagingSenderId: "182224792140", appId: "1:18222479214Dkzc" }; // আপনার কনফিগ চেক করুন
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
     
-    const getLoginUrl=()=>{const t=window.location.pathname;return t.substring(0,t.lastIndexOf("/"))+"/login.html"};
+    const getLoginUrl = () => {
+        const t = window.location.pathname;
+        return t.substring(0, t.lastIndexOf("/")) + "/login.html";
+    };
     
     function initializeMobileMenu() {
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -167,61 +200,360 @@
         }
     }
 
-    const logoutButton=document.getElementById("logout-button");
+    const logoutButton = document.getElementById("logout-button");
     
-    function initializePage(){
-        const t=document.getElementById("loader"),e=document.getElementById("orderDetailsContainer"),n=document.getElementById("productList"),o=document.getElementById("updateOrderBtn"),r=document.getElementById("cancelBtn"),a=document.getElementById("toast-notification"),i=new URLSearchParams(window.location.search).get("id");
-        let s=null,d=[];
-        function c(){n.innerHTML="",d.forEach(((t,e)=>{n.innerHTML+=`\n                        <div class="product-item-editable" data-index="${e}">\n                            <img src="${t.imageUrl}" alt="${t.name}">\n                            <div class="product-info">\n                                <span>${t.name}</span>\n                                <span class="text-secondary">Price: ৳${t.price}</span>\n                            </div>\n                            <div class="product-actions">\n                                <input type="number" class="form-control quantity-input" value="${t.quantity}" min="1">\n                                <button class="btn-icon-danger remove-product-btn">&times;</button>\n                            </div>\n                        </div>\n                    `})),document.querySelectorAll(".quantity-input").forEach((t=>{t.addEventListener("change",u)})),document.querySelectorAll(".remove-product-btn").forEach((t=>{t.addEventListener("click",l)}))}
-        function u(t){const e=t.target.closest(".product-item-editable").dataset.index;d[e].quantity=parseInt(t.target.value),m()}
-        function l(t){const e=t.target.closest(".product-item-editable").dataset.index;d.splice(e,1),c(),m()}
-        function m(){const t=d.reduce(((t,e)=>t+e.price*e.quantity),0),e=s.summary.shipping,n=t+e;document.getElementById("subtotal").textContent=`৳${t}`,document.getElementById("shipping").textContent=`৳${e}`,document.getElementById("total").textContent=`৳${n}`}
-        function p(t){a.textContent=t,a.classList.add("show"),setTimeout((()=>{a.classList.remove("show")}),3e3)}
-        o.addEventListener("click",(async()=>{
-            o.disabled=!0,o.textContent="Updating...";
-            const t={name:document.getElementById("customerName").value,phone:document.getElementById("customerPhone").value,address:document.getElementById("customerAddress").value},e=d.reduce(((t,e)=>t+e.price*e.quantity),0),n={subtotal:e,shipping:s.summary.shipping,total:e+s.summary.shipping};
-            try{
-                await runTransaction(db,(async e=>{
-                    const o=new Map;s.products.forEach((t=>{const e=d.find((e=>e.productId===t.productId)),n=e?t.quantity-e.quantity:t.quantity;0!==n&&o.set(t.productId,n)}));
-                    for(const[t,n]of o.entries()){
-                        if(t.startsWith("dummy"))continue;
-                        const o=doc(db,"products",t),r=await e.get(o);
-                        if(r.exists()){const t=(r.data().quantity||0)+n;e.update(o,{quantity:t})}
-                    }
-                    const r=doc(db,"orders",i);e.update(r,{customerDetails:t,products:d,summary:n})
-                }));
-                p("Order updated successfully!");
-                setTimeout((()=>{window.location.href=`view-order.html?id=${i}`}),1500);
-            }catch(t){
-                console.error("Error updating order:",t);
-                p("Error: Could not update order.");
-                o.disabled=!1;
-                o.textContent="Update Order";
-            }
-        }));
+    function initializePage() {
+        const loader = document.getElementById("loader");
+        const container = document.getElementById("orderDetailsContainer");
+        const productListDiv = document.getElementById("productList");
+        const updateOrderBtn = document.getElementById("updateOrderBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const toast = document.getElementById("toast-notification");
+        const orderId = new URLSearchParams(window.location.search).get("id");
         
-        async function loadOrderData(){
-            if(i)try{
-                const n=doc(db,"orders",i),o=await getDoc(n);
-                if(o.exists()) {
-                    s=o.data(),d=JSON.parse(JSON.stringify(s.products)),document.getElementById("orderTitle").textContent=`Edit Order #${s.orderId}`,r.href=`view-order.html?id=${i}`,document.getElementById("customerName").value=s.customerDetails.name,document.getElementById("customerPhone").value=s.customerDetails.phone,document.getElementById("customerAddress").value=s.customerDetails.address,c(),m(),t.style.display="none",e.style.display="block"
-                } else t.textContent="Error: Order not found.";
-            }catch(e){
-                console.error("Error loading order:",e),t.textContent="Error loading data.";
-            }else t.textContent="Error: No Order ID provided.";
+        let originalOrderData = null; // To compare changes
+        let editableProducts = []; // This will hold products + their full variant options
+
+        // --- Renders products with variant dropdowns ---
+        function renderProducts() {
+            productListDiv.innerHTML = "";
+            
+            editableProducts.forEach((product, index) => {
+                
+                // --- Build Variant Dropdowns ---
+                let variantsHtml = '<div class="product-variants-edit">';
+                
+                // Get all variant types (e.g., 'size', 'color')
+                const variantTypes = new Set();
+                if (product.allProductVariants) {
+                    product.allProductVariants.forEach(v => {
+                        Object.keys(v).forEach(key => {
+                            if (key !== 'price' && key !== 'quantity' && key !== 'sku') {
+                                variantTypes.add(key);
+                            }
+                        });
+                    });
+                }
+                
+                // Create dropdown for each variant type
+                variantTypes.forEach(type => {
+                    const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+                    const currentSelectedValue = product.variantDetails[type];
+                    
+                    // Get unique options for this type
+                    const options = [...new Set(product.allProductVariants.map(v => v[type]).filter(Boolean))];
+                    
+                    let optionsHtml = options.map(optionValue => {
+                        return `<option value="${optionValue}" ${optionValue === currentSelectedValue ? 'selected' : ''}>
+                                    ${optionValue}
+                                </option>`;
+                    }).join('');
+
+                    variantsHtml += `
+                        <div class="form-group-inline">
+                            <label for="variant-${index}-${type}">${capitalizedType}</label>
+                            <select id="variant-${index}-${type}" 
+                                    class="form-control variant-select" 
+                                    data-index="${index}" 
+                                    data-variant-type="${type}">
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                    `;
+                });
+                
+                variantsHtml += '</div>';
+
+                // --- Build Full Product HTML ---
+                const productElement = document.createElement('div');
+                productElement.className = 'product-item-editable';
+                productElement.setAttribute('data-index', index);
+                
+                productElement.innerHTML = `
+                    <img src="${product.imageUrl}" alt="${product.name}">
+                    <div class="product-info">
+                        <span>${product.name}</span>
+                        <span class="text-secondary" id="price-display-${index}">Price: ৳${product.price}</span>
+                        ${variantsHtml}
+                    </div>
+                    <div class="product-actions">
+                        <input type="number" class="form-control quantity-input" value="${product.quantity}" min="1">
+                        <button class="btn-icon-danger remove-product-btn">&times;</button>
+                    </div>
+                `;
+                productListDiv.appendChild(productElement);
+            });
+
+            // Re-attach event listeners
+            document.querySelectorAll(".quantity-input").forEach(input => input.addEventListener("change", handleQuantityChange));
+            document.querySelectorAll(".remove-product-btn").forEach(btn => btn.addEventListener("click", handleRemoveProduct));
+            document.querySelectorAll(".variant-select").forEach(select => select.addEventListener("change", handleVariantChange));
         }
+
+        // --- Event handler for variant dropdowns ---
+        function handleVariantChange(event) {
+            const select = event.target;
+            const index = select.dataset.index;
+            const variantType = select.dataset.variantType; // 'size', 'color'
+            const selectedValue = select.value;
+            
+            // 1. Update the selected variant detail
+            editableProducts[index].variantDetails[variantType] = selectedValue;
+
+            // 2. Find the matching variant from the product's full list
+            // This logic assumes a simple match (e.g., just by size)
+            // For complex matches (size + color), this needs to be smarter
+            const newVariantData = editableProducts[index].allProductVariants.find(v => {
+                // Check if all selected details match this variant
+                return Object.entries(editableProducts[index].variantDetails).every(([key, value]) => {
+                    return v[key] === value;
+                });
+            });
+
+            // 3. Update price if a match is found
+            if (newVariantData) {
+                editableProducts[index].price = newVariantData.price;
+                document.getElementById(`price-display-${index}`).textContent = `Price: ৳${newVariantData.price}`;
+            } else {
+                // Handle case where combination doesn't exist (e.g. Red + XL)
+                // For now, just keep old price, but you could show an error
+                console.warn("Selected variant combination not found in product data.");
+            }
+            
+            calculateTotals();
+        }
+
+        function handleQuantityChange(event) {
+            const index = event.target.closest(".product-item-editable").dataset.index;
+            editableProducts[index].quantity = parseInt(event.target.value);
+            calculateTotals();
+        }
+
+        function handleRemoveProduct(event) {
+            const index = event.target.closest(".product-item-editable").dataset.index;
+            editableProducts.splice(index, 1); // Remove from array
+            renderProducts(); // Re-render the list
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            const subtotal = editableProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+            const shipping = originalOrderData.summary.shipping; // Shipping cost is fixed
+            const total = subtotal + shipping;
+            
+            document.getElementById("subtotal").textContent = `৳${subtotal}`;
+            document.getElementById("shipping").textContent = `৳${shipping}`;
+            document.getElementById("total").textContent = `৳${total}`;
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        // --- This finds a variant's index in the product's variant array ---
+        function findVariantIndex(productVariants, variantDetails) {
+            if (!productVariants) return -1;
+            return productVariants.findIndex(variant => {
+                return Object.entries(variantDetails).every(([key, value]) => {
+                    return variant[key] === value;
+                });
+            });
+        }
+
+        updateOrderBtn.addEventListener("click", async () => {
+            updateOrderBtn.disabled = true;
+            updateOrderBtn.textContent = "Updating...";
+
+            const newCustomerDetails = {
+                name: document.getElementById("customerName").value,
+                phone: document.getElementById("customerPhone").value,
+                address: document.getElementById("customerAddress").value
+            };
+            
+            const newSubtotal = editableProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+            const newSummary = {
+                subtotal: newSubtotal,
+                shipping: originalOrderData.summary.shipping,
+                total: newSubtotal + originalOrderData.summary.shipping
+            };
+            
+            const productsToSave = editableProducts.map(p => ({
+                imageUrl: p.imageUrl,
+                name: p.name,
+                price: p.price,
+                productId: p.productId,
+                quantity: p.quantity,
+                variantDetails: p.variantDetails
+            }));
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    
+                    // --- START: ADVANCED STOCK MANAGEMENT ---
+                    // 1. Get all unique product IDs from both old and new order lists
+                    const allProductIds = new Set([
+                        ...originalOrderData.products.map(p => p.productId),
+                        ...editableProducts.map(p => p.productId)
+                    ]);
+
+                    // 2. Fetch all product documents first
+                    const productDocs = new Map();
+                    for (const productId of allProductIds) {
+                        if (productId.startsWith("dummy")) continue;
+                        const productDocRef = doc(db, "products", productId);
+                        const productDoc = await transaction.get(productDocRef);
+                        if (productDoc.exists()) {
+                            productDocs.set(productId, productDoc.data());
+                        }
+                    }
+
+                    // 3. Create a map to hold in-memory changes to variant arrays
+                    const updatedProductVariants = new Map();
+
+                    // 4. RESTORE stock from original order
+                    for (const originalProduct of originalOrderData.products) {
+                        const productId = originalProduct.productId;
+                        if (!productDocs.has(productId)) continue;
+                        
+                        // Get the product's variants array (either from memory or doc)
+                        let variantsArray = updatedProductVariants.get(productId) || [...productDocs.get(productId).variants];
+                        
+                        const variantIndex = findVariantIndex(variantsArray, originalProduct.variantDetails);
+                        
+                        if (variantIndex > -1) {
+                            variantsArray[variantIndex].quantity += originalProduct.quantity;
+                        }
+                        updatedProductVariants.set(productId, variantsArray);
+                    }
+
+                    // 5. REMOVE stock for new/edited order
+                    for (const newProduct of editableProducts) {
+                        const productId = newProduct.productId;
+                        if (!productDocs.has(productId)) continue;
+
+                        // Get the product's variants array (which may include restorations)
+                        let variantsArray = updatedProductVariants.get(productId) || [...productDocs.get(productId).variants];
+
+                        const variantIndex = findVariantIndex(variantsArray, newProduct.variantDetails);
+
+                        if (variantIndex > -1) {
+                            variantsArray[variantIndex].quantity -= newProduct.quantity;
+                            // Add check for stock going below zero if needed
+                        }
+                        updatedProductVariants.set(productId, variantsArray);
+                    }
+
+                    // 6. Apply all changes to the transaction
+                    for (const [productId, variantsArray] of updatedProductVariants.entries()) {
+                        const productDocRef = doc(db, "products", productId);
+                        transaction.update(productDocRef, { variants: variantsArray });
+                    }
+                    // --- END: ADVANCED STOCK MANAGEMENT ---
+
+                    // 7. Update the order itself
+                    const orderDocRef = doc(db, "orders", orderId);
+                    transaction.update(orderDocRef, {
+                        customerDetails: newCustomerDetails,
+                        products: productsToSave,
+                        summary: newSummary
+                    });
+                });
+                
+                showToast("Order updated successfully!");
+                setTimeout(() => {
+                    window.location.href = `view-order.html?id=${orderId}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error("Error updating order:", error);
+                showToast("Error: Could not update order.");
+                updateOrderBtn.disabled = false;
+                updateOrderBtn.textContent = "Update Order";
+            }
+        });
+        
+        // --- MODIFIED: This function now fetches from 'products' collection too ---
+        async function loadOrderData() {
+            if (!orderId) {
+                loader.textContent = "Error: No Order ID provided.";
+                return;
+            }
+            
+            try {
+                const orderDocRef = doc(db, "orders", orderId);
+                const orderDoc = await getDoc(orderDocRef);
+                
+                if (orderDoc.exists()) {
+                    originalOrderData = orderDoc.data();
+                    
+                    // --- Start: Fetch full product details ---
+                    const productPromises = originalOrderData.products.map(async (orderedProduct) => {
+                        let allProductVariants = null;
+                        
+                        try {
+                            const productDocRef = doc(db, "products", orderedProduct.productId);
+                            const productDoc = await getDoc(productDocRef);
+                            
+                            if (productDoc.exists()) {
+                                // This is the array from your screenshot
+                                allProductVariants = productDoc.data().variants || null;
+                            }
+                        } catch (prodError) {
+                            console.warn(`Could not fetch details for productId: ${orderedProduct.productId}`, prodError);
+                        }
+                        
+                        return {
+                            ...orderedProduct, // All original data (qty, price, variantDetails...)
+                            allProductVariants: allProductVariants // The full variant array
+                        };
+                    });
+                    
+                    editableProducts = await Promise.all(productPromises);
+                    // --- End: Fetch full product details ---
+
+                    document.getElementById("orderTitle").textContent = `Edit Order #${originalOrderData.orderId}`;
+                    cancelBtn.href = `view-order.html?id=${orderId}`;
+                    
+                    document.getElementById("customerName").value = originalOrderData.customerDetails.name;
+                    document.getElementById("customerPhone").value = originalOrderData.customerDetails.phone;
+                    document.getElementById("customerAddress").value = originalOrderData.customerDetails.address;
+                    
+                    renderProducts(); 
+                    calculateTotals(); 
+                    
+                    loader.style.display = "none";
+                    container.style.display = "block";
+                    
+                } else {
+                    loader.textContent = "Error: Order not found.";
+                }
+            } catch (error) {
+                console.error("Error loading order:", error);
+                loader.textContent = "Error loading data.";
+            }
+        }
+        
         loadOrderData();
     }
     
-    logoutButton&&logoutButton.addEventListener("click",(()=>{signOut(auth).then((()=>{window.location.href=getLoginUrl()})).catch((t=>console.error("Sign out error",t)))}));
-    onAuthStateChanged(auth,(t=>{
-        if(t) {
+    logoutButton && logoutButton.addEventListener("click", () => {
+        signOut(auth).then(() => {
+            window.location.href = getLoginUrl();
+        }).catch((t) => console.error("Sign out error", t));
+    });
+    
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
             initializePage();
             initializeMobileMenu();
         } else {
-            window.location.href=getLoginUrl();
+            window.location.href = getLoginUrl();
         }
-    }));
+    });
 </script>
 </body>
 </html>
