@@ -3,7 +3,8 @@
 <head>
 <meta charset=UTF-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
-<title>View Order</title> <link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<title>View Order</title>
+<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
 <link rel=stylesheet href=style.css>
 <link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
 <style>
@@ -233,21 +234,21 @@
             const orderDocRef = doc(db, "orders", orderId);
             try {
                 if (("Cancel" === newStatus || "Return" === newStatus) && "Cancel" !== currentStatus && "Return" !== currentStatus) {
-                    // Transaction to restore stock
                     await runTransaction(db, async (transaction) => {
-                        for (const product of currentOrderData.products) {
-                            const productDocRef = doc(db, "products", product.productId);
-                            const productDoc = await transaction.get(productDocRef);
-                            if (productDoc.exists()) {
-                                const newQuantity = (productDoc.data().quantity || 0) + product.quantity;
-                                transaction.update(productDocRef, { quantity: newQuantity });
+                        if (currentOrderData.products && currentOrderData.products.length > 0) {
+                            for (const product of currentOrderData.products) {
+                                const productDocRef = doc(db, "products", product.productId);
+                                const productDoc = await transaction.get(productDocRef);
+                                if (productDoc.exists()) {
+                                    const newQuantity = (productDoc.data().quantity || 0) + product.quantity;
+                                    transaction.update(productDocRef, { quantity: newQuantity });
+                                }
                             }
                         }
                         transaction.update(orderDocRef, { status: newStatus });
                     });
                     showToast("Status updated and stock restored.");
                 } else {
-                    // Just update status
                     await updateDoc(orderDocRef, { status: newStatus });
                     showToast(`Order status updated to ${newStatus}.`);
                 }
@@ -255,7 +256,7 @@
             } catch (error) {
                 console.error("Error updating status: ", error);
                 showToast("Error: Could not update status.");
-                statusDropdown.value = currentStatus; // Revert dropdown
+                statusDropdown.value = currentStatus;
             }
         });
         
@@ -292,58 +293,62 @@
                     const productListDiv = document.getElementById("productList");
                     productListDiv.innerHTML = "";
                     
-                    currentOrderData.products.forEach(product => {
-                        const productElement = document.createElement("div");
-                        productElement.className = "product-item";
-                        
-                        // --- START: MODIFIED SECTION ---
-                        // Build variant HTML
-                        let variantHtml = '';
-                        if (product.variant && typeof product.variant === 'object') {
-                            const variants = [];
+                    if (currentOrderData.products && currentOrderData.products.length > 0) {
+                        currentOrderData.products.forEach(product => {
+                            const productElement = document.createElement("div");
+                            productElement.className = "product-item";
                             
-                            // Handle common keys first
-                            if (product.variant.size) {
-                                variants.push(`Size: ${product.variant.size}`);
-                            }
-                            if (product.variant.color) {
-                                variants.push(`Color: ${product.variant.color}`);
-                            }
-                            
-                            // Handle any other dynamic keys
-                            for (const [key, value] of Object.entries(product.variant)) {
-                                if (key !== 'size' && key !== 'color' && value) {
-                                    const formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
-                                    variants.push(`${formattedKey}: ${value}`);
+                            // --- START: CORRECTED SECTION ---
+                            // আমি product.variant কে product.variantDetails করেছি
+                            let variantHtml = '';
+                            if (product.variantDetails && typeof product.variantDetails === 'object') {
+                                const variants = [];
+                                
+                                // Handle common keys first
+                                if (product.variantDetails.size) {
+                                    variants.push(`Size: ${product.variantDetails.size}`);
+                                }
+                                if (product.variantDetails.color) {
+                                    variants.push(`Color: ${product.variantDetails.color}`);
+                                }
+                                
+                                // Handle any other dynamic keys
+                                for (const [key, value] of Object.entries(product.variantDetails)) {
+                                    if (key !== 'size' && key !== 'color' && value) {
+                                        const formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                                        variants.push(`${formattedKey}: ${value}`);
+                                    }
+                                }
+                                
+                                if (variants.length > 0) {
+                                    variantHtml = variants.map(v => `<span class="text-secondary product-variant">${v}</span>`).join('');
                                 }
                             }
-                            
-                            if (variants.length > 0) {
-                                variantHtml = variants.map(v => `<span class="text-secondary product-variant">${v}</span>`).join('');
-                            }
-                        }
-                        // --- END: MODIFIED SECTION ---
+                            // --- END: CORRECTED SECTION ---
 
-                        // --- Updated innerHTML to include variants ---
-                        productElement.innerHTML = `
-                            <img src="${product.imageUrl}" alt="${product.name}">
-                            <div class="product-info">
-                                <span>${product.name}</span>
-                                <div class="product-variants-container">
-                                    ${variantHtml}
+                            // Updated innerHTML to include variants
+                            productElement.innerHTML = `
+                                <img src="${product.imageUrl}" alt="${product.name}">
+                                <div class="product-info">
+                                    <span>${product.name}</span>
+                                    <div class="product-variants-container">
+                                        ${variantHtml}
+                                    </div>
+                                    <span class="text-secondary">Qty: ${product.quantity}</span>
                                 </div>
-                                <span class="text-secondary">Qty: ${product.quantity}</span>
-                            </div>
-                            <span class="product-price">৳${product.price * product.quantity}</span>`;
-                        
-                        productElement.querySelector("img").addEventListener("click", () => {
-                            modalImage.src = product.imageUrl;
-                            imageModal.style.display = "flex";
+                                <span class="product-price">৳${product.price * product.quantity}</span>`;
+                            
+                            productElement.querySelector("img").addEventListener("click", () => {
+                                modalImage.src = product.imageUrl;
+                                imageModal.style.display = "flex";
+                            });
+                            
+                            productListDiv.appendChild(productElement);
                         });
-                        
-                        productListDiv.appendChild(productElement);
-                    });
-                    
+                    } else {
+                        productListDiv.innerHTML = '<p style="padding: 10px 0; text-align: center; color: #666;">No products found in this order.</p>';
+                    }
+
                     document.getElementById("subtotal").textContent = `৳${currentOrderData.summary.subtotal}`;
                     document.getElementById("shipping").textContent = `৳${currentOrderData.summary.shipping}`;
                     document.getElementById("total").textContent = `৳${currentOrderData.summary.total}`;
