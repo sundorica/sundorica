@@ -40,6 +40,18 @@
         font-weight: bold;
         color: #333;
     }
+    
+    /* --- Style for non-editable variant text (NEW) --- */
+    .product-variants-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 13px;
+        margin-top: 8px;
+    }
+    .product-variant.text-secondary {
+        color: #555;
+    }
     /* --- End Custom Styles --- */
 
     /* --- Mobile Responsive Styles Start --- */
@@ -141,7 +153,7 @@
 </div>
 <div class=summary-totals>
 <div class=summary-row><span>Subtotal</span><span id=subtotal></span></div>
-<div class_row><span>Shipping</span><span id=shipping></span></div>
+<div class=summary-row><span>Shipping</span><span id=shipping></span></div>
 <div class="summary-row total"><span>Total</span><span id=total></span></div>
 </div>
 </div>
@@ -173,7 +185,7 @@
     import { getFirestore, doc, getDoc, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
     
-    const firebaseConfig = { apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc", authDomain: "nasir-9102c.firebaseapp.com", projectId: "nasir-9102c", storageBucket: "nasir-9102c.firebasestorage.app", messagingSenderId: "182224792140", appId: "1:18222479214Dkzc" }; // আপনার কনফিগ চেক করুন
+    const firebaseConfig = { apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc", authDomain: "nasir-9102c.firebaseapp.com", projectId: "nasir-9102c", storageBucket: "nasir-9102c.firebasestorage.app", messagingSenderId: "182224792140", appId: "1:182224792140:web:42348e8b24f94cdf07e2e9" }; // আপনার কনফিগ চেক করুন
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
@@ -220,12 +232,13 @@
             
             editableProducts.forEach((product, index) => {
                 
-                // --- Build Variant Dropdowns ---
+                // --- Build Variant Display ---
                 let variantsHtml = '<div class="product-variants-edit">';
                 
-                // Get all variant types (e.g., 'size', 'color')
-                const variantTypes = new Set();
-                if (product.allProductVariants) {
+                // --- NEW LOGIC: Check if editable variants exist ---
+                if (product.allProductVariants && product.allProductVariants.length > 0) {
+                    // --- Build Dropdowns (as before) ---
+                    const variantTypes = new Set();
                     product.allProductVariants.forEach(v => {
                         Object.keys(v).forEach(key => {
                             if (key !== 'price' && key !== 'quantity' && key !== 'sku') {
@@ -233,34 +246,44 @@
                             }
                         });
                     });
-                }
-                
-                // Create dropdown for each variant type
-                variantTypes.forEach(type => {
-                    const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
-                    const currentSelectedValue = product.variantDetails[type];
                     
-                    // Get unique options for this type
-                    const options = [...new Set(product.allProductVariants.map(v => v[type]).filter(Boolean))];
-                    
-                    let optionsHtml = options.map(optionValue => {
-                        return `<option value="${optionValue}" ${optionValue === currentSelectedValue ? 'selected' : ''}>
-                                    ${optionValue}
-                                </option>`;
-                    }).join('');
+                    variantTypes.forEach(type => {
+                        const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+                        const currentSelectedValue = product.variantDetails[type];
+                        const options = [...new Set(product.allProductVariants.map(v => v[type]).filter(Boolean))];
+                        
+                        let optionsHtml = options.map(optionValue => {
+                            return `<option value="${optionValue}" ${optionValue === currentSelectedValue ? 'selected' : ''}>
+                                        ${optionValue}
+                                    </option>`;
+                        }).join('');
 
-                    variantsHtml += `
-                        <div class="form-group-inline">
-                            <label for="variant-${index}-${type}">${capitalizedType}</label>
-                            <select id="variant-${index}-${type}" 
-                                    class="form-control variant-select" 
-                                    data-index="${index}" 
-                                    data-variant-type="${type}">
-                                ${optionsHtml}
-                            </select>
-                        </div>
-                    `;
-                });
+                        variantsHtml += `
+                            <div class="form-group-inline">
+                                <label for="variant-${index}-${type}">${capitalizedType}</label>
+                                <select id="variant-${index}-${type}" 
+                                        class="form-control variant-select" 
+                                        data-index="${index}" 
+                                        data-variant-type="${type}">
+                                    ${optionsHtml}
+                                </select>
+                            </div>
+                        `;
+                    });
+
+                } else if (product.variantDetails && Object.keys(product.variantDetails).length > 0) {
+                    // --- NEW ELSE-IF BLOCK ---
+                    // No variant options found, so just display the saved details as text
+                    variantsHtml += '<div class="product-variants-container">';
+                    for (const [key, value] of Object.entries(product.variantDetails)) {
+                        if (value) {
+                            const formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                            variantsHtml += `<span class="text-secondary product-variant">${formattedKey}: ${value}</span>`;
+                        }
+                    }
+                    variantsHtml += '</div>';
+                }
+                // --- END OF NEW LOGIC ---
                 
                 variantsHtml += '</div>';
 
@@ -294,29 +317,22 @@
         function handleVariantChange(event) {
             const select = event.target;
             const index = select.dataset.index;
-            const variantType = select.dataset.variantType; // 'size', 'color'
+            const variantType = select.dataset.variantType;
             const selectedValue = select.value;
             
-            // 1. Update the selected variant detail
             editableProducts[index].variantDetails[variantType] = selectedValue;
 
-            // 2. Find the matching variant from the product's full list
-            // This logic assumes a simple match (e.g., just by size)
-            // For complex matches (size + color), this needs to be smarter
+            // Find the matching variant from the product's full list
             const newVariantData = editableProducts[index].allProductVariants.find(v => {
-                // Check if all selected details match this variant
                 return Object.entries(editableProducts[index].variantDetails).every(([key, value]) => {
                     return v[key] === value;
                 });
             });
 
-            // 3. Update price if a match is found
             if (newVariantData) {
                 editableProducts[index].price = newVariantData.price;
                 document.getElementById(`price-display-${index}`).textContent = `Price: ৳${newVariantData.price}`;
             } else {
-                // Handle case where combination doesn't exist (e.g. Red + XL)
-                // For now, just keep old price, but you could show an error
                 console.warn("Selected variant combination not found in product data.");
             }
             
@@ -338,7 +354,7 @@
 
         function calculateTotals() {
             const subtotal = editableProducts.reduce((sum, p) => sum + (p.price * p.quantity), 0);
-            const shipping = originalOrderData.summary.shipping; // Shipping cost is fixed
+            const shipping = originalOrderData.summary.shipping; 
             const total = subtotal + shipping;
             
             document.getElementById("subtotal").textContent = `৳${subtotal}`;
@@ -354,10 +370,10 @@
             }, 3000);
         }
 
-        // --- This finds a variant's index in the product's variant array ---
         function findVariantIndex(productVariants, variantDetails) {
             if (!productVariants) return -1;
             return productVariants.findIndex(variant => {
+                // Check if *all* keys in variantDetails match the variant
                 return Object.entries(variantDetails).every(([key, value]) => {
                     return variant[key] === value;
                 });
@@ -393,14 +409,11 @@
             try {
                 await runTransaction(db, async (transaction) => {
                     
-                    // --- START: ADVANCED STOCK MANAGEMENT ---
-                    // 1. Get all unique product IDs from both old and new order lists
                     const allProductIds = new Set([
                         ...originalOrderData.products.map(p => p.productId),
                         ...editableProducts.map(p => p.productId)
                     ]);
 
-                    // 2. Fetch all product documents first
                     const productDocs = new Map();
                     for (const productId of allProductIds) {
                         if (productId.startsWith("dummy")) continue;
@@ -411,17 +424,14 @@
                         }
                     }
 
-                    // 3. Create a map to hold in-memory changes to variant arrays
                     const updatedProductVariants = new Map();
 
-                    // 4. RESTORE stock from original order
+                    // RESTORE stock from original order
                     for (const originalProduct of originalOrderData.products) {
                         const productId = originalProduct.productId;
-                        if (!productDocs.has(productId)) continue;
+                        if (!productDocs.has(productId) || !productDocs.get(productId).variants) continue;
                         
-                        // Get the product's variants array (either from memory or doc)
                         let variantsArray = updatedProductVariants.get(productId) || [...productDocs.get(productId).variants];
-                        
                         const variantIndex = findVariantIndex(variantsArray, originalProduct.variantDetails);
                         
                         if (variantIndex > -1) {
@@ -430,31 +440,27 @@
                         updatedProductVariants.set(productId, variantsArray);
                     }
 
-                    // 5. REMOVE stock for new/edited order
+                    // REMOVE stock for new/edited order
                     for (const newProduct of editableProducts) {
                         const productId = newProduct.productId;
-                        if (!productDocs.has(productId)) continue;
+                        if (!productDocs.has(productId) || !productDocs.get(productId).variants) continue;
 
-                        // Get the product's variants array (which may include restorations)
                         let variantsArray = updatedProductVariants.get(productId) || [...productDocs.get(productId).variants];
-
                         const variantIndex = findVariantIndex(variantsArray, newProduct.variantDetails);
 
                         if (variantIndex > -1) {
                             variantsArray[variantIndex].quantity -= newProduct.quantity;
-                            // Add check for stock going below zero if needed
                         }
                         updatedProductVariants.set(productId, variantsArray);
                     }
 
-                    // 6. Apply all changes to the transaction
+                    // Apply all changes to the transaction
                     for (const [productId, variantsArray] of updatedProductVariants.entries()) {
                         const productDocRef = doc(db, "products", productId);
                         transaction.update(productDocRef, { variants: variantsArray });
                     }
-                    // --- END: ADVANCED STOCK MANAGEMENT ---
 
-                    // 7. Update the order itself
+                    // Update the order
                     const orderDocRef = doc(db, "orders", orderId);
                     transaction.update(orderDocRef, {
                         customerDetails: newCustomerDetails,
@@ -476,7 +482,6 @@
             }
         });
         
-        // --- MODIFIED: This function now fetches from 'products' collection too ---
         async function loadOrderData() {
             if (!orderId) {
                 loader.textContent = "Error: No Order ID provided.";
@@ -490,7 +495,6 @@
                 if (orderDoc.exists()) {
                     originalOrderData = orderDoc.data();
                     
-                    // --- Start: Fetch full product details ---
                     const productPromises = originalOrderData.products.map(async (orderedProduct) => {
                         let allProductVariants = null;
                         
@@ -507,13 +511,12 @@
                         }
                         
                         return {
-                            ...orderedProduct, // All original data (qty, price, variantDetails...)
+                            ...orderedProduct,
                             allProductVariants: allProductVariants // The full variant array
                         };
                     });
                     
                     editableProducts = await Promise.all(productPromises);
-                    // --- End: Fetch full product details ---
 
                     document.getElementById("orderTitle").textContent = `Edit Order #${originalOrderData.orderId}`;
                     cancelBtn.href = `view-order.html?id=${orderId}`;
