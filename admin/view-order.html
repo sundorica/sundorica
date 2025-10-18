@@ -3,14 +3,31 @@
 <head>
 <meta charset=UTF-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
-<title>view order</title>
-<link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
+<title>View Order</title> <link rel=icon href=https://i.postimg.cc/ZnQQvLz4/Chat-GPT-Image-Jun-30-2025-11-26-21-PM.png>
 <link rel=stylesheet href=style.css>
 <link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>
 <style>
     .sidebar .menu-list .logout-button{width:100%;display:block;padding:12px 20px;background-color:#d32f2f;color:#fff;border:none;text-align:left;cursor:pointer;font-size:16px;border-radius:5px;margin-top:15px;transition:background-color .3s}
     .sidebar .menu-list .logout-button:hover{background-color:#b71c1c}
     .sidebar .menu-list .logout-button i{margin-right:10px}
+
+    /* --- Custom View Order Styles Start --- */
+    .product-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px; /* Adds spacing between name, variants, qty */
+    }
+    .product-variants-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 13px;
+    }
+    .product-variant.text-secondary {
+        color: #555; /* A bit darker for readability */
+    }
+    /* --- Custom View Order Styles End --- */
+
 
     /* --- Mobile Responsive Styles Start --- */
     .mobile-menu-btn {
@@ -150,16 +167,19 @@
 </div>
 <div id=toast-notification class=toast></div>
 <script type=module>
-    import{initializeApp}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import{getFirestore,doc,getDoc,updateDoc,runTransaction}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
-    import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
     
-    const firebaseConfig={apiKey:"AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc",authDomain:"nasir-9102c.firebaseapp.com",projectId:"nasir-9102c",storageBucket:"nasir-9102c.firebasestorage.app",messagingSenderId:"182224792140",appId:"1:182224792140:web:42348e8b24f94cdf07e2e9",measurementId:"G-8R5J241MJM"};
-    const app=initializeApp(firebaseConfig);
-    const db=getFirestore(app);
-    const auth=getAuth(app);
+    const firebaseConfig = { apiKey: "AIzaSyBKK4FmXtcMniVv6_5-mFPBJICwEM5Dkzc", authDomain: "nasir-9102c.firebaseapp.com", projectId: "nasir-9102c", storageBucket: "nasir-9102c.firebasestorage.app", messagingSenderId: "182224792140", appId: "1:182224792140:web:42348e8b24f94cdf07e2e9", measurementId: "G-8R5J241MJM" };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
     
-    const getLoginUrl=()=>{const t=window.location.pathname;return t.substring(0,t.lastIndexOf("/"))+"/login.html"};
+    const getLoginUrl = () => {
+        const t = window.location.pathname;
+        return t.substring(0, t.lastIndexOf("/")) + "/login.html";
+    };
     
     function initializeMobileMenu() {
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -178,49 +198,184 @@
         }
     }
 
-    const logoutButton=document.getElementById("logout-button");
+    const logoutButton = document.getElementById("logout-button");
     
-    function initializePage(){
-        const t=document.getElementById("loader"),e=document.getElementById("orderDetailsContainer"),n=document.getElementById("statusDropdown"),o=document.getElementById("toast-notification"),a=new URLSearchParams(window.location.search).get("id");
-        let r=null,s="";
-        const d=document.getElementById("imageModal"),i=document.getElementById("modalImage"),c=document.getElementById("closeImageModal");
-        function u(){d.style.display="none"}
-        function l(t){o.textContent=t,o.classList.add("show"),setTimeout((()=>{o.classList.remove("show")}),3e3)}
-        n.addEventListener("change",(async()=>{const t=n.value;if(t===s)return;const e=doc(db,"orders",a);try{("Cancel"===t||"Return"===t)&&"Cancel"!==s&&"Return"!==s?(await runTransaction(db,(async n=>{for(const t of r.products){const e=doc(db,"products",t.productId),o=await n.get(e);if(o.exists()){const a=(o.data().quantity||0)+t.quantity;n.update(e,{quantity:a})}}n.update(e,{status:t})})),l("Status updated and stock restored.")):(await updateDoc(e,{status:t}),l(`Order status updated to ${t}.`)),s=t}catch(t){console.error("Error updating status: ",t),l("Error: Could not update status."),n.value=s}}));
-        c.addEventListener("click",u);
-        window.addEventListener("click",(t=>{t.target==d&&u()}));
-        (async function(){
-            if(a)try{
-                const o=doc(db,"orders",a),c=await getDoc(o);
-                if(c.exists()){
-                    r=c.data(),s=r.status,document.getElementById("orderTitle").textContent=`Order #${r.orderId}`;
-                    const o=new Date(1e3*r.orderDate.seconds);document.getElementById("orderDate").textContent=`Placed on ${o.toLocaleString()}`,document.getElementById("editOrderBtn").href=`edit-order.html?id=${a}`,document.getElementById("customerName").textContent=r.customerDetails.name,document.getElementById("customerPhone").textContent=r.customerDetails.phone,document.getElementById("customerAddress").textContent=r.customerDetails.address;
-                    const u=document.getElementById("productList");u.innerHTML="",r.products.forEach((t=>{const e=document.createElement("div");e.className="product-item",e.innerHTML=`
-                        <img src="${t.imageUrl}" alt="${t.name}">
-                        <div class="product-info">
-                            <span>${t.name}</span>
-                            <span class="text-secondary">Qty: ${t.quantity}</span>
-                        </div>
-                        <span class="product-price">৳${t.price*t.quantity}</span>`,
-                        e.querySelector("img").addEventListener("click",(()=>{return e=t.imageUrl,i.src=e,void(d.style.display="flex");var e})),u.appendChild(e)})),
-                    document.getElementById("subtotal").textContent=`৳${r.summary.subtotal}`,document.getElementById("shipping").textContent=`৳${r.summary.shipping}`,document.getElementById("total").textContent=`৳${r.summary.total}`,n.value=r.status,t.style.display="none",e.style.display="block"
-                }else t.textContent="Error: Order not found."
-            }catch(e){
-                console.error("Error loading order:",e),t.textContent="Error loading data."
-            }else t.textContent="Error: No Order ID provided."
+    function initializePage() {
+        const loader = document.getElementById("loader");
+        const container = document.getElementById("orderDetailsContainer");
+        const statusDropdown = document.getElementById("statusDropdown");
+        const toast = document.getElementById("toast-notification");
+        const orderId = new URLSearchParams(window.location.search).get("id");
+        
+        let currentOrderData = null;
+        let currentStatus = "";
+        
+        const imageModal = document.getElementById("imageModal");
+        const modalImage = document.getElementById("modalImage");
+        const closeImageModal = document.getElementById("closeImageModal");
+        
+        function hideImageModal() {
+            imageModal.style.display = "none";
+        }
+        
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+        
+        statusDropdown.addEventListener("change", async () => {
+            const newStatus = statusDropdown.value;
+            if (newStatus === currentStatus) return;
+            
+            const orderDocRef = doc(db, "orders", orderId);
+            try {
+                if (("Cancel" === newStatus || "Return" === newStatus) && "Cancel" !== currentStatus && "Return" !== currentStatus) {
+                    // Transaction to restore stock
+                    await runTransaction(db, async (transaction) => {
+                        for (const product of currentOrderData.products) {
+                            const productDocRef = doc(db, "products", product.productId);
+                            const productDoc = await transaction.get(productDocRef);
+                            if (productDoc.exists()) {
+                                const newQuantity = (productDoc.data().quantity || 0) + product.quantity;
+                                transaction.update(productDocRef, { quantity: newQuantity });
+                            }
+                        }
+                        transaction.update(orderDocRef, { status: newStatus });
+                    });
+                    showToast("Status updated and stock restored.");
+                } else {
+                    // Just update status
+                    await updateDoc(orderDocRef, { status: newStatus });
+                    showToast(`Order status updated to ${newStatus}.`);
+                }
+                currentStatus = newStatus;
+            } catch (error) {
+                console.error("Error updating status: ", error);
+                showToast("Error: Could not update status.");
+                statusDropdown.value = currentStatus; // Revert dropdown
+            }
+        });
+        
+        closeImageModal.addEventListener("click", hideImageModal);
+        window.addEventListener("click", (event) => {
+            if (event.target == imageModal) {
+                hideImageModal();
+            }
+        });
+        
+        (async function loadOrder() {
+            if (!orderId) {
+                loader.textContent = "Error: No Order ID provided.";
+                return;
+            }
+            
+            try {
+                const orderDocRef = doc(db, "orders", orderId);
+                const orderDoc = await getDoc(orderDocRef);
+                
+                if (orderDoc.exists()) {
+                    currentOrderData = orderDoc.data();
+                    currentStatus = currentOrderData.status;
+                    
+                    document.getElementById("orderTitle").textContent = `Order #${currentOrderData.orderId}`;
+                    const orderDate = new Date(1000 * currentOrderData.orderDate.seconds);
+                    document.getElementById("orderDate").textContent = `Placed on ${orderDate.toLocaleString()}`;
+                    document.getElementById("editOrderBtn").href = `edit-order.html?id=${orderId}`;
+                    
+                    document.getElementById("customerName").textContent = currentOrderData.customerDetails.name;
+                    document.getElementById("customerPhone").textContent = currentOrderData.customerDetails.phone;
+                    document.getElementById("customerAddress").textContent = currentOrderData.customerDetails.address;
+                    
+                    const productListDiv = document.getElementById("productList");
+                    productListDiv.innerHTML = "";
+                    
+                    currentOrderData.products.forEach(product => {
+                        const productElement = document.createElement("div");
+                        productElement.className = "product-item";
+                        
+                        // --- START: MODIFIED SECTION ---
+                        // Build variant HTML
+                        let variantHtml = '';
+                        if (product.variant && typeof product.variant === 'object') {
+                            const variants = [];
+                            
+                            // Handle common keys first
+                            if (product.variant.size) {
+                                variants.push(`Size: ${product.variant.size}`);
+                            }
+                            if (product.variant.color) {
+                                variants.push(`Color: ${product.variant.color}`);
+                            }
+                            
+                            // Handle any other dynamic keys
+                            for (const [key, value] of Object.entries(product.variant)) {
+                                if (key !== 'size' && key !== 'color' && value) {
+                                    const formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                                    variants.push(`${formattedKey}: ${value}`);
+                                }
+                            }
+                            
+                            if (variants.length > 0) {
+                                variantHtml = variants.map(v => `<span class="text-secondary product-variant">${v}</span>`).join('');
+                            }
+                        }
+                        // --- END: MODIFIED SECTION ---
+
+                        // --- Updated innerHTML to include variants ---
+                        productElement.innerHTML = `
+                            <img src="${product.imageUrl}" alt="${product.name}">
+                            <div class="product-info">
+                                <span>${product.name}</span>
+                                <div class="product-variants-container">
+                                    ${variantHtml}
+                                </div>
+                                <span class="text-secondary">Qty: ${product.quantity}</span>
+                            </div>
+                            <span class="product-price">৳${product.price * product.quantity}</span>`;
+                        
+                        productElement.querySelector("img").addEventListener("click", () => {
+                            modalImage.src = product.imageUrl;
+                            imageModal.style.display = "flex";
+                        });
+                        
+                        productListDiv.appendChild(productElement);
+                    });
+                    
+                    document.getElementById("subtotal").textContent = `৳${currentOrderData.summary.subtotal}`;
+                    document.getElementById("shipping").textContent = `৳${currentOrderData.summary.shipping}`;
+                    document.getElementById("total").textContent = `৳${currentOrderData.summary.total}`;
+                    statusDropdown.value = currentOrderData.status;
+                    
+                    loader.style.display = "none";
+                    container.style.display = "block";
+                    
+                } else {
+                    loader.textContent = "Error: Order not found.";
+                }
+            } catch (error) {
+                console.error("Error loading order:", error);
+                loader.textContent = "Error loading data.";
+            }
         })();
     }
     
-    logoutButton&&logoutButton.addEventListener("click",(()=>{signOut(auth).then((()=>{window.location.href=getLoginUrl()})).catch((t=>console.error("Sign out error",t)))}));
+    logoutButton && logoutButton.addEventListener("click", () => {
+        signOut(auth).then(() => {
+            window.location.href = getLoginUrl();
+        }).catch((error) => console.error("Sign out error", error));
+    });
     
-    onAuthStateChanged(auth,(t=>{
-        if(t) {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
             initializePage();
             initializeMobileMenu();
         } else {
-            window.location.href=getLoginUrl();
+            window.location.href = getLoginUrl();
         }
-    }));
+    });
 </script>
 </body>
 </html>
