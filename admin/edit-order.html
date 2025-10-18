@@ -41,7 +41,7 @@
         color: #333;
     }
     
-    /* --- Style for non-editable variant text (NEW) --- */
+    /* --- Style for non-editable variant text --- */
     .product-variants-container {
         display: flex;
         flex-direction: column;
@@ -223,21 +223,24 @@
         const toast = document.getElementById("toast-notification");
         const orderId = new URLSearchParams(window.location.search).get("id");
         
-        let originalOrderData = null; // To compare changes
-        let editableProducts = []; // This will hold products + their full variant options
+        let originalOrderData = null; 
+        let editableProducts = []; 
 
-        // --- Renders products with variant dropdowns ---
         function renderProducts() {
             productListDiv.innerHTML = "";
             
             editableProducts.forEach((product, index) => {
                 
-                // --- Build Variant Display ---
                 let variantsHtml = '<div class="product-variants-edit">';
                 
-                // --- NEW LOGIC: Check if editable variants exist ---
+                // --- DEBUGGING LOG ---
+                console.log(`প্রোডাক্ট (${product.name}): allProductVariants ফিল্ডটি হলো:`, product.allProductVariants);
+                
                 if (product.allProductVariants && product.allProductVariants.length > 0) {
-                    // --- Build Dropdowns (as before) ---
+                    
+                    // --- DEBUGGING LOG ---
+                    console.log(`প্রোডাক্ট (${product.name}): 'variants' অ্যারে পাওয়া গেছে। ড্রপডাউন দেখানো হচ্ছে।`);
+                    
                     const variantTypes = new Set();
                     product.allProductVariants.forEach(v => {
                         Object.keys(v).forEach(key => {
@@ -272,8 +275,9 @@
                     });
 
                 } else if (product.variantDetails && Object.keys(product.variantDetails).length > 0) {
-                    // --- NEW ELSE-IF BLOCK ---
-                    // No variant options found, so just display the saved details as text
+                    // --- DEBUGGING LOG ---
+                    console.log(`প্রোডাক্ট (${product.name}): 'variants' অ্যারে পাওয়া যায়নি। শুধু টেক্সট দেখানো হচ্ছে।`);
+                    
                     variantsHtml += '<div class="product-variants-container">';
                     for (const [key, value] of Object.entries(product.variantDetails)) {
                         if (value) {
@@ -283,11 +287,9 @@
                     }
                     variantsHtml += '</div>';
                 }
-                // --- END OF NEW LOGIC ---
                 
                 variantsHtml += '</div>';
 
-                // --- Build Full Product HTML ---
                 const productElement = document.createElement('div');
                 productElement.className = 'product-item-editable';
                 productElement.setAttribute('data-index', index);
@@ -307,13 +309,12 @@
                 productListDiv.appendChild(productElement);
             });
 
-            // Re-attach event listeners
+            // Event listeners
             document.querySelectorAll(".quantity-input").forEach(input => input.addEventListener("change", handleQuantityChange));
             document.querySelectorAll(".remove-product-btn").forEach(btn => btn.addEventListener("click", handleRemoveProduct));
             document.querySelectorAll(".variant-select").forEach(select => select.addEventListener("change", handleVariantChange));
         }
 
-        // --- Event handler for variant dropdowns ---
         function handleVariantChange(event) {
             const select = event.target;
             const index = select.dataset.index;
@@ -322,7 +323,6 @@
             
             editableProducts[index].variantDetails[variantType] = selectedValue;
 
-            // Find the matching variant from the product's full list
             const newVariantData = editableProducts[index].allProductVariants.find(v => {
                 return Object.entries(editableProducts[index].variantDetails).every(([key, value]) => {
                     return v[key] === value;
@@ -333,7 +333,7 @@
                 editableProducts[index].price = newVariantData.price;
                 document.getElementById(`price-display-${index}`).textContent = `Price: ৳${newVariantData.price}`;
             } else {
-                console.warn("Selected variant combination not found in product data.");
+                console.warn("Selected variant combination not found.");
             }
             
             calculateTotals();
@@ -347,8 +347,8 @@
 
         function handleRemoveProduct(event) {
             const index = event.target.closest(".product-item-editable").dataset.index;
-            editableProducts.splice(index, 1); // Remove from array
-            renderProducts(); // Re-render the list
+            editableProducts.splice(index, 1); 
+            renderProducts(); 
             calculateTotals();
         }
 
@@ -373,7 +373,6 @@
         function findVariantIndex(productVariants, variantDetails) {
             if (!productVariants) return -1;
             return productVariants.findIndex(variant => {
-                // Check if *all* keys in variantDetails match the variant
                 return Object.entries(variantDetails).every(([key, value]) => {
                     return variant[key] === value;
                 });
@@ -426,7 +425,7 @@
 
                     const updatedProductVariants = new Map();
 
-                    // RESTORE stock from original order
+                    // RESTORE stock
                     for (const originalProduct of originalOrderData.products) {
                         const productId = originalProduct.productId;
                         if (!productDocs.has(productId) || !productDocs.get(productId).variants) continue;
@@ -440,7 +439,7 @@
                         updatedProductVariants.set(productId, variantsArray);
                     }
 
-                    // REMOVE stock for new/edited order
+                    // REMOVE stock
                     for (const newProduct of editableProducts) {
                         const productId = newProduct.productId;
                         if (!productDocs.has(productId) || !productDocs.get(productId).variants) continue;
@@ -454,13 +453,13 @@
                         updatedProductVariants.set(productId, variantsArray);
                     }
 
-                    // Apply all changes to the transaction
+                    // Apply changes
                     for (const [productId, variantsArray] of updatedProductVariants.entries()) {
                         const productDocRef = doc(db, "products", productId);
                         transaction.update(productDocRef, { variants: variantsArray });
                     }
 
-                    // Update the order
+                    // Update order
                     const orderDocRef = doc(db, "orders", orderId);
                     transaction.update(orderDocRef, {
                         customerDetails: newCustomerDetails,
@@ -496,6 +495,10 @@
                     originalOrderData = orderDoc.data();
                     
                     const productPromises = originalOrderData.products.map(async (orderedProduct) => {
+                        
+                        // --- DEBUGGING LOG ---
+                        console.log(`অর্ডারের প্রোডাক্ট (${orderedProduct.name}) এর Product ID: ${orderedProduct.productId}`);
+                        
                         let allProductVariants = null;
                         
                         try {
@@ -503,16 +506,21 @@
                             const productDoc = await getDoc(productDocRef);
                             
                             if (productDoc.exists()) {
-                                // This is the array from your screenshot
+                                // --- DEBUGGING LOG ---
+                                console.log(`'products' কালেকশনে প্রোডাক্টটি (${orderedProduct.productId}) পাওয়া গেছে।`);
+                                
                                 allProductVariants = productDoc.data().variants || null;
+                            } else {
+                                // --- DEBUGGING LOG ---
+                                console.error(`গুরুত্বপূর্ণ: 'products' কালেকশনে প্রোডাক্টটি (${orderedProduct.productId}) খুঁজে পাওয়া যায়নি।`);
                             }
                         } catch (prodError) {
-                            console.warn(`Could not fetch details for productId: ${orderedProduct.productId}`, prodError);
+                            console.error(`প্রোডাক্ট (${orderedProduct.productId}) লোড করতে সমস্যা হয়েছে:`, prodError);
                         }
                         
                         return {
                             ...orderedProduct,
-                            allProductVariants: allProductVariants // The full variant array
+                            allProductVariants: allProductVariants
                         };
                     });
                     
