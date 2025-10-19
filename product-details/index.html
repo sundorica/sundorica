@@ -252,25 +252,6 @@
         }
         // ### NEW HELPER FUNCTION END ###
 
-        // ### NEW HELPER FUNCTION START ### (Ei function-ti add kora hoyeche)
-        /**
-         * Creates or updates a meta tag in the <head>.
-         * @param {string} attribute - The attribute to identify the tag (e.g., 'property' or 'name').
-         * @param {string} key - The value of the identifying attribute (e.g., 'og:title' or 'description').
-         * @param {string} value - The value for the 'content' attribute.
-         */
-        function setMetaTag(attribute, key, value) {
-            if (!value) return; // Don't add tags with empty content
-            let metaTag = document.querySelector(`meta[${attribute}="${key}"]`);
-            if (!metaTag) {
-                metaTag = document.createElement('meta');
-                metaTag.setAttribute(attribute, key);
-                document.head.appendChild(metaTag);
-            }
-            metaTag.setAttribute('content', value);
-        }
-        // ### NEW HELPER FUNCTION END ###
-
         function showToast(message, type = "success") {
             const container = document.getElementById("toast-container");
             if (!container) return;
@@ -455,42 +436,26 @@
             // Set dynamic page title
             document.title = `${product.name || "Product"} - Sundorica`;
             
-            // ### NEW/UPDATED META TAG BLOCK START ### (Ei block-ti update kora hoyeche)
-
-            // --- Define key content variables ---
-            const fullProductUrl = `https://www.sundorica.com${productPath}`;
-            const plainTextDescription = stripHtml(product.description);
-            const mainImageUrl = (product.imageUrls && product.imageUrls.length > 0) ? product.imageUrls[0] : null;
-            const finalDescription = plainTextDescription ? plainTextDescription.substring(0, 160) : `Buy ${product.name} from Sundorica. High quality and great prices.`;
-
-            // --- Set Standard Meta Tags ---
-            // Set meta description
-            setMetaTag('name', 'description', finalDescription);
-
             // Set dynamic canonical URL
             const oldCanonical = document.querySelector("link[rel='canonical']");
             if (oldCanonical) oldCanonical.remove();
             const newCanonical = document.createElement('link');
             newCanonical.rel = 'canonical';
-            newCanonical.href = fullProductUrl;
+            newCanonical.href = `https://www.sundorica.com${productPath}`;
             document.head.appendChild(newCanonical);
-
-            // --- Set Open Graph (OG) Meta Tags ---
-            setMetaTag('property', 'og:title', product.name);
-            setMetaTag('property', 'og:description', finalDescription);
-            setMetaTag('property', 'og:url', fullProductUrl);
-            setMetaTag('property', 'og:image', mainImageUrl);
-            setMetaTag('property', 'og:type', 'product');
-            setMetaTag('property', 'og:site_name', 'Sundorica');
             
-            // --- Set Twitter Card Meta Tags (Good Practice) ---
-            setMetaTag('name', 'twitter:card', 'summary_large_image');
-            setMetaTag('name', 'twitter:title', product.name);
-            setMetaTag('name', 'twitter:description', finalDescription);
-            setMetaTag('name', 'twitter:image', mainImageUrl);
+            // ### MODIFIED BLOCK START ###
+            // Set dynamic meta description using the clean, plain text
+            let metaDescTag = document.querySelector('meta[name="description"]');
+            if (!metaDescTag) {
+                metaDescTag = document.createElement('meta');
+                metaDescTag.name = 'description';
+                document.head.appendChild(metaDescTag);
+            }
+            const plainTextDescription = stripHtml(product.description);
+            metaDescTag.content = plainTextDescription ? plainTextDescription.substring(0, 160) : `Buy ${product.name} from Sundorica. High quality and great prices.`;
+            // ### MODIFIED BLOCK END ###
 
-            // ### NEW/UPDATED META TAG BLOCK END ###
-            
             // Add the JSON-LD Product Schema
             addProductSchema(product, productPath);
 
