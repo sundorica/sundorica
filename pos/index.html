@@ -514,9 +514,20 @@
           document.getElementById('sales-to-date').value = formattedToday;
           
           document.getElementById('add-product-form').addEventListener('submit', handleAddProduct);
-          document.getElementById('product-search').addEventListener('input', function(e) { populateProductTable(filterData(ALL_PRODUCTS, e.target.value, ['name', 'sku'])); });
-          document.getElementById('stock-search').addEventListener('input', function(e) { populateStockTable(filterData(ALL_PRODUCTS, e.target.value, ['name', 'sku'])); });
-          document.getElementById('customer-search').addEventListener('input', function(e) { populateCustomerTable(filterData(ALL_CUSTOMERS, e.target.value, ['name', 'phone'])); });
+          
+          // === FIX START ===
+          // Changed ['name', 'sku'] to [0, 1] because ALL_PRODUCTS is an array of arrays,
+          // and we need to search by index 0 (SKU) and index 1 (Name).
+          document.getElementById('product-search').addEventListener('input', function(e) { populateProductTable(filterData(ALL_PRODUCTS, e.target.value, [0, 1])); });
+          
+          // Changed ['name', 'sku'] to [0, 1] for the same reason (searching ALL_PRODUCTS).
+          document.getElementById('stock-search').addEventListener('input', function(e) { populateStockTable(filterData(ALL_PRODUCTS, e.target.value, [0, 1])); });
+          
+          // Changed ['name', 'phone'] to [0, 1] because ALL_CUSTOMERS is an array of arrays,
+          // searching by index 0 (Name) and index 1 (Phone).
+          document.getElementById('customer-search').addEventListener('input', function(e) { populateCustomerTable(filterData(ALL_CUSTOMERS, e.target.value, [0, 1])); });
+          // === FIX END ===
+
           document.getElementById('history-search').addEventListener('input', function(e) { 
                 const searchTerm = e.target.value.toLowerCase();
                 const filteredHistory = ALL_HISTORY.filter(item => 
@@ -526,7 +537,10 @@
                 populateHistoryTable(filteredHistory);
             });
           document.getElementById('show-report-btn').addEventListener('click', handleShowSalesReport);
+          
+          // This was already correct for real-time search on the Sales page.
           document.getElementById('sales-search').addEventListener('input', handleShowSalesReport);
+          
           document.getElementById('bill-sku').addEventListener('keydown', handleSkuEnter);
           document.getElementById('bill-sale-qty').addEventListener('keydown', handleSaleQtyEnter);
           
