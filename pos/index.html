@@ -105,6 +105,36 @@
         }
         .dark .brand-suggestion-container { background-color: var(--surface-dark); border-color: var(--border-dark);
         }
+        /* New style for item discount dropdown */
+        .item-discount-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .item-discount-input {
+            width: 70px; /* Reduced width */
+            padding: 4px;
+            text-align: right;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .item-discount-type {
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 50px; /* Adjusted width */
+        }
+        /* Style for customer history display to prevent overlap */
+        .customer-history-display {
+            font-size: 10px; /* Smaller font size */
+            white-space: nowrap; /* Prevent line break */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+            height: auto !important; /* Allow height to auto-adjust based on content */
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body class="text-gray-800">
@@ -146,15 +176,34 @@
         <main class="flex-1 ml-64 p-6 overflow-y-auto">
             <div class="flex justify-end items-center mb-4"><label for="dark-mode-toggle" class="mr-2 text-sm font-medium">Dark Mode</label><button id="dark-mode-toggle" class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors bg-gray-200 dark:bg-gray-600 focus:outline-none"><span class="sr-only">Toggle Dark Mode</span><span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform translate-x-1 dark:translate-x-6"></span></button></div>
             
-            <div id="dashboard" class="page"><h1 class="text-3xl font-bold mb-6">Dashboard</h1><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-lg font-semibold text-gray-500">Today's Sales</h2><p id="today-sales" class="text-3xl font-bold mt-2">0.00</p></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-lg font-semibold text-gray-500">This Month's Sales</h2><p id="month-sales" class="text-3xl font-bold mt-2">0.00</p></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-lg font-semibold text-gray-500">Today's Sale Quantity</h2><p id="today-qty" class="text-3xl font-bold mt-2">0</p></div></div></div>
+            <div id="dashboard" class="page"><h1 class="text-3xl font-bold mb-6">Dashboard</h1>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-lg font-semibold text-gray-500">Today's Sales</h2>
+                        <p id="today-sales" class="text-3xl font-bold mt-2">0.00</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-lg font-semibold text-gray-500">This Month's Sales</h2>
+                        <p id="month-sales" class="text-3xl font-bold mt-2">0.00</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-lg font-semibold text-gray-500">Total Bills Today</h2>
+                        <p id="today-bills" class="text-3xl font-bold mt-2">0</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-lg font-semibold text-gray-500">Today's Sale Quantity</h2>
+                        <p id="today-qty" class="text-3xl font-bold mt-2">0</p>
+                    </div>
+                </div>
+            </div>
             
-            <div id="bill" class="page"><h1 class="text-3xl font-bold mb-6">Create Bill</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Billing Items</h2><div class="grid grid-cols-5 gap-4 items-end mb-4"><div class="col-span-2"><label for="bill-sku" class="block text-sm font-medium text-gray-700">Enter SKU</label><input type="text" id="bill-sku" class="mt-1 block w-full rounded-md shadow-sm p-2"></div><div><label for="bill-pname" class="block text-sm font-medium text-gray-700">Product Name</label><input type="text" id="bill-pname" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-avail-qty" class="block text-sm font-medium text-gray-700">Available Qty</label><input type="text" id="bill-avail-qty" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-sale-qty" class="block text-sm font-medium text-gray-700">Sale Quantity</label><input type="number" id="bill-sale-qty" class="mt-1 block w-full rounded-md shadow-sm p-2"></div></div><div class="mt-6 flow-root"><div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8"><div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8"><table id="sale-items-table" class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-0">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Quantity</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Total</th><th class="relative py-3.5 pl-3 pr-4 sm:pr-0"><span class="sr-only">Remove</span></th></tr></thead><tbody id="sale-list-body" class="divide-y"></tbody></table></div></div></div></div><div class="bg-white p-6 rounded-lg shadow-md"><div class="mb-6"><h3 class="text-lg font-bold mb-4">Bill To</h3><div><label for="cust-phone" class="block text-sm font-medium text-gray-700">Customer Phone</label><input type="text" id="cust-phone" class="mt-1 block w-full rounded-md shadow-sm p-2" maxlength="11" placeholder="Enter 11 digit number"></div>
-            <div id="customer-history-display" class="text-sm mt-2 h-4"></div>
-            <div class="mt-2"><label for="cust-name" class="block text-sm font-medium text-gray-700">Customer Name</label><input type="text" id="cust-name" class="mt-1 block w-full rounded-md p-2" readonly></div><div class="mt-4"><label for="cust-address" class="block text-sm font-medium text-gray-700">Customer Address</label><textarea id="cust-address" rows="2" class="mt-1 block w-full rounded-md p-2" readonly></textarea></div></div><div class="border-t pt-4"><h3 class="text-lg font-bold mb-4">Billing Summary</h3><div class="space-y-3 text-sm"><div class="flex justify-between"><span>Subtotal</span><span id="summary-subtotal">0.00</span></div><div class="flex items-center justify-between"><span>Discount</span><div class="flex items-center gap-2"><input type="number" id="discount-value" placeholder="0" class="w-20 rounded-md text-right p-1"><select id="discount-type" class="rounded-md p-1"><option value="amount">Amount</option><option value="percent">%</option></select></div></div><div class="flex justify-between"><span>Shipping Charges</span><input type="number" id="shipping-charges" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between font-medium"><span>Payment</span><input type="number" id="payment-amount" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Due Amount</span><span id="summary-due-amount">0.00</span></div></div><button id="bill-now-btn" class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-md font-bold hover:bg-indigo-700 transition">Bill Now</button></div></div></div></div>
+            <div id="bill" class="page"><h1 class="text-3xl font-bold mb-6">Create Bill</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Billing Items</h2><div class="grid grid-cols-5 gap-4 items-end mb-4"><div class="col-span-2"><label for="bill-sku" class="block text-sm font-medium text-gray-700">Enter SKU</label><input type="text" id="bill-sku" class="mt-1 block w-full rounded-md shadow-sm p-2"></div><div><label for="bill-pname" class="block text-sm font-medium text-gray-700">Product Name</label><input type="text" id="bill-pname" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-avail-qty" class="block text-sm font-medium text-gray-700">Available Qty</label><input type="text" id="bill-avail-qty" class="mt-1 block w-full rounded-md p-2" readonly></div><div><label for="bill-sale-qty" class="block text-sm font-medium text-gray-700">Sale Quantity</label><input type="number" id="bill-sale-qty" class="mt-1 block w-full rounded-md shadow-sm p-2"></div></div><div class="mt-6 flow-root"><div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8"><div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8"><table id="sale-items-table" class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-0">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Quantity</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Item Discount</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Total</th><th class="relative py-3.5 pl-3 pr-4 sm:pr-0"><span class="sr-only">Remove</span></th></tr></thead><tbody id="sale-list-body" class="divide-y"></tbody></table></div></div></div></div><div class="bg-white p-6 rounded-lg shadow-md"><div class="mb-6"><h3 class="text-lg font-bold mb-4">Bill To</h3><div><label for="cust-phone" class="block text-sm font-medium text-gray-700">Customer Phone</label><input type="text" id="cust-phone" class="mt-1 block w-full rounded-md shadow-sm p-2" maxlength="11" placeholder="Enter 11 digit number"></div>
+            <div id="customer-history-display" class="customer-history-display"></div>
+            <div class="mt-2"><label for="cust-name" class="block text-sm font-medium text-gray-700">Customer Name</label><input type="text" id="cust-name" class="mt-1 block w-full rounded-md p-2" readonly></div><div class="mt-4"><label for="cust-address" class="block text-sm font-medium text-gray-700">Customer Address</label><textarea id="cust-address" rows="2" class="mt-1 block w-full rounded-md p-2" readonly></textarea></div></div><div class="border-t pt-4"><h3 class="text-lg font-bold mb-4">Billing Summary</h3><div class="space-y-3 text-sm"><div class="flex justify-between"><span>Subtotal</span><span id="summary-subtotal">0.00</span></div><div class="flex items-center justify-between"><span>Discount</span><div class="flex items-center gap-2"><input type="number" id="discount-value" placeholder="0" class="w-20 rounded-md text-right p-1"><select id="discount-type" class="rounded-md p-1"><option value="percent">%</option><option value="amount">Amount</option></select></div></div><div class="flex justify-between"><span>Shipping Charges</span><input type="number" id="shipping-charges" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between font-medium"><span>Payment</span><input type="number" id="payment-amount" placeholder="0.00" class="w-24 rounded-md text-right p-1"></div><div class="flex justify-between text-lg font-bold border-t pt-2 mt-2"><span>Due Amount</span><span id="summary-due-amount">0.00</span></div></div><button id="bill-now-btn" class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-md font-bold hover:bg-indigo-700 transition">Bill Now</button></div></div></div></div>
             
-            <div id="products" class="page"><h1 class="text-3xl font-bold mb-6">Manage Products</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Product List</h2><input type="text" id="product-search" placeholder="Search by SKU or Name..." class="block w-1/2 rounded-md shadow-sm p-2"></div><div class="overflow-auto h-96"><table class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">SKU</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Brand</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Purchase Price</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Actions</th></tr></thead><tbody id="product-list-body" class="divide-y"></tbody></table></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add New Product</h2><form id="add-product-form" class="space-y-4"><div><label for="new-pname" class="block text-sm font-medium">Product Name</label><input type="text" id="new-pname" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pprice" class="block text-sm font-medium">Purchase Price</label><input type="number" id="new-pprice" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-mrp" class="block text-sm font-medium">MRP</label><input type="number" id="new-mrp" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pqty" class="block text-sm font-medium">Purchase Quantity</label><input type="number" id="new-pqty" required class="mt-1 block w-full rounded-md p-2"></div><div class="relative"><label for="new-pbrand" class="block text-sm font-medium">Brand Name</label><input type="text" id="new-pbrand" autocomplete="off" class="mt-1 block w-full rounded-md p-2"><div id="brand-suggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 hidden max-h-40 overflow-y-auto"></div></div><button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md font-bold hover:bg-indigo-700">Save Product</button></form></div></div></div>
+            <div id="products" class="page"><h1 class="text-3xl font-bold mb-6">Manage Products</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Product List</h2><input type="text" id="product-search" placeholder="Search by SKU or Name..." class="block w-1/2 rounded-md shadow-sm p-2"></div><div class="overflow-auto h-96" id="product-list-container"><table class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">SKU</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Product Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Brand</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Purchase Price</th><th class="px-3 py-3.5 text-left text-sm font-semibold">MRP</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Actions</th></tr></thead><tbody id="product-list-body" class="divide-y"></tbody></table></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add New Product</h2><form id="add-product-form" class="space-y-4"><div><label for="new-pname" class="block text-sm font-medium">Product Name</label><input type="text" id="new-pname" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pprice" class="block text-sm font-medium">Purchase Price</label><input type="number" id="new-pprice" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-mrp" class="block text-sm font-medium">MRP</label><input type="number" id="new-mrp" required class="mt-1 block w-full rounded-md p-2"></div><div><label for="new-pqty" class="block text-sm font-medium">Purchase Quantity</label><input type="number" id="new-pqty" required class="mt-1 block w-full rounded-md p-2"></div><div class="relative"><label for="new-pbrand" class="block text-sm font-medium">Brand Name</label><input type="text" id="new-pbrand" autocomplete="off" class="mt-1 block w-full rounded-md p-2"><div id="brand-suggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 hidden max-h-40 overflow-y-auto"></div></div><button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md font-bold hover:bg-indigo-700">Save Product</button></form></div></div></div>
             
-            <div id="sales" class="page"><h1 class="text-3xl font-bold mb-6">Sales Report</h1><div class="bg-white p-6 rounded-lg shadow-md"><div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-end"><div><label for="sales-from-date" class="block text-sm font-medium">From Date</label><input type="date" id="sales-from-date" class="mt-1 block w-full rounded-md p-2"></div><div><label for="sales-to-date" class="block text-sm font-medium">To Date</label><input type="date" id="sales-to-date" class="mt-1 block w-full rounded-md p-2"></div><div><input type="text" id="sales-search" placeholder="Search by Invoice or Phone..." class="block w-full rounded-md p-2"></div><div class="flex gap-2"><button id="show-report-btn" class="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Show Report</button><button id="download-sales-btn" class="flex-1 bg-green-600 text-white py-2 rounded-md hover:bg-green-700">Download CSV</button></div></div><div class="mt-4 flex items-center gap-2"><input type="text" id="reprint-invoice-id" placeholder="Enter Invoice NO to Reprint" class="block w-1/3 rounded-md p-2"><button id="reprint-btn" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">Reprint</button></div><div class="overflow-auto h-[60vh] mt-4"><table id="sales-report-table" class="min-w-full divide-y"><thead class="bg-gray-50 sticky top-0"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">Invoice NO</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Sale Date</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Customer</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Phone</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Address</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Due</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Discount</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Payment</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Qty</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Products</th></tr></thead><tbody id="sales-list-body" class="divide-y"></tbody></table></div></div></div>
+            <div id="sales" class="page"><h1 class="text-3xl font-bold mb-6">Sales Report</h1><div class="bg-white p-6 rounded-lg shadow-md"><div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-end"><div><label for="sales-from-date" class="block text-sm font-medium">From Date</label><input type="date" id="sales-from-date" class="mt-1 block w-full rounded-md p-2"></div><div><label for="sales-to-date" class="block text-sm font-medium">To Date</label><input type="date" id="sales-to-date" class="mt-1 block w-full rounded-md p-2"></div><div><input type="text" id="sales-search" placeholder="Search by Invoice or Phone..." class="block w-full rounded-md p-2"></div><div class="flex gap-2"><button id="show-report-btn" class="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">Show Report</button><button id="download-sales-btn" class="flex-1 bg-green-600 text-white py-2 rounded-md hover:bg-green-700">Download CSV</button></div></div><div class="mt-4 flex items-center gap-2"><input type="text" id="reprint-invoice-id" placeholder="Enter Invoice NO to Reprint" class="block w-1/3 rounded-md p-2"><button id="reprint-btn" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">Reprint</button></div><div class="overflow-auto h-[60vh] mt-4" id="sales-list-container"><table id="sales-report-table" class="min-w-full divide-y"><thead class="bg-gray-50 sticky top-0"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">Invoice NO</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Sale Date</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Customer</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Phone</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Address</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Due</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Discount</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Payment</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Qty</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Products</th></tr></thead><tbody id="sales-list-body" class="divide-y"></tbody></table></div></div></div>
             
             <div id="stock" class="page">
                 <h1 class="text-3xl font-bold mb-6">Stock Report</h1>
@@ -166,7 +215,7 @@
                             <button id="download-stock-btn" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">Download CSV</button>
                         </div>
                     </div>
-                    <div class="overflow-auto h-[70vh]">
+                    <div class="overflow-auto h-[70vh]" id="stock-list-container">
                         <table id="stock-report-table" class="min-w-full divide-y">
                             <thead class="bg-gray-50 sticky top-0">
                                 <tr>
@@ -197,7 +246,7 @@
                             <input type="file" id="customer-csv-input" class="hidden" accept=".csv, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
                         </div>
                     </div>
-                    <div class="overflow-auto h-[70vh]">
+                    <div class="overflow-auto h-[70vh]" id="customer-list-container">
                         <table id="customer-list-table" class="min-w-full divide-y">
                             <thead class="bg-gray-50 sticky top-0">
                                 <tr>
@@ -221,7 +270,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <input type="text" id="return-list-search" placeholder="Search by Name, Phone, or Invoice NO..." class="block w-1/2 rounded-md shadow-sm p-2">
                     </div>
-                    <div class="overflow-auto h-[70vh]">
+                    <div class="overflow-auto h-[70vh]" id="return-list-container-scroll">
                         <table id="return-list-table" class="min-w-full divide-y">
                             <thead class="bg-gray-50 sticky top-0">
                                 <tr>
@@ -242,7 +291,7 @@
 
             <div id="barcode" class="page"><h1 class="text-3xl font-bold mb-6">Print Barcodes</h1><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add Products to Print Queue</h2><div class="flex items-end gap-4"><div class="flex-1"><label for="barcode-sku" class="block text-sm font-medium">Enter SKU</label><input type="text" id="barcode-sku" class="mt-1 block w-full rounded-md p-2"></div><div class="w-24"><label for="barcode-qty" class="block text-sm font-medium">Quantity</label><input type="number" id="barcode-qty" placeholder=" " class="mt-1 block w-full rounded-md p-2"></div><button id="add-to-print-btn" class="bg-blue-600 text-white py-2 px-4 rounded-md">Add to Print</button></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Print Queue</h2><ul id="barcode-print-list" class="space-y-2 mb-4 h-48 overflow-y-auto"></ul><button id="generate-barcode-btn" class="w-full bg-indigo-600 text-white py-3 rounded-md font-bold">Generate Barcode PDF</button></div></div></div>
             
-            <div id="brands" class="page"><h1 class="text-3xl font-bold mb-6">Manage Brands</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Brand List</h2><input type="text" id="brand-search" placeholder="Search brand..." class="block w-1/2 rounded-md shadow-sm p-2"></div><div class="overflow-auto h-96"><table class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">Brand Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Actions</th></tr></thead><tbody id="brand-list-body" class="divide-y"></tbody></table></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add New Brand</h2><form id="add-brand-form" class="space-y-4"><div><label for="new-brand-name" class="block text-sm font-medium">Brand Name</label><input type="text" id="new-brand-name" required class="mt-1 block w-full rounded-md p-2"></div><button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md font-bold hover:bg-indigo-700">Save Brand</button></form></div></div></div>
+            <div id="brands" class="page"><h1 class="text-3xl font-bold mb-6">Manage Brands</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">Brand List</h2><input type="text" id="brand-search" placeholder="Search brand..." class="block w-1/2 rounded-md shadow-sm p-2"></div><div class="overflow-auto h-96" id="brand-list-container"><table class="min-w-full divide-y"><thead class="bg-gray-50"><tr><th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">Brand Name</th><th class="px-3 py-3.5 text-left text-sm font-semibold">Actions</th></tr></thead><tbody id="brand-list-body" class="divide-y"></tbody></table></div></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-xl font-bold mb-4">Add New Brand</h2><form id="add-brand-form" class="space-y-4"><div><label for="new-brand-name" class="block text-sm font-medium">Brand Name</label><input type="text" id="new-brand-name" required class="mt-1 block w-full rounded-md p-2"></div><button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md font-bold hover:bg-indigo-700">Save Brand</button></form></div></div></div>
             
             <div id="top-customers" class="page">
                 <h1 class="text-3xl font-bold mb-6">Top 30 Customers</h1>
@@ -269,14 +318,15 @@
                      <div class="flex justify-between items-center mb-4">
                         <input type="text" id="history-search" placeholder="Search by Name or Phone..." class="block w-1/2 rounded-md shadow-sm p-2">
                     </div>
-                    <div class="overflow-auto h-[70vh]">
+                    <div class="overflow-auto h-[70vh]" id="history-list-container">
                         <table id="history-list-table" class="min-w-full divide-y">
                             <thead class="bg-gray-50 sticky top-0">
                                 <tr>
                                     <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold">Customer Name</th>
                                     <th class="px-3 py-3.5 text-left text-sm font-semibold">Phone Number</th>
-                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Purchased Quantity</th>
-                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Return Quantity</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Purchased Invoice</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Partial Return Invoice</th>
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold">Full Return Invoice</th>
                                 </tr>
                             </thead>
                             <tbody id="history-list-body" class="divide-y"></tbody>
@@ -358,6 +408,19 @@
       var CURRENT_RETURN_CUSTOMER = null;
       var loader = document.getElementById('loader-overlay'), pages = document.querySelectorAll('.page'), sidebarItems = document.querySelectorAll('.sidebar-item');
       
+      // Lazy loading state
+      const LAZY_LOAD_CHUNK_SIZE = 100; // Number of rows to load at a time
+      const lazyLoadState = {
+          products: { offset: 0, data: [], containerId: 'product-list-container', tbodyId: 'product-list-body', renderFn: renderProductRows },
+          stock: { offset: 0, data: [], containerId: 'stock-list-container', tbodyId: 'stock-list-body', renderFn: renderStockRows },
+          customers: { offset: 0, data: [], containerId: 'customer-list-container', tbodyId: 'customer-list-body', renderFn: renderCustomerRows },
+          sales: { offset: 0, data: [], containerId: 'sales-list-container', tbodyId: 'sales-list-body', renderFn: renderSalesRows },
+          history: { offset: 0, data: [], containerId: 'history-list-container', tbodyId: 'history-list-body', renderFn: renderHistoryRows },
+          returns: { offset: 0, data: [], containerId: 'return-list-container-scroll', tbodyId: 'return-list-body', renderFn: renderReturnRows },
+          brands: { offset: 0, data: [], containerId: 'brand-list-container', tbodyId: 'brand-list-body', renderFn: renderBrandRows },
+          topCustomers: { offset: 0, data: [], containerId: 'top-customer-list-container', tbodyId: 'top-customer-list-body', renderFn: renderTopCustomerRows } // Added for completeness, though usually small
+      };
+
       document.addEventListener('DOMContentLoaded', function() { 
           initDarkMode(); 
           if (sessionStorage.getItem('isLoggedIn') === 'true') { 
@@ -367,6 +430,11 @@
           } else { 
               document.getElementById('login-form').addEventListener('submit', handleLogin); 
           } 
+          // Set default discount type to % and value to empty
+          document.getElementById('discount-type').value = 'percent';
+          document.getElementById('discount-value').value = ''; 
+          
+          setupLazyLoading();
       });
 
       async function handleLogin(e) { 
@@ -424,7 +492,7 @@
           ALL_CUSTOMERS = data.customers || []; 
           ALL_SALES = data.sales || []; 
           ALL_BRANDS = data.brands || [];
-          ALL_HISTORY = data.history || [];
+          ALL_HISTORY = data.history || []; // Uncommented to load history on start
           FULLY_RETURNED_IDS = data.fullyReturnedIds || [];
           
           // Filter ALL_SALES to remove the fully returned ones immediately
@@ -436,13 +504,186 @@
       }
       
       function populateAllData() { 
-          populateProductTable(ALL_PRODUCTS);
-          populateStockTable(ALL_PRODUCTS); 
-          populateCustomerTable(ALL_CUSTOMERS); 
-          populateSalesTable(ALL_SALES); 
-          populateBrandTable(ALL_BRANDS);
-          populateHistoryTable(ALL_HISTORY);
+          // Reset offsets and data references for main lists
+          resetLazyLoad('products', ALL_PRODUCTS);
+          resetLazyLoad('stock', ALL_PRODUCTS);
+          resetLazyLoad('customers', ALL_CUSTOMERS);
+          resetLazyLoad('sales', ALL_SALES);
+          resetLazyLoad('brands', ALL_BRANDS);
+          // History is handled separately or on navigation if needed, but populate here for consistency if visible
+          // resetLazyLoad('history', ALL_HISTORY); 
       }
+
+      // Lazy Loading Helper Functions
+      function setupLazyLoading() {
+          // Attach scroll listeners to containers
+          for (const key in lazyLoadState) {
+              const state = lazyLoadState[key];
+              const container = document.getElementById(state.containerId);
+              if (container) {
+                  container.addEventListener('scroll', function() {
+                      if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) { // Near bottom
+                          loadMoreData(key);
+                      }
+                  });
+              }
+          }
+      }
+
+      function resetLazyLoad(key, dataArray) {
+          const state = lazyLoadState[key];
+          state.data = dataArray;
+          state.offset = 0;
+          document.getElementById(state.tbodyId).innerHTML = ''; // Clear table
+          loadMoreData(key); // Load first chunk
+      }
+
+      function loadMoreData(key) {
+          const state = lazyLoadState[key];
+          if (state.offset >= state.data.length) return; // No more data
+
+          const chunk = state.data.slice(state.offset, state.offset + LAZY_LOAD_CHUNK_SIZE);
+          state.offset += LAZY_LOAD_CHUNK_SIZE;
+          
+          // Render chunk and append
+          const html = state.renderFn(chunk);
+          document.getElementById(state.tbodyId).insertAdjacentHTML('beforeend', html);
+          
+          // Re-attach event listeners if needed (e.g. edit buttons) - specific logic per table type
+          if (key === 'products') attachProductListeners();
+          if (key === 'customers') attachCustomerListeners();
+          if (key === 'brands') attachBrandListeners();
+      }
+
+      // Specific Row Render Functions (Extracted from original populate functions)
+      function renderProductRows(products) {
+          return products.map(function(p) { 
+              return `<tr data-original-sku="${p[0]}">
+                          <td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td>
+                          <td class="px-3 py-2 text-sm"><input type="text" value="${p[1]}" class="w-full bg-transparent p-1 product-edit-input product-edit-name" readonly></td>
+                          <td class="px-3 py-2 text-sm relative"><input type="text" value="${p[7] || ''}" class="w-full bg-transparent p-1 product-edit-input product-edit-brand" readonly autocomplete="off"></td>
+                          <td class="px-3 py-2 text-sm"><input type="number" value="${p[2]}" class="w-full bg-transparent p-1 product-edit-input product-edit-pprice" readonly></td>
+                          <td class="px-3 py-2 text-sm"><input type="number" value="${p[3]}" class="w-full bg-transparent p-1 product-edit-input product-edit-mrp" readonly></td>
+                          <td class="px-3 py-2 text-sm">
+                              <button class="text-indigo-600 hover:text-indigo-900 edit-product-btn">Edit</button>
+                              <button class="text-green-600 hover:text-green-900 save-product-btn hidden">Save</button>
+                          </td>
+                      </tr>`;
+          }).join('');
+      }
+
+      function attachProductListeners() {
+          const tbody = document.getElementById('product-list-body');
+          // Remove old listeners to prevent duplicates (simple way: clone node or just add to new elements - here we just re-add to all valid buttons without 'processed' tag or similar if performance allows, but for simplicity in this structure, simple re-query is okay for small chunks, or event delegation would be better. For now, relying on overwrite if re-rendered, but since we append, we only need to add to new ones. 
+          // Better approach: Event Delegation on the Table Body (Implemented below instead of re-attaching)
+      }
+
+      // Using Event Delegation for Table Actions to handle Lazy Loading better
+      function setupTableDelegation() {
+          // Products Table Actions
+          document.getElementById('product-list-body').addEventListener('click', function(e) {
+              if (e.target.classList.contains('edit-product-btn')) handleEditProduct(e);
+              if (e.target.classList.contains('save-product-btn')) handleSaveProductUpdate(e);
+          });
+
+          // Customers Table Actions
+          document.getElementById('customer-list-body').addEventListener('click', function(e) {
+              if (e.target.classList.contains('edit-customer-btn')) handleEditCustomer(e);
+              if (e.target.classList.contains('save-customer-btn')) handleSaveCustomerUpdate(e);
+          });
+
+          // Brands Table Actions
+          document.getElementById('brand-list-body').addEventListener('click', function(e) {
+              if (e.target.classList.contains('edit-brand-btn')) handleEditBrand(e);
+              if (e.target.classList.contains('save-brand-btn')) handleSaveBrandUpdate(e);
+          });
+      }
+
+      function renderStockRows(products) {
+          return products.map(function(p) { 
+              var qtyClass = parseInt(p[5]) <= 5 ? 'text-red-600 font-bold' : ''; 
+              return `<tr>
+                          <td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td>
+                          <td class="px-3 py-2 text-sm">${p[1]}</td>
+                          <td class="px-3 py-2 text-sm">${p[7] || ''}</td>
+                          <td class="px-3 py-2 text-sm">${p[2]}</td>
+                          <td class="px-3 py-2 text-sm">${p[3]}</td>
+                          <td class="px-3 py-2 text-sm">${p[4]}</td>
+                          <td class="px-3 py-2 text-sm ${qtyClass}">${p[5]}</td>
+                          <td class="px-3 py-2 text-sm">${p[6]}</td>
+                      </tr>`; 
+          }).join('');
+      }
+
+      function renderCustomerRows(customers) {
+          return customers.map(function(c) { 
+              return `<tr data-original-phone="${c[1]}"><td class="py-2 pl-4 pr-3 text-sm"><input type="text" value="${c[0]}" class="w-full bg-transparent p-1 customer-edit-input customer-edit-name" readonly></td><td class="px-3 py-2 text-sm"><input type="text" value="${c[1]}" class="w-full bg-transparent p-1 customer-edit-input customer-edit-phone" readonly></td><td class="px-3 py-2 text-sm"><input type="text" value="${c[2]}" class="w-full bg-transparent p-1 customer-edit-input customer-edit-address" readonly></td><td class="px-3 py-2 text-sm"><button class="text-indigo-600 hover:text-indigo-900 edit-customer-btn">Edit</button><button class="text-green-600 hover:text-green-900 save-customer-btn hidden">Save</button></td></tr>`; 
+          }).join('');
+      }
+
+      function renderSalesRows(sales) {
+          return sales.map(function(s) { 
+              // Assuming shipping is at index 11 (new column)
+              var shipping = s.length > 11 ? s[11] || '0.00' : '0.00'; 
+              return `<tr><td class="py-2 pl-4 pr-3 text-sm">${s[0]}</td><td class="px-3 py-2 text-sm">${s[1]}</td><td class="px-3 py-2 text-sm">${s[2]}</td><td class="px-3 py-2 text-sm">${s[3]}</td><td class="px-3 py-2 text-sm">${s[4]}</td><td class="px-3 py-2 text-sm">${s[6] || '0.00'}</td><td class="px-3 py-2 text-sm">${s[5]}</td><td class="px-3 py-2 text-sm">${s[9] || '0.00'}</td><td class="px-3 py-2 text-sm">${s[7]}</td><td class="px-3 py-2 text-sm">${s[8]}</td></tr>`; 
+          }).join('');
+      }
+
+      function renderHistoryRows(history) {
+          if (!history || history.length === 0) return '<tr><td colspan="5" class="text-center py-4">No customer history available.</td></tr>';
+          return history.map(function(h) { 
+            return `<tr>
+                        <td class="py-2 pl-4 pr-3 text-sm">${h.name}</td>
+                        <td class="px-3 py-2 text-sm">${h.phone}</td>
+                        <td class="px-3 py-2 text-sm">${h.purchasedInvoices}</td>
+                        <td class="px-3 py-2 text-sm">${h.partialReturnInvoices}</td>
+                        <td class="px-3 py-2 text-sm">${h.fullReturnInvoices}</td>
+                    </tr>`; 
+        }).join('');
+      }
+
+      function renderReturnRows(returns) {
+          if (!returns || returns.length === 0) return '<tr><td colspan="7" class="text-center py-4">No return data available.</td></tr>';
+          return returns.map(function(r) {
+                return `<tr>
+                            <td class="py-2 pl-4 pr-3 text-sm">${r[0]}</td>
+                            <td class="px-3 py-2 text-sm">${r[1]}</td>
+                            <td class="px-3 py-2 text-sm">${r[2]}</td>
+                            <td class="px-3 py-2 text-sm">${r[3]}</td>
+                            <td class="px-3 py-2 text-sm">${r[4]}</td>
+                            <td class="px-3 py-2 text-sm">${r[5]}</td>
+                            <td class="px-3 py-2 text-sm">${r[6]}</td>
+                        </tr>`;
+            }).join('');
+      }
+
+      function renderBrandRows(brands) {
+          return brands.map(function(b) { 
+              return `<tr data-original-brand="${b}"><td class="py-2 pl-4 pr-3 text-sm"><input type="text" value="${b}" class="w-full bg-transparent p-1 brand-edit-input" readonly></td><td class="px-3 py-2 text-sm"><button class="text-indigo-600 hover:text-indigo-900 edit-brand-btn">Edit</button><button class="text-green-600 hover:text-green-900 save-brand-btn hidden">Save</button></td></tr>`; 
+          }).join('');
+      }
+      
+      function renderTopCustomerRows(customers) {
+          if (!customers || customers.length === 0) return '<tr><td colspan="4" class="text-center py-4">No customer data available.</td></tr>';
+          return customers.map(function(c, index) { 
+            return `<tr>
+                        <td class="py-2 pl-4 pr-3 text-sm font-medium">${index + 1}.</td>
+                        <td class="px-3 py-2 text-sm">${c.name}</td>
+                        <td class="px-3 py-2 text-sm">${c.phone}</td>
+                        <td class="px-3 py-2 text-sm">${c.purchaseAmount.toFixed(2)}</td>
+                    </tr>`; 
+        }).join('');
+      }
+
+      // Wrapper functions to maintain compatibility with existing search logic (which filters ALL_* arrays and calls populate)
+      function populateProductTable(products) { resetLazyLoad('products', products); }
+      function populateStockTable(products) { resetLazyLoad('stock', products); }
+      function populateCustomerTable(customers) { resetLazyLoad('customers', customers); }
+      function populateSalesTable(sales) { resetLazyLoad('sales', sales); }
+      function populateHistoryTable(history) { resetLazyLoad('history', history); }
+      function populateReturnListTable(returns) { resetLazyLoad('returns', returns); }
+      function populateBrandTable(brands) { resetLazyLoad('brands', brands); }
+      function populateTopCustomersTable(customers) { document.getElementById('top-customer-list-body').innerHTML = renderTopCustomerRows(customers); } // Top customers usually small, no lazy needed but kept simple
 
       async function navigateTo(pageId) { 
           pages.forEach(function(p) { p.classList.toggle('active', p.id === pageId); });
@@ -465,15 +706,21 @@
               } catch(error) {}
           }
            if (pageId === 'history') {
-              try {
-                  const result = await callAppsScript('getCustomerHistory');
-                  if (result.success) {
-                      ALL_HISTORY = result.history;
-                      populateHistoryTable(ALL_HISTORY);
-                  } else {
-                      onFailure(result);
-                  }
-              } catch(error) {}
+              // Only fetch if empty or force refresh logic (currently simple check)
+              // But real-time logic updates ALL_HISTORY locally, so we can just re-render
+              if (ALL_HISTORY.length === 0) {
+                  try {
+                      const result = await callAppsScript('getCustomerHistory');
+                      if (result.success) {
+                          ALL_HISTORY = result.history;
+                          populateHistoryTable(ALL_HISTORY);
+                      } else {
+                          onFailure(result);
+                      }
+                  } catch(error) {}
+              } else {
+                  populateHistoryTable(ALL_HISTORY);
+              }
           }
            if (pageId === 'return-list') {
               try {
@@ -614,6 +861,8 @@
               document.getElementById('customer-csv-input').click();
           });
           document.getElementById('customer-csv-input').addEventListener('change', handleCustomerImport);
+          
+          setupTableDelegation(); // Setup event delegation for lazy loaded tables
       }
 
       function openAddStockModal() {
@@ -674,121 +923,11 @@
       function updateDashboard(data) { 
           document.getElementById('today-sales').textContent = data.todaysSales || '0.00'; 
           document.getElementById('month-sales').textContent = data.monthsSales || '0.00'; 
+          document.getElementById('today-bills').textContent = data.todaysTotalBills || '0'; // New
           document.getElementById('today-qty').textContent = data.todaysSaleQty || '0';
       }
       
-      function populateProductTable(products) { 
-          var tbody = document.getElementById('product-list-body');
-          tbody.innerHTML = products.map(function(p) { 
-              return `<tr data-original-sku="${p[0]}">
-                          <td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td>
-                          <td class="px-3 py-2 text-sm"><input type="text" value="${p[1]}" class="w-full bg-transparent p-1 product-edit-input product-edit-name" readonly></td>
-                          <td class="px-3 py-2 text-sm relative"><input type="text" value="${p[7] || ''}" class="w-full bg-transparent p-1 product-edit-input product-edit-brand" readonly autocomplete="off"></td>
-                          <td class="px-3 py-2 text-sm"><input type="number" value="${p[2]}" class="w-full bg-transparent p-1 product-edit-input product-edit-pprice" readonly></td>
-                          <td class="px-3 py-2 text-sm"><input type="number" value="${p[3]}" class="w-full bg-transparent p-1 product-edit-input product-edit-mrp" readonly></td>
-                          <td class="px-3 py-2 text-sm">
-                              <button class="text-indigo-600 hover:text-indigo-900 edit-product-btn">Edit</button>
-                              <button class="text-green-600 hover:text-green-900 save-product-btn hidden">Save</button>
-                          </td>
-                      </tr>`;
-          }).join(''); 
-          
-          tbody.querySelectorAll('.edit-product-btn').forEach(function(b) { b.addEventListener('click', handleEditProduct); }); 
-          tbody.querySelectorAll('.save-product-btn').forEach(function(b) { b.addEventListener('click', handleSaveProductUpdate); });
-      }
-      
-      function populateStockTable(products) { 
-          var tbody = document.getElementById('stock-list-body');
-          tbody.innerHTML = products.map(function(p) { 
-              var qtyClass = parseInt(p[5]) <= 5 ? 'text-red-600 font-bold' : ''; 
-              return `<tr>
-                          <td class="py-2 pl-4 pr-3 text-sm">${p[0]}</td>
-                          <td class="px-3 py-2 text-sm">${p[1]}</td>
-                          <td class="px-3 py-2 text-sm">${p[7] || ''}</td>
-                          <td class="px-3 py-2 text-sm">${p[2]}</td>
-                          <td class="px-3 py-2 text-sm">${p[3]}</td>
-                          <td class="px-3 py-2 text-sm">${p[4]}</td>
-                          <td class="px-3 py-2 text-sm ${qtyClass}">${p[5]}</td>
-                          <td class="px-3 py-2 text-sm">${p[6]}</td>
-                      </tr>`; 
-          }).join('');
-      }
-
-      function populateCustomerTable(customers) { 
-          var tbody = document.getElementById('customer-list-body');
-          tbody.innerHTML = customers.map(function(c) { 
-              return `<tr data-original-phone="${c[1]}"><td class="py-2 pl-4 pr-3 text-sm"><input type="text" value="${c[0]}" class="w-full bg-transparent p-1 customer-edit-input customer-edit-name" readonly></td><td class="px-3 py-2 text-sm"><input type="text" value="${c[1]}" class="w-full bg-transparent p-1 customer-edit-input customer-edit-phone" readonly></td><td class="px-3 py-2 text-sm"><input type="text" value="${c[2]}" class="w-full bg-transparent p-1 customer-edit-input customer-edit-address" readonly></td><td class="px-3 py-2 text-sm"><button class="text-indigo-600 hover:text-indigo-900 edit-customer-btn">Edit</button><button class="text-green-600 hover:text-green-900 save-customer-btn hidden">Save</button></td></tr>`; 
-          }).join('');
-          tbody.querySelectorAll('.edit-customer-btn').forEach(function(b) { b.addEventListener('click', handleEditCustomer); }); 
-          tbody.querySelectorAll('.save-customer-btn').forEach(function(b) { b.addEventListener('click', handleSaveCustomerUpdate); });
-      }
-
-      function populateSalesTable(sales) { 
-          var tbody = document.getElementById('sales-list-body');
-          tbody.innerHTML = sales.map(function(s) { 
-              return `<tr><td class="py-2 pl-4 pr-3 text-sm">${s[0]}</td><td class="px-3 py-2 text-sm">${s[1]}</td><td class="px-3 py-2 text-sm">${s[2]}</td><td class="px-3 py-2 text-sm">${s[3]}</td><td class="px-3 py-2 text-sm">${s[4]}</td><td class="px-3 py-2 text-sm">${s[6] || '0.00'}</td><td class="px-3 py-2 text-sm">${s[5]}</td><td class="px-3 py-2 text-sm">${s[9] || '0.00'}</td><td class="px-3 py-2 text-sm">${s[7]}</td><td class="px-3 py-2 text-sm">${s[8]}</td></tr>`; 
-          }).join('');
-      }
-      
-      function populateTopCustomersTable(customers) {
-        var tbody = document.getElementById('top-customer-list-body');
-        if (!customers || customers.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">No customer data available.</td></tr>';
-            return;
-        }
-        tbody.innerHTML = customers.map(function(c, index) { 
-            return `<tr>
-                        <td class="py-2 pl-4 pr-3 text-sm font-medium">${index + 1}.</td>
-                        <td class="px-3 py-2 text-sm">${c.name}</td>
-                        <td class="px-3 py-2 text-sm">${c.phone}</td>
-                        <td class="px-3 py-2 text-sm">${c.purchaseAmount.toFixed(2)}</td>
-                    </tr>`; 
-        }).join('');
-      }
-
-      function populateHistoryTable(history) {
-        var tbody = document.getElementById('history-list-body');
-        if (!history || history.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">No customer history available.</td></tr>';
-            return;
-        }
-        tbody.innerHTML = history.map(function(h) { 
-            return `<tr>
-                        <td class="py-2 pl-4 pr-3 text-sm">${h.name}</td>
-                        <td class="px-3 py-2 text-sm">${h.phone}</td>
-                        <td class="px-3 py-2 text-sm">${h.purchasedQty}</td>
-                        <td class="px-3 py-2 text-sm">${h.returnedQty}</td>
-                    </tr>`; 
-        }).join('');
-      }
-
-        function populateReturnListTable(returns) {
-            var tbody = document.getElementById('return-list-body');
-            if (!returns || returns.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4">No return data available.</td></tr>';
-                return;
-            }
-            tbody.innerHTML = returns.map(function(r) {
-                return `<tr>
-                            <td class="py-2 pl-4 pr-3 text-sm">${r[0]}</td>
-                            <td class="px-3 py-2 text-sm">${r[1]}</td>
-                            <td class="px-3 py-2 text-sm">${r[2]}</td>
-                            <td class="px-3 py-2 text-sm">${r[3]}</td>
-                            <td class="px-3 py-2 text-sm">${r[4]}</td>
-                            <td class="px-3 py-2 text-sm">${r[5]}</td>
-                            <td class="px-3 py-2 text-sm">${r[6]}</td>
-                        </tr>`;
-            }).join('');
-        }
-
-      function populateBrandTable(brands) { 
-          var tbody = document.getElementById('brand-list-body');
-          tbody.innerHTML = brands.map(function(b) { 
-              return `<tr data-original-brand="${b}"><td class="py-2 pl-4 pr-3 text-sm"><input type="text" value="${b}" class="w-full bg-transparent p-1 brand-edit-input" readonly></td><td class="px-3 py-2 text-sm"><button class="text-indigo-600 hover:text-indigo-900 edit-brand-btn">Edit</button><button class="text-green-600 hover:text-green-900 save-brand-btn hidden">Save</button></td></tr>`; 
-          }).join('');
-          tbody.querySelectorAll('.edit-brand-btn').forEach(function(btn){ btn.addEventListener('click', handleEditBrand); }); 
-          tbody.querySelectorAll('.save-brand-btn').forEach(function(btn){ btn.addEventListener('click', handleSaveBrandUpdate); }); 
-      }
+      // ... (populate functions are now wrappers to resetLazyLoad, defined above) ...
 
       async function handleAddProduct(e) { 
           e.preventDefault();
@@ -841,7 +980,8 @@
                   showToast('Only ' + avail + ' in stock!', 'error'); 
                   return;
               } 
-              SALE_LIST_ITEMS.push({ sku: p[0], name: p[1], mrp: parseFloat(p[3]), quantity: qty, total: parseFloat(p[3]) * qty }); 
+              // Added discount and discountType for per-item discount
+              SALE_LIST_ITEMS.push({ sku: p[0], name: p[1], mrp: parseFloat(p[3]), quantity: qty, total: parseFloat(p[3]) * qty, discount: 0, discountType: 'percent' }); 
               renderSaleList(); 
               updateBillingSummary(); 
               document.getElementById('bill-sku').value = '';
@@ -869,12 +1009,14 @@
                   const history = ALL_HISTORY.find(h => h.phone === phone);
                   if (history) {
                       historyDisplay.innerHTML = `
-                          <span class="text-green-600 font-medium">Purchased Qty: ${history.purchasedQty}</span> | 
-                          <span class="text-red-600 font-medium">Return Qty: ${history.returnedQty}</span>
+                          <span class="text-green-600 font-medium">Purchased Qty: ${history.purchasedInvoices}</span> | 
+                          <span class="text-yellow-600 font-medium">Partial Delivery Qty: ${history.partialReturnInvoices}</span> | 
+                          <span class="text-red-600 font-medium">Return Qty: ${history.fullReturnInvoices}</span>
                       `;
                   } else {
                        historyDisplay.innerHTML = `
                           <span class="text-green-600 font-medium">Purchased Qty: 0</span> | 
+                          <span class="text-yellow-600 font-medium">Partial Delivery Qty: 0</span> |
                           <span class="text-red-600 font-medium">Return Qty: 0</span>
                       `;
                   }
@@ -913,23 +1055,62 @@
           if (!document.getElementById('cust-phone').value) { return showToast('Enter customer phone.', 'error'); }
           
           var s = calculateBillingSummary();
+          var phoneInput = document.getElementById('cust-phone').value; // Store phone for updating history
           var d = { 
-              customer: { phone: document.getElementById('cust-phone').value, name: document.getElementById('cust-name').value || 'Walk-in', address: document.getElementById('cust-address').value }, 
+              customer: { phone: phoneInput, name: document.getElementById('cust-name').value || 'Walk-in', address: document.getElementById('cust-address').value }, 
               items: SALE_LIST_ITEMS, 
-              subtotal: s.subtotal, 
+              subtotal: s.finalSubtotal, 
               discount: s.discountString, 
               shipping: s.shipping, 
-              total: s.total, 
+              total: s.finalTotal, 
               paymentAmount: s.paymentAmount, 
               dueAmount: s.dueAmount 
           };
+          
+          const itemsWithFinalPrice = SALE_LIST_ITEMS.map(item => {
+              const originalItemTotal = item.mrp * item.quantity;
+              let itemDiscountAmount = 0;
+              if (item.discountType === 'percent') {
+                  itemDiscountAmount = (originalItemTotal * item.discount) / 100;
+              } else {
+                  itemDiscountAmount = item.discount;
+              }
+              const finalPrice = originalItemTotal - itemDiscountAmount;
+              return {
+                  sku: item.sku,
+                  name: item.name,
+                  mrp: item.mrp,
+                  quantity: item.quantity,
+                  total: finalPrice, 
+                  itemDiscount: `${item.discount}${item.discountType === 'percent' ? '%' : ''}` 
+              };
+          });
+
+          d.items = itemsWithFinalPrice;
+
           try {
               const r = await callAppsScript('processSale', d);
               if (r.success) {
                   LATEST_RECEIPT_DATA = r.receiptData;
                   document.getElementById('print-invoice-modal').style.display = 'flex';
-                  resetBillingPage();
                   
+                  // --- REAL-TIME HISTORY UPDATE START ---
+                  // Check if customer exists in ALL_HISTORY
+                  let custHistory = ALL_HISTORY.find(h => h.phone === phoneInput);
+                  if (custHistory) {
+                      custHistory.purchasedInvoices = (custHistory.purchasedInvoices || 0) + 1;
+                  } else {
+                      // New customer in history
+                      ALL_HISTORY.push({
+                          name: d.customer.name,
+                          phone: phoneInput,
+                          purchasedInvoices: 1,
+                          partialReturnInvoices: 0,
+                          fullReturnInvoices: 0
+                      });
+                  }
+                  // --- REAL-TIME HISTORY UPDATE END ---
+
                   if (r.updatedStock && r.updatedStock.length > 0) {
                       r.updatedStock.forEach(updatedProduct => {
                           const productIndex = ALL_PRODUCTS.findIndex(p => p[0].toString() === updatedProduct[0].toString());
@@ -943,6 +1124,9 @@
                   
                   const dashboardData = await callAppsScript('getDashboardData');
                   updateDashboard(dashboardData);
+                  
+                  // Reset billing page AFTER updating history
+                  resetBillingPage();
               } else {
                   onFailure(r);
               }
@@ -1141,8 +1325,18 @@
           e.preventDefault();
           var qty = parseInt(document.getElementById('return-modal-qty').value); 
           var max = parseInt(document.getElementById('return-modal-maxqty').value); 
+          var sku = document.getElementById('return-modal-sku').value;
+          var invoiceId = document.getElementById('return-modal-invoiceid').value;
+
           if (qty > max) { return showToast('Cannot return more than ' + max + ' items.', 'error'); } 
-          var item = { invoiceId: document.getElementById('return-modal-invoiceid').value, sku: document.getElementById('return-modal-sku').value, name: document.getElementById('return-modal-pname').textContent, quantity: qty }; 
+          
+          var existingItem = RETURN_QUEUE.find(item => item.sku === sku && item.invoiceId === invoiceId);
+          if (existingItem) {
+              showToast("Item already in return list", "error");
+              return;
+          }
+
+          var item = { invoiceId: invoiceId, sku: sku, name: document.getElementById('return-modal-pname').textContent, quantity: qty }; 
           RETURN_QUEUE.push(item); 
           renderReturnQueue(); 
           document.getElementById('return-qty-modal').style.display = 'none'; 
@@ -1182,6 +1376,46 @@
                   showToast(r.message, 'success'); 
                   document.getElementById('return-invoice-id').value = ''; 
                   document.getElementById('return-products-container').style.display = 'none';
+                  
+                  // --- REAL-TIME RETURN UPDATE START ---
+                  // 1. Update Customer History (Reload without server call)
+                  if(CURRENT_RETURN_CUSTOMER && CURRENT_RETURN_CUSTOMER.phone) {
+                      const custPhone = CURRENT_RETURN_CUSTOMER.phone;
+                      let custHistory = ALL_HISTORY.find(h => h.phone === custPhone);
+                      
+                      // This is a simplification. To be accurate about "Partial" vs "Full", 
+                      // we'd need to know total items in invoice vs total returned. 
+                      // Since we don't have full invoice context here easily without another call,
+                      // incrementing "Partial" is a safe default for immediate feedback, 
+                      // or we assume server-side re-calculation on next load is definitive.
+                      // For better UX, let's just mark it as updated.
+                      // Ideally, the server response `r` could return the updated status.
+                      
+                      if (custHistory) {
+                           // Simple increment for immediate feedback - assumes partial for now unless we track full invoice state locally
+                           custHistory.partialReturnInvoices = (custHistory.partialReturnInvoices || 0) + 1;
+                      }
+                  }
+
+                  // 2. Update Product Stock (Reload without server call)
+                  // Loop through returned items and update local ALL_PRODUCTS
+                  RETURN_QUEUE.forEach(item => {
+                      const productIndex = ALL_PRODUCTS.findIndex(p => p[0].toString() === item.sku.toString());
+                      if (productIndex > -1) {
+                          // Update Available Qty (Index 5) and Sold Qty (Index 6)
+                          // Assuming structure: [SKU, Name, PP, MRP, PurchQty, AvailQty, SoldQty, Brand]
+                          let currentAvail = parseInt(ALL_PRODUCTS[productIndex][5]);
+                          let currentSold = parseInt(ALL_PRODUCTS[productIndex][6]);
+                          
+                          ALL_PRODUCTS[productIndex][5] = currentAvail + item.quantity;
+                          ALL_PRODUCTS[productIndex][6] = Math.max(0, currentSold - item.quantity);
+                      }
+                  });
+                  
+                  // Re-render Stock Table
+                  populateStockTable(ALL_PRODUCTS);
+                  // --- REAL-TIME RETURN UPDATE END ---
+
                   RETURN_QUEUE = [];
                   CURRENT_RETURN_CUSTOMER = null;
                   renderReturnQueue(); 
@@ -1259,11 +1493,63 @@
           } catch(err) {} 
       }
 
+      function updateItemTotal(itemIndex, discountValue, discountType) {
+          const item = SALE_LIST_ITEMS[itemIndex];
+          if (!item) return;
+
+          item.discount = parseFloat(discountValue) || 0;
+          item.discountType = discountType || 'percent';
+
+          const originalTotal = item.mrp * item.quantity;
+          let discountAmount = 0;
+
+          if (item.discountType === 'percent') {
+              discountAmount = (originalTotal * item.discount) / 100;
+          } else {
+              discountAmount = item.discount;
+          }
+          
+          item.total = originalTotal - discountAmount;
+          
+          // Re-render the entire list to update the row's total and also hook event listeners again
+          // renderSaleList(); // Commented out to prevent focus loss
+          
+          // Update Total cell directly
+          const row = document.querySelector(`tr[data-index="${itemIndex}"]`);
+          if (row) {
+              const totalCell = row.children[4]; // 5th column is Total
+              if (totalCell) {
+                  totalCell.textContent = item.total.toFixed(2);
+              }
+          }
+
+          updateBillingSummary();
+      }
+
       function renderSaleList() { 
           var tbody = document.getElementById('sale-list-body');
           tbody.innerHTML = SALE_LIST_ITEMS.map(function(i, x) { 
-              return `<tr data-index="${x}"><td class="py-2 pl-4 pr-3 text-sm">${i.name}</td><td class="px-3 py-2 text-sm">${i.quantity}</td><td class="px-3 py-2 text-sm">${i.mrp.toFixed(2)}</td><td class="px-3 py-2 text-sm">${i.total.toFixed(2)}</td><td class="px-3 py-2 text-sm"><button class="text-red-500 remove-sale-item-btn">X</button></td></tr>`; 
+              const discountValue = i.discount || '';
+              const discountType = i.discountType || 'percent';
+
+              return `<tr data-index="${x}">
+                          <td class="py-2 pl-4 pr-3 text-sm">${i.name}</td>
+                          <td class="px-3 py-2 text-sm">${i.quantity}</td>
+                          <td class="px-3 py-2 text-sm">${i.mrp.toFixed(2)}</td>
+                          <td class="px-3 py-2 text-sm">
+                              <div class="item-discount-container">
+                                  <input type="number" data-index="${x}" value="${discountValue}" placeholder="0" class="item-discount-input item-discount-value">
+                                  <select data-index="${x}" class="item-discount-type">
+                                      <option value="percent" ${discountType === 'percent' ? 'selected' : ''}>%</option>
+                                      <option value="amount" ${discountType === 'amount' ? 'selected' : ''}>৳</option>
+                                  </select>
+                              </div>
+                          </td>
+                          <td class="px-3 py-2 text-sm">${i.total.toFixed(2)}</td>
+                          <td class="px-3 py-2 text-sm"><button class="text-red-500 remove-sale-item-btn">X</button></td>
+                      </tr>`; 
           }).join('');
+          
           tbody.querySelectorAll('.remove-sale-item-btn').forEach(function(b) { 
               b.addEventListener('click', function(e) { 
                   SALE_LIST_ITEMS.splice(e.target.closest('tr').dataset.index, 1); 
@@ -1271,30 +1557,54 @@
                   updateBillingSummary(); 
               }); 
           });
+
+          // Add event listeners for new item discount inputs/selects
+          tbody.querySelectorAll('.item-discount-value').forEach(function(input) {
+              input.addEventListener('input', function() {
+                  const index = parseInt(this.dataset.index);
+                  const type = this.closest('tr').querySelector('.item-discount-type').value;
+                  updateItemTotal(index, this.value, type);
+              });
+          });
+
+          tbody.querySelectorAll('.item-discount-type').forEach(function(select) {
+              select.addEventListener('change', function() {
+                  const index = parseInt(this.dataset.index);
+                  const value = this.closest('tr').querySelector('.item-discount-value').value;
+                  updateItemTotal(index, value, this.value);
+              });
+          });
       }
 
       function calculateBillingSummary() { 
-          var sub = SALE_LIST_ITEMS.reduce(function(s, i) { return s + i.total; }, 0);
+          // Subtotal after per-item discounts
+          var finalSubtotal = SALE_LIST_ITEMS.reduce(function(s, i) { return s + i.total; }, 0);
+          
           var dVal = parseFloat(document.getElementById('discount-value').value) || 0; 
           var dType = document.getElementById('discount-type').value; 
           var ship = parseFloat(document.getElementById('shipping-charges').value) || 0;
           var pay = parseFloat(document.getElementById('payment-amount').value) || 0; 
           var dAmt = 0, dStr = "0";
+          
+          // Calculate overall discount based on finalSubtotal (after item discounts)
           if (dType === 'percent') { 
-              dAmt = (sub * dVal) / 100; 
+              dAmt = (finalSubtotal * dVal) / 100; 
               dStr = dVal + '%';
           } else { 
               dAmt = dVal; 
               dStr = dVal.toString(); 
           } 
-          var tot = sub - dAmt + ship;
-          var due = tot - pay; 
-          return { subtotal: sub, discountAmount: dAmt, shipping: ship, total: tot, paymentAmount: pay, dueAmount: due, discountString: dStr };
+          
+          var finalTotal = finalSubtotal - dAmt + ship;
+          var due = finalTotal - pay; 
+          
+          // The summary needs to display the total discount value (overall discount only)
+          return { finalSubtotal: finalSubtotal, overallDiscountAmount: dAmt, shipping: ship, finalTotal: finalTotal, paymentAmount: pay, dueAmount: due, discountString: dStr };
       }
 
       function updateBillingSummary() { 
           var s = calculateBillingSummary(); 
-          document.getElementById('summary-subtotal').textContent = s.subtotal.toFixed(2); 
+          document.getElementById('summary-subtotal').textContent = s.finalSubtotal.toFixed(2); 
           document.getElementById('summary-due-amount').textContent = s.dueAmount.toFixed(2);
       }
 
@@ -1322,7 +1632,8 @@
           document.getElementById('cust-name').value = ''; 
           document.getElementById('cust-address').value = '';
           document.getElementById('customer-history-display').innerHTML = '';
-          document.getElementById('discount-value').value = '';
+          document.getElementById('discount-value').value = ''; // Reset to empty as per request
+          document.getElementById('discount-type').value = 'percent'; // Reset to default %
           document.getElementById('shipping-charges').value = ''; 
           document.getElementById('payment-amount').value = ''; 
           updateBillingSummary(); 
@@ -1518,8 +1829,22 @@
       }
       
       function printInvoice(data) { 
-          var itemsHtml = data.items.map(function(i) { return `<tr><td>${i.name}</td><td>${i.quantity}</td><td>${(typeof i.mrp === 'number' ? i.mrp.toFixed(2) : i.mrp)}</td><td>${(typeof i.total === 'number' ? i.total.toFixed(2) : i.total)}</td></tr>`; }).join('');
-          var receiptContent = `<div class="invoice"><div class="center bold">SUNDORICA</div><div class="center">House-15,Road-2,Block-Ka,Section-6 West Senpara Porbota Mirpur Dhaka-1216</div><div class="center">Phone: 01617970053</div><hr><div>Date: ${data.saleDate}</div><div>Invoice #: ${data.invoiceId}</div><div style="margin-top:10px;"><div class="bold">To,</div><div>${data.customer.name}</div><div>Phone: ${data.customer.phone}</div><div>${data.customer.address || ''}</div></div><div class="section-title">Product Details</div><table><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>${itemsHtml}</tbody></table><div class="totals"><div>Subtotal: ${data.subtotal.toFixed(2)} BDT</div><div>Discount: ${(parseFloat(data.discount) || 0).toFixed(2)} BDT</div><div>Shipping Charges: ${(parseFloat(data.shipping) || 0).toFixed(2)} BDT</div><div>Paid Amount: ${(parseFloat(data.payment) || 0).toFixed(2)} BDT</div><div><strong>Due Amount:</strong> ${(parseFloat(data.due) || 0).toFixed(2)} BDT</div></div><div class="footer">Please Check While Receving</div></div>`; 
+          // Recalculate Subtotal based on item totals (after item discounts)
+          const subtotalAfterItemDiscounts = data.items.reduce((sum, item) => sum + item.total, 0);
+
+          var itemsHtml = data.items.map(function(i) { 
+              const itemDiscount = i.itemDiscount ? ` (${i.itemDiscount} Disc)` : '';
+              return `<tr><td>${i.name}</td><td>${i.quantity}</td><td>${(typeof i.mrp === 'number' ? i.mrp.toFixed(2) : i.mrp)}</td><td>${(typeof i.total === 'number' ? i.total.toFixed(2) : i.total)} ${itemDiscount}</td></tr>`; 
+          }).join('');
+          
+          var discountDisplay = "";
+          if (data.rawDiscount && data.rawDiscount.includes("%")) {
+              discountDisplay = data.rawDiscount;
+          } else {
+              discountDisplay = (parseFloat(data.discount) || 0).toFixed(2) + " TK";
+          }
+
+          var receiptContent = `<div class="invoice"><div class="center bold">SUNDORICA</div><div class="center">House-15,Road-2,Block-Ka,Section-6 West Senpara Porbota Mirpur Dhaka-1216</div><div class="center">Phone: 01617970053</div><hr><div>Date: ${data.saleDate}</div><div>Invoice #: ${data.invoiceId}</div><div style="margin-top:10px;"><div class="bold">To,</div><div>${data.customer.name}</div><div>Phone: ${data.customer.phone}</div><div>${data.customer.address || ''}</div></div><div class="section-title">Product Details</div><table><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>${itemsHtml}</tbody></table><div class="totals"><div>Subtotal: ${subtotalAfterItemDiscounts.toFixed(2)} BDT</div><div>Discount: ${discountDisplay}</div><div>Shipping Charges: ${(parseFloat(data.shipping) || 0).toFixed(2)} BDT</div><div>Paid Amount: ${(parseFloat(data.payment) || 0).toFixed(2)} BDT</div><div><strong>Due Amount:</strong> ${(parseFloat(data.due) || 0).toFixed(2)} BDT</div></div><div class="footer">Please Check While Receving</div></div>`; 
           var styles = `@page { size: 58mm auto; margin: 0; } body { font-family: 'Arial',sans-serif; width: 88mm; margin: 0; padding: 0; font-size: 14px; } .invoice { padding: 3mm; box-sizing: border-box; } .center { text-align: center; } .bold { font-weight: bold; } hr { border: none; border-top: 1px dashed #000; margin: 5px 0; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } th, td { text-align: left; padding: 2px 0; } .section-title { margin-top: 10px; font-weight: bold; text-decoration: underline; } .totals { margin-top: 5px; border-top: 1px dashed #000; padding-top: 0px; } .totals div { padding: 1px 0; } .footer { margin-top: 10px; text-align: center; font-size: 10px; }`;
           var iframe = document.createElement('iframe'); 
           iframe.style.position = 'absolute'; 
@@ -1535,7 +1860,7 @@
               iframe.contentWindow.focus(); 
               iframe.contentWindow.print(); 
               document.body.removeChild(iframe); 
-          }, 500);
+          }, 200); // Reduced delay for faster printing
       }
 
       function printBarcodes(labels) { 
