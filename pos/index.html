@@ -405,7 +405,9 @@
       }
 
       var ALL_PRODUCTS = [], ALL_CUSTOMERS = [], ALL_SALES = [], ALL_BRANDS = [], ALL_HISTORY = [], FULLY_RETURNED_IDS = [], ALL_RETURNS = [], SALE_LIST_ITEMS = [], BARCODE_PRINT_LIST = [], RETURN_QUEUE = [], LATEST_RECEIPT_DATA = null;
+      var ALL_RETURN_ITEMS = []; // To store full return item details for local calculation
       var CURRENT_RETURN_CUSTOMER = null;
+      var CURRENT_INVOICE_STATS = null;
       var loader = document.getElementById('loader-overlay'), pages = document.querySelectorAll('.page'), sidebarItems = document.querySelectorAll('.sidebar-item');
       
       // Lazy loading state
@@ -481,6 +483,104 @@
           sidebarItems.forEach(function(i) { i.addEventListener('click', function(e) { e.preventDefault(); navigateTo(i.getAttribute('href').substring(1)); }); });
           navigateTo(window.location.hash ? window.location.hash.substring(1) : 'dashboard'); 
           setupEventListeners();
+          setupTableDelegation(); 
+      }
+      
+      // New function to calculate Net Sales (Removing Returned Items & Updating Due)
+      function getNetSales(rawSales) {
+          const returnsMap = {};
+          ALL_RETURN_ITEMS.forEach(r => {
+              if (!returnsMap[r.invoiceId]) returnsMap[r.invoiceId] = {};
+              const key = r.sku.toString();
+              returnsMap[r.invoiceId][key] = (returnsMap[r.invoiceId][key] || 0) + parseInt(r.qty);
+          });
+
+          const netSales = [];
+          
+          rawSales.forEach(sale => {
+              const invoiceId = sale[0].toString();
+              const invoiceReturns = returnsMap[invoiceId] || {};
+              
+              let items = [];
+              let originalTotalBill = 0;
+              
+              try {
+                  // Helper to parse currency string if needed, mostly raw numbers in array
+                  // Index 6 is Due, Index 9 is Payment. Total = Due + Payment (approximately, excluding discount nuances here for simple calc)
+                  // Better approach: Re-calculate total from items JSON.
+                  
+                  if (sale[10] && sale[10].trim().startsWith('[')) {
+                      items = JSON.parse(sale[10]);
+                  } else {
+                      if (FULLY_RETURNED_IDS.includes(invoiceId)) return; 
+                      netSales.push(sale);
+                      return;
+                  }
+              } catch (e) {
+                   netSales.push(sale);
+                   return;
+              }
+
+              let netItems = [];
+              let totalNetQty = 0;
+              let newSubtotal = 0;
+
+              items.forEach(item => {
+                  const sku = item.sku.toString();
+                  const returnedQty = invoiceReturns[sku] || 0;
+                  const netQty = parseInt(item.quantity) - returnedQty;
+                  
+                  // Calculate item price (considering item discount if stored in total)
+                  // item.total is the line total. Unit price = item.total / item.quantity
+                  const unitPrice = parseFloat(item.total) / parseInt(item.quantity);
+
+                  if (netQty > 0) {
+                      totalNetQty += netQty;
+                      netItems.push(item.name); 
+                      newSubtotal += (unitPrice * netQty);
+                  }
+              });
+
+              if (totalNetQty > 0) {
+                  // Clone row
+                  const newRow = [...sale];
+                  
+                  // Recalculate Financials
+                  // Original Payment
+                  const payment = parseFloat(sale[9]) || 0;
+                  const shipping = parseFloat(sale[11]) || 0;
+                  
+                  // Handle Global Discount
+                  // We need to re-apply global discount to the new subtotal
+                  let globalDiscountAmt = 0;
+                  const discountStr = (sale[5] || '0').toString();
+                  
+                  if (discountStr.includes('%')) {
+                      const percent = parseFloat(discountStr.replace('%', '')) || 0;
+                      globalDiscountAmt = (newSubtotal * percent) / 100;
+                  } else {
+                      // If fixed amount, it's tricky. Usually fixed discount applies to the whole order.
+                      // We might keep it or reduce proportionally. Let's keep it fixed for now or assume % mostly.
+                      // For strict correctness with fixed amount: (OriginalDiscount / OriginalSubtotal) * NewSubtotal
+                      globalDiscountAmt = parseFloat(discountStr) || 0;
+                  }
+                  
+                  const newTotalBill = newSubtotal - globalDiscountAmt + shipping;
+                  const newDue = Math.max(0, newTotalBill - payment); // Due can't be negative (overpayment)
+
+                  // Update Columns
+                  newRow[6] = newDue;       // Update Due
+                  newRow[7] = totalNetQty;  // Update Qty
+                  newRow[8] = netItems.join(', '); // Update Products
+                  
+                  // Optional: You might want to update Total/Payment columns if structure allows, 
+                  // but Sales Report table shows Due (Index 6).
+                  
+                  netSales.push(newRow);
+              }
+              // If totalNetQty is 0, it's fully returned, so don't push
+          });
+          return netSales;
       }
 
       function onInitialDataSuccess(data) { 
@@ -495,8 +595,7 @@
           ALL_HISTORY = data.history || []; // Uncommented to load history on start
           FULLY_RETURNED_IDS = data.fullyReturnedIds || [];
           
-          // Filter ALL_SALES to remove the fully returned ones immediately
-          ALL_SALES = ALL_SALES.filter(s => !FULLY_RETURNED_IDS.includes(s[0].toString()));
+          ALL_RETURN_ITEMS = data.allReturns || []; // NEW: Store all returns for local calculation
           
           populateAllData(); 
           updateDashboard(data.dashboard); 
@@ -508,7 +607,8 @@
           resetLazyLoad('products', ALL_PRODUCTS);
           resetLazyLoad('stock', ALL_PRODUCTS);
           resetLazyLoad('customers', ALL_CUSTOMERS);
-          resetLazyLoad('sales', ALL_SALES);
+          // Initial population of sales table with net sales logic
+          resetLazyLoad('sales', getNetSales(ALL_SALES));
           resetLazyLoad('brands', ALL_BRANDS);
           // History is handled separately or on navigation if needed, but populate here for consistency if visible
           // resetLazyLoad('history', ALL_HISTORY); 
@@ -679,7 +779,18 @@
       function populateProductTable(products) { resetLazyLoad('products', products); }
       function populateStockTable(products) { resetLazyLoad('stock', products); }
       function populateCustomerTable(customers) { resetLazyLoad('customers', customers); }
-      function populateSalesTable(sales) { resetLazyLoad('sales', sales); }
+      // Update populateSalesTable to filter Net Sales by default unless specific filtered list provided
+      function populateSalesTable(sales) { 
+          // If sales is not provided or it's the full list, process it. 
+          // Note: filterData returns subset of ALL_SALES, so we should process whatever is passed
+          // But getNetSales expects RAW sales.
+          // Correct flow: 
+          // 1. Get Net Sales from ALL_SALES
+          // 2. Apply search filter on Net Sales
+          // Since populateSalesTable is called by search event listener with filtered raw sales, we need to adapt.
+          // Better: Apply net sales logic to the input 'sales' array.
+          resetLazyLoad('sales', getNetSales(sales)); 
+      }
       function populateHistoryTable(history) { resetLazyLoad('history', history); }
       function populateReturnListTable(returns) { resetLazyLoad('returns', returns); }
       function populateBrandTable(brands) { resetLazyLoad('brands', brands); }
@@ -1109,7 +1220,30 @@
                           fullReturnInvoices: 0
                       });
                   }
-                  // --- REAL-TIME HISTORY UPDATE END ---
+                  
+                  // --- REAL-TIME SALES REPORT UPDATE ---
+                  // Add the new sale to ALL_SALES array locally so it appears in report without reload
+                  // Mapping receipt data to ALL_SALES format: [InvoiceNo, Date, Name, Phone, Address, Discount, Due, Qty, Products, Payment, JSON, Shipping]
+                  const newSaleRow = [
+                      r.receiptData.invoiceId,
+                      r.receiptData.saleDate,
+                      r.receiptData.customer.name,
+                      r.receiptData.customer.phone,
+                      r.receiptData.customer.address,
+                      r.receiptData.rawDiscount || r.receiptData.discount, // Use raw discount string if available
+                      r.receiptData.due,
+                      SALE_LIST_ITEMS.reduce((sum, i) => sum + i.quantity, 0),
+                      SALE_LIST_ITEMS.map(i => i.name).join(', '),
+                      r.receiptData.payment,
+                      JSON.stringify(d.items),
+                      r.receiptData.shipping
+                  ];
+                  ALL_SALES.unshift(newSaleRow); // Add to beginning of array
+                  
+                  // If on Sales page, refresh the table
+                  if (document.getElementById('sales').classList.contains('active')) {
+                      handleShowSalesReport();
+                  }
 
                   if (r.updatedStock && r.updatedStock.length > 0) {
                       r.updatedStock.forEach(updatedProduct => {
@@ -1281,6 +1415,7 @@
           
           RETURN_QUEUE = [];
           CURRENT_RETURN_CUSTOMER = null;
+          CURRENT_INVOICE_STATS = null; // Reset stats
           document.getElementById('return-customer-info').textContent = '';
           renderReturnQueue(); 
           document.getElementById('return-list-container').style.display = 'none'; 
@@ -1289,6 +1424,16 @@
               const res = await callAppsScript('getReturnableInvoiceDetails', id);
               if (res.success) {
                   CURRENT_RETURN_CUSTOMER = res.customer;
+                  
+                  // Calculate existing return stats for this invoice to help logic later
+                  let totalSold = 0;
+                  let totalReturnedAlready = 0;
+                  res.products.forEach(p => {
+                      totalSold += p.soldQty;
+                      totalReturnedAlready += p.returnedQty;
+                  });
+                  CURRENT_INVOICE_STATS = { totalSold: totalSold, totalReturned: totalReturnedAlready };
+
                   document.getElementById('return-invoice-display').textContent = '#' + res.invoiceId;
                   document.getElementById('return-customer-info').textContent = `Customer: ${res.customer.name} (${res.customer.phone})`;
                   
@@ -1383,17 +1528,28 @@
                       const custPhone = CURRENT_RETURN_CUSTOMER.phone;
                       let custHistory = ALL_HISTORY.find(h => h.phone === custPhone);
                       
-                      // This is a simplification. To be accurate about "Partial" vs "Full", 
-                      // we'd need to know total items in invoice vs total returned. 
-                      // Since we don't have full invoice context here easily without another call,
-                      // incrementing "Partial" is a safe default for immediate feedback, 
-                      // or we assume server-side re-calculation on next load is definitive.
-                      // For better UX, let's just mark it as updated.
-                      // Ideally, the server response `r` could return the updated status.
-                      
-                      if (custHistory) {
-                           // Simple increment for immediate feedback - assumes partial for now unless we track full invoice state locally
-                           custHistory.partialReturnInvoices = (custHistory.partialReturnInvoices || 0) + 1;
+                      if (custHistory && CURRENT_INVOICE_STATS) {
+                           // Calculate total quantity being returned now
+                           const currentReturnTotal = RETURN_QUEUE.reduce((sum, item) => sum + item.quantity, 0);
+                           // Calculate final state after this return
+                           const finalReturnedQty = CURRENT_INVOICE_STATS.totalReturned + currentReturnTotal;
+                           const isFullReturn = finalReturnedQty >= CURRENT_INVOICE_STATS.totalSold;
+
+                           if (isFullReturn) {
+                               // It's a full return now.
+                               custHistory.fullReturnInvoices = (custHistory.fullReturnInvoices || 0) + 1;
+                               
+                               // If it was already counted as partial (totalReturned > 0), decrement partial count
+                               if (CURRENT_INVOICE_STATS.totalReturned > 0) {
+                                   custHistory.partialReturnInvoices = Math.max(0, (custHistory.partialReturnInvoices || 0) - 1);
+                               }
+                           } else {
+                               // It's still a partial return.
+                               // Increment partial count ONLY if this is the FIRST return for this invoice (totalReturned was 0)
+                               if (CURRENT_INVOICE_STATS.totalReturned === 0) {
+                                   custHistory.partialReturnInvoices = (custHistory.partialReturnInvoices || 0) + 1;
+                               }
+                           }
                       }
                   }
 
@@ -1410,10 +1566,23 @@
                           ALL_PRODUCTS[productIndex][5] = currentAvail + item.quantity;
                           ALL_PRODUCTS[productIndex][6] = Math.max(0, currentSold - item.quantity);
                       }
+                      
+                      // Also add to ALL_RETURN_ITEMS locally for Net Sales calculation
+                      ALL_RETURN_ITEMS.push({
+                          date: new Date().toISOString(), // Dummy date for immediate local use
+                          invoiceId: item.invoiceId,
+                          sku: item.sku,
+                          qty: item.quantity
+                      });
                   });
                   
                   // Re-render Stock Table
                   populateStockTable(ALL_PRODUCTS);
+                  
+                  // 3. Update Sales Report to reflect returns immediately (Net Sales)
+                   if (document.getElementById('sales').classList.contains('active')) {
+                      handleShowSalesReport();
+                  }
                   // --- REAL-TIME RETURN UPDATE END ---
 
                   RETURN_QUEUE = [];
@@ -1424,7 +1593,7 @@
               } 
           } catch(err) {} 
       }
-
+      
       function handleAddToPrintQueue() { 
           var sku = document.getElementById('barcode-sku').value;
           var qty = document.getElementById('barcode-qty').value; 
