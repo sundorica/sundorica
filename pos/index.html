@@ -2032,7 +2032,7 @@
           if (data.rawDiscount && data.rawDiscount.includes("%")) {
               discountDisplay = data.rawDiscount;
           } else {
-              discountDisplay = (parseFloat(data.discount) || 0).toFixed(2) + " TK";
+              discountDisplay = (parseFloat(data.discount) || 0).toFixed(2) + " BDT";
           }
 
           var receiptContent = `<div class="invoice"><div class="center bold">SUNDORICA</div><div class="center">House-15,Road-2,Block-Ka,Section-6 West Senpara Porbota Mirpur Dhaka-1216</div><div class="center">Phone: 01617970053</div><hr><div>Date: ${data.saleDate}</div><div>Invoice #: ${data.invoiceId}</div><div style="margin-top:10px;"><div class="bold">To,</div><div>${data.customer.name}</div><div>Phone: ${data.customer.phone}</div><div>${data.customer.address || ''}</div></div><div class="section-title">Product Details</div><table><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>${itemsHtml}</tbody></table><div class="totals"><div>Subtotal: ${subtotalAfterItemDiscounts.toFixed(2)} BDT</div><div>Discount: ${discountDisplay}</div><div>Shipping Charges: ${(parseFloat(data.shipping) || 0).toFixed(2)} BDT</div><div>Paid Amount: ${(parseFloat(data.payment) || 0).toFixed(2)} BDT</div><div><strong>Due Amount:</strong> ${(parseFloat(data.due) || 0).toFixed(2)} BDT</div></div><div class="footer">Please Check While Receving</div></div>`; 
