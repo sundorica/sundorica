@@ -679,25 +679,31 @@
       }
 
       // Using Event Delegation for Table Actions to handle Lazy Loading better
-      function setupTableDelegation() {
-          // Products Table Actions
-          document.getElementById('product-list-body').addEventListener('click', function(e) {
-              if (e.target.classList.contains('edit-product-btn')) handleEditProduct(e);
-              if (e.target.classList.contains('save-product-btn')) handleSaveProductUpdate(e);
-          });
+      let tableDelegationAttached = false;
 
-          // Customers Table Actions
-          document.getElementById('customer-list-body').addEventListener('click', function(e) {
-              if (e.target.classList.contains('edit-customer-btn')) handleEditCustomer(e);
-              if (e.target.classList.contains('save-customer-btn')) handleSaveCustomerUpdate(e);
-          });
+function setupTableDelegation() {
 
-          // Brands Table Actions
-          document.getElementById('brand-list-body').addEventListener('click', function(e) {
-              if (e.target.classList.contains('edit-brand-btn')) handleEditBrand(e);
-              if (e.target.classList.contains('save-brand-btn')) handleSaveBrandUpdate(e);
-          });
-      }
+    if (tableDelegationAttached) return;  // ⛔ stop duplicate binding
+    tableDelegationAttached = true;
+
+    // Products Table Actions
+    document.getElementById('product-list-body').addEventListener('click', function(e) {
+        if (e.target.classList.contains('edit-product-btn')) handleEditProduct(e);
+        if (e.target.classList.contains('save-product-btn')) handleSaveProductUpdate(e);
+    });
+
+    // Customers Table Actions
+    document.getElementById('customer-list-body').addEventListener('click', function(e) {
+        if (e.target.classList.contains('edit-customer-btn')) handleEditCustomer(e);
+        if (e.target.classList.contains('save-customer-btn')) handleSaveCustomerUpdate(e);
+    });
+
+    // Brands Table Actions
+    document.getElementById('brand-list-body').addEventListener('click', function(e) {
+        if (e.target.classList.contains('edit-brand-btn')) handleEditBrand(e);
+        if (e.target.classList.contains('save-brand-btn')) handleSaveBrandUpdate(e);
+    });
+}
 
       function renderStockRows(products) {
           return products.map(function(p) { 
