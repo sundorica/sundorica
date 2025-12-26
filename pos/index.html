@@ -1142,24 +1142,46 @@
       }
 
       async function handleSaveNewCustomer(e) { 
-          e.preventDefault();
-          var c = { phone: document.getElementById('new-cust-modal-phone').textContent, name: document.getElementById('new-cust-modal-name').value, address: document.getElementById('new-cust-modal-address').value }; 
-          try { 
-              const r = await callAppsScript('addNewCustomer', c);
-              if (r.success) { 
-                  showToast('Customer saved!', 'success'); 
-                  ALL_CUSTOMERS.push(r.newCustomer); 
-                  populateCustomerTable(ALL_CUSTOMERS); 
-                  document.getElementById('cust-phone').value = r.newCustomer[1]; 
-                  document.getElementById('cust-name').value = r.newCustomer[0]; 
-                  document.getElementById('cust-address').value = r.newCustomer[2]; 
-                  document.getElementById('add-customer-modal').style.display = 'none';
-                  e.target.reset(); 
-              } else { 
-                  onFailure(r); 
-              } 
-          } catch(err){} 
-      }
+    e.preventDefault();
+
+    const phone = document.getElementById('new-cust-modal-phone').textContent;
+    const name  = document.getElementById('new-cust-modal-name').value.trim();
+    const addr  = document.getElementById('new-cust-modal-address').value.trim();
+
+    const c = { phone: phone, name: name, address: addr };
+
+    try {
+        const r = await callAppsScript('addNewCustomer', c);
+
+        if(!r.success){
+            onFailure(r);
+            return;
+        }
+
+        showToast('Customer saved!', 'success');
+
+        // push to list
+        ALL_CUSTOMERS.push(r.newCustomer);
+
+        // auto-fill billing box
+        document.getElementById('cust-phone').value = phone;
+        document.getElementById('cust-name').value  = name;
+        document.getElementById('cust-address').value = addr;
+
+        // close modal (Tailwind + display both handled)
+        const modal = document.getElementById('add-customer-modal');
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+
+        // clear inputs
+        document.getElementById('new-cust-modal-name').value = '';
+        document.getElementById('new-cust-modal-address').value = '';
+
+    } catch(err){
+        console.error(err);
+        showToast('Failed to save customer', 'error');
+    }
+}
       
       async function handleBillNow() {
           if (SALE_LIST_ITEMS.length === 0) { return showToast('Add items first.', 'error'); }
