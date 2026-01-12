@@ -1,0 +1,20 @@
+{
+  "hosting": {
+    "public": ".",  // Apnar public folder er nam (jemon 'public' ba '.')
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/product-details/**",
+        "destination": "/product-details/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
